@@ -1,0 +1,46 @@
+Package: mzQualityDashboard
+Title: A tool for quality monitoring and reporting of mass spectrometry measurements
+Version: 0.1
+URL: https://github.com/leidenuniv-lacdr-abs/mzQuality, https://mzquality.nl
+Authors@R: c(
+    person("Pascal", "Maas", email = "p.maas@lacdr.leidenuniv.nl", role = c("aut", "cre"), 
+           comment = c(ORCID = "0000-0001-9379-6041")
+    ),
+    person("Agnieszka", "Wegrzyn", , "a.b.wegrzyn@lacdr.leidenuniv.nl", role = "aut",
+          comment = c(ORCID = "0000-0003-4872-8626")
+    ),
+    person("Amy", "Harms", , "a.c.harms@lacdr.leidenuniv.nl", role = "aut",
+          comment = c(ORCID = "0000-0002-2931-4295")
+    ),
+    person("Thomas", "Hankemeier", , "Hankemeier@lacdr.leidenuniv.nl", role = "aut",
+          comment = c(ORCID = "0000-0001-7871-2073")
+    ),
+    person("Alida", "Kindt", , "a.s.d.kindt@lacdr.leidenuniv.nl", role = "aut",
+          comment = c(ORCID = "0000-0001-6551-6030")
+    )
+  )
+Description: This is an R package for monitoring technical variation in mass spectrometry measurements. It provides various metrics by utilizing pooled quality control samples, blank samples and calibration lines. mzQuality uses Bioconductors' SummarizedExperiment to facilitate implementation with existing workflows. It is fledged with an Rshiny application to support interactive assessment of measurements.
+License: GPL-3
+biocViews: Software, MassSpectrometry, BatchEffect, QualityControl, Metabolomics 
+Depends: 
+    R (>= 4.2),
+    SummarizedExperiment,
+    dplyr,
+    shiny,
+    plotly
+Imports:
+    rhandsontable,
+    shinyalert,
+    shinydashboard,
+    shinyhelper,
+    S4Vectors,
+    stats,
+    waiter
+Suggests: 
+    testthat
+Config/testthat/edition: 3
+Encoding: UTF-8
+VignetteBuilder:
+  knitr
+RoxygenNote: 7.2.3
+LazyData: false

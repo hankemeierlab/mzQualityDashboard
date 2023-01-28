@@ -1,0 +1,187 @@
+#' @title
+#' @description
+#' @details
+#' @returns
+#' @param input
+#' @param exp
+#' @importFrom rhandsontable hot_to_r
+#' @importFrom shiny req
+compoundTableClick <- function(input, exp){
+    req(!is.null(exp))
+
+    comp_df <- hot_to_r(input$compounds)
+    comps <- comp_df$Compound[comp_df$Use == 1]
+    if (length(comps) == 0) {
+        comps <- comp_df$Compound
+    }
+
+    return(doAnalysis(exp, compounds = comps))
+}
+
+#' @title
+#' @description
+#' @details
+#' @returns
+#' @param input
+#' @importFrom shinyalert shinyalert
+#' @importFrom shiny req updateSelectInput
+submitDataEvent <- function(input){
+
+    if (length(input$files$datapath) == 0 & !input$useExamples) {
+        shinyalert::shinyalert("Please select your files")
+    }
+
+    req(length(input$files$datapath) > 0 | input$useExamples == TRUE)
+
+
+    # Cant I make these the default..?
+    primaryAssay <- ifelse(input$areaIndex == "", "Area", input$areaIndex)
+    secondaryAssay <- ifelse(input$areaIsIndex == "","Area_is", input$areaIsIndex)
+
+    aliquotColumn <- ifelse(input$colIndex == "", "Aliquot", input$colIndex)
+    compoundColumn <- ifelse(input$rowIndex == "", "Compound", input$rowIndex)
+
+
+    if (input$useExamples) {
+        files <- list.files(system.file(package = "mzQuality"),
+                            pattern = "dataset.txt",
+                            full.names = TRUE
+        )
+        calFile <- list.files(system.file(package = "mzQuality"),
+                              pattern = "concentrations.txt",
+                              full.names = TRUE
+        )
+    } else {
+        dirn <- dirname(input$files$datapath)
+        files <- file.path(dirn, input$files$name)
+        file.rename(input$files$datapath, files)
+        calFile <- input$calFile$datapath
+    }
+
+    # Build a combined file using the file(s) given
+    # Should convert to arrow reader for combined files
+    combined <- buildCombined(files)
+
+
+    qcCandidates <- grep("QC", combined$Type, value = TRUE, ignore.case = TRUE)
+
+    qcValue <- "SQC"
+    if (!"SQC" %in% combined$Type) {
+        qcValue <- qcCandidates[1]
+    }
+
+    updateSelectInput(session, "qc_change",
+                      choices = qcCandidates,
+                      selected = qcValue
+    )
+
+    exp <- buildExperiment(
+        df = combined,
+        rowIndex = compoundColumn,
+        colIndex = aliquotColumn,
+        primaryAssay = primaryAssay,
+        secondaryAssay = secondaryAssay,
+        qc = qcValue
+    )
+
+    if (length(calFile) > 0) {
+        exp <- addConcentrations(
+            exp,
+            utils::read.delim(calFile),
+            input$filterCalCompounds
+        )
+        #concentrations(assay(exp[, exp$Type == metadata(exp)$concentration], "Concentration"))
+    }
+
+    if (input$filterISTD) {
+        exp <- filterISTD(exp, "ISTD")
+    }
+    if (input$filterSST) {
+        exp <- filterSST(exp, "SST")
+    }
+
+    return(exp)
+}
+
+#' @title
+#' @description
+#' @details
+#' @returns
+#' @param input
+#' @param experiment
+#' @importFrom shiny req updateSelectInput
+#' @importFrom S4Vectors metadata<-
+qcChangeEvent <- function(input, experiment){
+    req(!is.null(experiment))
+
+    metadata(experiment)$QC <- input$qc_change
+
+    experiment <- doAnalysis(experiment)
+
+    if (as.logical(input$showOutliers)) showOutliers(exp)
+
+    return(experiment)
+}
+
+#' @title
+#' @description
+#' @details
+#' @returns
+#' @param input
+#' @param experiment
+#' @importFrom rhandsontable hot_to_r
+#' @importFrom shiny req
+#' @importFrom SummarizedExperiment assay<- assay
+calTableClickEvent <- function(){
+
+    # DEFUNCT
+
+    req("Concentration" %in% assayNames(exp()) & !is.null(experiment()))
+
+    exp <- experiment()
+    x <- exp[, exp$Batch == input$linearCalibration_batch &
+                 exp$Type == metadata(exp)$concentration]
+
+    table <- hot_to_r(input$CalTable)
+    comps <- table$Compound
+    table <- table[,-1]
+    to_remove <- which(table == FALSE)
+
+    if (length(to_remove) > 0) {
+        assay(x, "Concentration")[to_remove] <- NA
+    }
+
+    to_add <- which(table == TRUE)
+    if (length(to_add) > 0) {
+        assay(x, "Concentration")[to_add] <- concentrations()[to_add]
+    }
+    if (length(to_remove) > 0 | length(to_add) > 0) {
+        assay(exp, "Concentration")[rownames(x), colnames(x)] <- assay(x, "Concentration")
+        experiment(exp)
+    }
+}
+
+#' @title
+#' @description
+#' @details
+#' @returns
+#' @param input
+#' @param experiment
+#' @importFrom rhandsontable hot_to_r
+#' @importFrom shiny req
+#' @importFrom stats na.omit
+updateExperiment <- function(input, experiment){
+    req(!is.null(experiment) & !is.null(input$aliquots))
+    aliquot_df <- hot_to_r(input$aliquots)
+    aliq <- aliquot_df$Aliquot[aliquot_df$Use == 1]
+    comp_df <- hot_to_r(input$compounds)
+    comps <- as.vector(na.omit(comp_df$Compound[comp_df$Use == 1]))
+
+    # Think this should be in an internal standard listener..
+    # if (!is.null(IS_compounds())) {
+    #     is_comps <- comp_df$Selected.IS
+    #     x <- replaceIS(x[, aliq], is_comps)
+    # }
+
+    return(doAnalysis(experiment, aliquots = aliq, compounds = comps))
+}
