@@ -13,11 +13,7 @@ aliquotTable <- function(experiment){
     df <- as.data.frame(df[, columns])
     df$Datetime <- as.character(df$Datetime)
 
-    render <- renderTable(
-        df,
-        readonly = FALSE,
-        rowHeaders = seq_len(nrow(df))
-    )
+    render <- renderTable(df, preSelect = which(!df$Use))
 
     return(render)
 }

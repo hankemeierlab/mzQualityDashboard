@@ -1,11 +1,12 @@
 shiny.box_table <- function(title, type, width = 12, height = "80vh",
                             collapsed = FALSE) {
+
     shinydashboard::box(
         width = width, title = title, collapsible = TRUE, solidHeader = TRUE,
         collapsed = collapsed,
         div(style = "height: 3vh;") %>%
-            helper(content = type, fade = TRUE, icon = "circle-question"),
-        rHandsontableOutput(type, height = height)
+          helper(content = type, fade = TRUE, icon = "circle-question"),
+        DT::dataTableOutput(type, height = height)
     )
 }
 
@@ -211,6 +212,13 @@ shiny.ui <- function() {
     dashboardPage(
         title = "mzQuality", header = header, sidebar = shiny.sidebar(),
         body = dashboardBody(
+
+            theme = bslib::bs_theme(version = 5, bootswatch = "slate"),
+            tags$head(tags$style(HTML("
+      .table.dataTable tbody td.active, .table.dataTable tbody tr.active td {
+            background-color: red!important;}
+      "))),
+
             useWaiter(),
             autoWaiter(
                 html = div(spin_loaders(8, color = "black"),

@@ -25,7 +25,7 @@ compoundTableClick <- function(input, exp){
 #' @param input
 #' @importFrom shinyalert shinyalert
 #' @importFrom shiny req updateSelectInput
-submitDataEvent <- function(input){
+submitDataEvent <- function(session, input){
 
     if (length(input$files$datapath) == 0 & !input$useExamples) {
         shinyalert::shinyalert("Please select your files")
@@ -60,6 +60,7 @@ submitDataEvent <- function(input){
 
     # Build a combined file using the file(s) given
     # Should convert to arrow reader for combined files
+
     combined <- buildCombined(files)
 
 
@@ -71,7 +72,7 @@ submitDataEvent <- function(input){
     }
 
     updateSelectInput(session, "qc_change",
-                      choices = qcCandidates,
+                      choices = unique(qcCandidates),
                       selected = qcValue
     )
 
@@ -99,6 +100,8 @@ submitDataEvent <- function(input){
     if (input$filterSST) {
         exp <- filterSST(exp, "SST")
     }
+
+    exp <- doAnalysis(exp = exp, doAll = TRUE)
 
     return(exp)
 }
@@ -171,11 +174,15 @@ calTableClickEvent <- function(){
 #' @importFrom shiny req
 #' @importFrom stats na.omit
 updateExperiment <- function(input, experiment){
+
     req(!is.null(experiment) & !is.null(input$aliquots))
     aliquot_df <- hot_to_r(input$aliquots)
-    aliq <- aliquot_df$Aliquot[aliquot_df$Use == 1]
     comp_df <- hot_to_r(input$compounds)
-    comps <- as.vector(na.omit(comp_df$Compound[comp_df$Use == 1]))
+
+    comps <- which(comp_df$Use == 1)
+    if (length(comps) == 0) {
+        comps <- 1:nrow(experiment)
+    }
 
     # Think this should be in an internal standard listener..
     # if (!is.null(IS_compounds())) {
@@ -183,5 +190,9 @@ updateExperiment <- function(input, experiment){
     #     x <- replaceIS(x[, aliq], is_comps)
     # }
 
-    return(doAnalysis(experiment, aliquots = aliq, compounds = comps))
+    return(doAnalysis(
+        experiment,
+        aliquots = which(aliquot_df$Use == 1),
+        compounds = comps
+    ))
 }

@@ -4,21 +4,51 @@
 #' @returns
 #' @param exp
 #' @importFrom rhandsontable rhandsontable hot_cols hot_table
+#' @importFrom DT datatable
 #' @importFrom dplyr %>%
-renderTable <- function(df, readonly = TRUE, rowHeaders = NULL) {
+renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
+                        preSelect = c()) {
 
-    table <- rhandsontable(
-        data = as.data.frame(df),
-        readOnly = readonly,
-        rowHeader = rowHeaders
-    )
-    columnSettings <- hot_cols(
-        columnSorting = TRUE,
-        fixedColumnsLeft = 1,
-        halign = "htLeft"
+    df <- as.data.frame(df)
+
+    if (!is.null(rowHeaders)) {
+        newCols <- c("Compound", colnames(df))
+        df$Compound <- rowHeaders
+        df <- df[, newCols]
+    }
+
+    table <- DT::datatable(style = "bootstrap4",
+        data = df,
+        escape = FALSE, caption = "Select Aliquots to use in the Analysis",
+        selection = list(
+            mode = "multiple", selected = preSelect
+        ),
+        extensions = "Scroller",
+        options = list(#paging = FALSE,
+                       deferRender = FALSE,
+                       scrollY = 500,
+                       scroller = TRUE)#,
+        # callback = JS("table.rows().every(function(i, tab, row) {
+        #   var $this = $(this.node());
+        #   $this.attr('id', this.data()[0]);
+        #   $this.addClass('shiny-input-checkbox');
+        # });
+        # Shiny.unbindAll(table.table().node());
+        # Shiny.bindAll(table.table().node());")
     )
 
-    table <- hot_table(table, stretchH = "all") %>% columnSettings
+    # table <- rhandsontable(
+    #     data = df,
+    #     readOnly = readonly,
+    #     rowHeader = 1:nrow(df)
+    # )
+    #
+    # table <- hot_table(table, stretchH = "all") %>%
+    #     hot_cols(
+    #         columnSorting = TRUE,
+    #         fixedColumnsLeft = 1,
+    #         halign = "htLeft"
+    # )
 
     return(table)
 }

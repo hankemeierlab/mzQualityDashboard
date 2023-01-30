@@ -2,6 +2,7 @@
 #' @param input Input variable for incoming UI requests
 #' @param output Output variable for updating the UI
 #' @importFrom S4Vectors metadata<-
+#' @importFrom SummarizedExperiment SummarizedExperiment
 #' @importFrom waiter Waiter spin_flower transparent
 #' @importFrom shinydashboard updateTabItems
 #' @importFrom shinyhelper observe_helpers
@@ -13,6 +14,7 @@
 #' req updateTabsetPanel downloadHandler bindCache incProgress reactive
 #' reactiveVal renderUI updateSliderInput withProgress showModal modalDialog
 #' updateCheckboxInput
+#' @importFrom DT renderDataTable
 #' @noRd
 server <- function(input, output, session) {
 
@@ -24,127 +26,126 @@ server <- function(input, output, session) {
   observe_helpers(help_dir = system.file("helppages", package = "mzQuality"))
   w <- loadingScreen()
 
-  # Set the total experiment and subset `exp`
-  experiment <- reactiveVal()
-  exp <- reactive(updateExperiment(input, experiment()))
+  # Set the total exp and subset `exp`
+  exp <- SummarizedExperiment()
 
 # Tables ------------------------------------------------------------------
 
-  # Aliquot Selection Table
-  output$aliquots <- renderRHandsontable(
-      aliquotTable(experiment())
-  )
-
-  # Compound Selection Table
-  output$compounds <- renderRHandsontable(
-      compoundTable(exp())
-  )
+  # # Aliquot Selection Table
+  # output$aliquots <- renderRHandsontable(
+  #     aliquotTable(exp)
+  # )
+  #
+  # # Compound Selection Table
+  # output$compounds <- renderRHandsontable(
+  #     compoundTable(exp)
+  # )
 
   # Combined Overall Table
-  output$combined <- renderRHandsontable(
-      combinedTable(experiment)
+  output$combined <- renderDataTable(
+      combinedTable(exp)
   )
 
   # Compound Details Table
-  output$rowData <- renderRHandsontable(
-      rowDataTable(exp())
+  output$rowData <- renderDataTable(
+      rowDataTable(exp)
   )
 
   # Aliquot Details Table
-  output$colData <- renderRHandsontable(
-      colDataTable(exp())
+  output$colData <- renderDataTable(
+      colDataTable(exp)
   )
 
   # Assay / Values Table
-  output$assay <- renderRHandsontable(
-      assayTable(input, exp())
+  output$assay <- renderDataTable(
+      assayTable(input, exp)
   )
 
   # Batch Effect Correction Factor Table
-  output$batch_correction_table <- renderRHandsontable(
-      batchCorrectionFactorTable(exp())
+  output$batch_correction_table <- renderDataTable(
+      batchCorrectionFactorTable(exp)
   )
 
   # Table of Model Effects, R2, etc.
-  output$model_table <- renderRHandsontable(
-      modelPropertyTable(input, exp())
+  output$model_table <- renderDataTable(
+      modelPropertyTable(input, exp)
   )
 
   # Table of Background effects
-  output$effect_table <- renderRHandsontable(
-      backGroundEffectTable(input, exp())
+  output$effect_table <- renderDataTable(
+      backGroundEffectTable(input, exp)
   )
 
   # Table of Carry Over Effect
-  output$carryOverTable <- renderRHandsontable(
-      carryOverTable(exp())
+  output$carryOverTable <- renderDataTable(
+      carryOverTable(exp)
   )
 
   # Table of RT Shift
-  output$shift <- renderRHandsontable(
-      rtShiftTable(input, exp())
+  output$shift <- renderDataTable(
+      rtShiftTable(input, exp)
   )
 
   # Table of Replicate RSDQCs
-  output$replicates <- renderRHandsontable(
-      replicateTable(input, exp())
+  output$replicates <- renderDataTable(
+      replicateTable(input, exp)
   )
 
 # Plots -------------------------------------------------------------------
 
   # Aliquot Plot
   output$sample_plot <- renderPlotly(
-      renderAliquotPlot(input, exp())
+      renderAliquotPlot(input, exp)
   )
 
   # Compound Plot
   output$compound_plot <- renderPlotly(
-      renderCompoundPlot(input, exp())
+      renderCompoundPlot(input, exp)
   )
 
   # QC Violin Plot
   output$badqc_plot <- renderPlotly(
-      renderViolinPlot(input, exp())
+      renderViolinPlot(input, exp)
   )
 
   # Principle Component Plot
   output$pca_plot <- renderPlotly(
-      renderPcaPlot(input, exp())
+      renderPcaPlot(input, exp)
   )
 
   # Batch Effect Box Plot
   output$batch_boxplot <- renderPlotly(
-      renderBatchBoxPlot(input, exp())
+      renderBatchBoxPlot(input, exp)
   )
 
   # Heatmap Plot
   output$heatmap <- renderPlotly(
-      renderHeatMapPlot(input, exp())
+      renderHeatMapPlot(input, exp)
   )
 
   # Batch Assay Plot
   output$batchAssayplot <- renderPlotly(
-      renderBatchAssayPlot(input, exp())
+      renderBatchAssayPlot(input, exp)
   )
 
   # RSDQC Heatmap Plot
   output$correlation_heatmap <- renderPlotly(
-      renderRsdqcPlot(input, exp())
+      renderRsdqcPlot(input, exp)
   )
 
   # (Academic) Calibration Plot
   output$calibration_plot <- renderPlotly(
-      renderCalibrationPlot(input, exp())
+      renderCalibrationPlot(input, exp)
   )
 
   # Relative Standard Deviation Plot
   output$rsd_plot <- renderPlotly(
-      renderRsdPlot(input, exp())
+      renderRsdPlot(input, exp)
   )
 
   # Linear Model Plot, should look into for model creation
   output$LinearCalibration <- renderPlotly(
-      renderModelPlot(input, exp())
+      renderModelPlot(input, exp)
   )
 
 # Events ------------------------------------------------------------------
@@ -152,37 +153,65 @@ server <- function(input, output, session) {
   # Event when the submit button is clicked on the start screen
   observeEvent(input$submit, {
       w$show()
-      experiment(submitDataEvent(input))
+      exp <<- submitDataEvent(session, input)
+
+      updateInputs(session, exp)
+
+      # Aliquot Selection Table
+      output$aliquots <- renderDataTable(server = FALSE,
+          aliquotTable(exp)
+      )
+
+      # Compound Selection Table
+      output$compounds <- renderDataTable(
+          compoundTable(exp)
+      )
+
       updateTabsetPanel(session, inputId = "sidebar", "AM")
       w$hide()
+  })
+
+
+
+  observeEvent(input$aliquots_rows_selected, {
+      req(!is.null(exp))
+
+      output$compounds <- renderDataTable({
+          aliquots <- colnames(exp)
+          if (!is.null(input$aliquots_rows_selected)) {
+              aliquots <- aliquots[-input$aliquots_rows_selected]
+          }
+          exp <- doAnalysis(exp, aliquots = aliquots)
+          compoundTable(exp)
+      })
   })
 
   # Event when a compound has been clicked / changed
   # Need to look up how this works with datatables
   observeEvent(input$compounds, {
-      req(!is.null(experiment()))
+      req(!is.null(exp))
 
-      # Update tables whenever needed, update exp accordingly
-      # Hopefully this function does not retrigger..
-      exp(compoundTableClick(input, exp()))
-
-      comps <- rownames(exp())
-
-      updateSelectizeInput(session, "compound_metabolite", choices = comps)
-      updateSelectizeInput(session, "batchAssayCompound", choices = comps)
-      updateSelectizeInput(session, "calibration_compound", choices = comps)
+      # # Update tables whenever needed, update exp accordingly
+      # # Hopefully this function does not retrigger..
+      #exp <<- compoundTableClick(input, exp)
+      #
+      # comps <- rownames(exp())
+      #
+      # updateSelectizeInput(session, "compound_metabolite", choices = comps)
+      # updateSelectizeInput(session, "batchAssayCompound", choices = comps)
+      # updateSelectizeInput(session, "calibration_compound", choices = comps)
 
   })
 
   # Event triggered when the QC has been changed
-  observeEvent(input$qc_change, {
-      experiment(qcChangeEvent(input, experiment))
-  })
+  # observeEvent(input$qc_change, {
+  #     exp(qcChangeEvent(input, exp()))
+  # })
 
 
   # Event triggered when refreshing the page
   observeEvent(input$refresh, {
-      experiment(NULL)
+     # exp(NULL)
       IS_compounds(NULL)
       updateCheckboxInput(session, "useExamples", value = FALSE)
       updateCheckboxInput(session, "filterISTD", value = TRUE)
@@ -197,7 +226,7 @@ server <- function(input, output, session) {
 
   # Event triggered when files are selected
   observeEvent(input$files, {
-    experiment(NULL)
+    #exp(NULL)
     updateSelectizeInput(session, "qc_change", choices = c(), selected = "")
     updateCheckboxInput(session, "useExamples", value = FALSE)
   })

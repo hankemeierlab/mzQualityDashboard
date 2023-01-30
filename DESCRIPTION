@@ -27,7 +27,8 @@ Depends:
     SummarizedExperiment,
     dplyr,
     shiny,
-    plotly
+    plotly,
+    DT
 Imports:
     rhandsontable,
     shinyalert,

@@ -71,8 +71,11 @@ renderViolinPlot <- function(input, exp){
 #' @importFrom shiny req
 renderPcaPlot <- function(input, exp, confidence = 0.95){
     req(!is.null(exp))
-    exp <- exp[, exp$Type == input$pca_filtered &
-                   exp$Batch == input$pca_batch]
+
+    batches <- ifelse(input$pca_batch == "All", exp$Batch, input$pca_batch)
+
+    exp <- exp[, exp$Type %in% input$pca_filtered &
+                   exp$Batch %in% batches]
 
     p <- pcaPlot(
         exp = exp,
