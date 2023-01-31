@@ -19,13 +19,13 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
 
     table <- DT::datatable(style = "bootstrap4",
         data = df,
-        escape = FALSE, caption = "Select Aliquots to use in the Analysis",
+        escape = FALSE,
         selection = list(
             mode = "multiple", selected = preSelect
         ),
         extensions = "Scroller",
-        options = list(#paging = FALSE,
-                       deferRender = FALSE,
+        options = list(
+                       deferRender = TRUE,
                        scrollY = 500,
                        scroller = TRUE)#,
         # callback = JS("table.rows().every(function(i, tab, row) {

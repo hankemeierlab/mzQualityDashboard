@@ -216,7 +216,8 @@ shiny.ui <- function() {
             theme = bslib::bs_theme(version = 5, bootswatch = "slate"),
             tags$head(tags$style(HTML("
       .table.dataTable tbody td.active, .table.dataTable tbody tr.active td {
-            background-color: red!important;}
+            background-color: rgba(200, 0, 0, 0.6) !important;
+        }
       "))),
 
             useWaiter(),
@@ -245,15 +246,21 @@ shiny.ui <- function() {
                         type = "aliquots", width = 12,
                         height = "50vh"
                     ),
-                    shiny.box_controls(title = "Internal Standards", list(
-                        radioButtons("SelectIS", "Use IS",
-                            choices = c("Used", "Suggested"),
-                            selected = "Used", inline = TRUE
-                        )
-                    )),
                     shiny.box_table("Metabolites",
                         type = "compounds", width = 12,
                         height = "50vh"
+                    ),
+                    shiny.box_controls(title = "Internal Standards", list(
+                        radioButtons("SelectIS", "Use IS",
+                                     choices = c("Used", "Suggested"),
+                                     selected = "Used", inline = TRUE
+                        )
+                    )),
+                    shiny.box_table(
+                        title = "Internal Standards",
+                        type = "IStable",
+                        width = 12,
+                        height = "40vh"
                     )
                 ),
                 tabItem("Combined", shiny.box_table("Data", "combined")),

@@ -167,6 +167,10 @@ server <- function(input, output, session) {
           compoundTable(exp)
       )
 
+      output$IStable <- renderDataTable(
+          internalStandardTable(input, exp)
+      )
+
       updateTabsetPanel(session, inputId = "sidebar", "AM")
       w$hide()
   })
@@ -182,7 +186,10 @@ server <- function(input, output, session) {
               aliquots <- aliquots[-input$aliquots_rows_selected]
           }
           exp <- doAnalysis(exp, aliquots = aliquots)
-          compoundTable(exp)
+
+          select <- unique(c(!rowData(exp)$Use, isolate(input$compounds_rows_selected)))
+
+          compoundTable(exp, select = select)
       })
   })
 

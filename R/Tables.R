@@ -12,8 +12,12 @@ aliquotTable <- function(experiment){
     columns <- c("Aliquot", "Type", "Datetime", "Batch", "Use")
     df <- as.data.frame(df[, columns])
     df$Datetime <- as.character(df$Datetime)
+    rownames(df) <- 1:nrow(df)
 
-    render <- renderTable(df, preSelect = which(!df$Use))
+    render <- renderTable(
+        df = df,
+        preSelect = which(!df$Use)
+    )
 
     return(render)
 }
@@ -25,16 +29,19 @@ aliquotTable <- function(experiment){
 #' @param exp
 #' @importFrom shiny req
 #' @importFrom SummarizedExperiment rowData
-compoundTable <- function(exp){
+compoundTable <- function(exp, select = which(!rowData(exp)$Use)){
     req(!is.null(exp))
 
-    columns <- c("RSDQC", "RSDQC.Corrected", "backgroundSignal", "Use")
-    data <- rowData(exp)[, columns]
+    columns <- c("Compound", "RSDQC", "RSDQC.Corrected", "backgroundSignal", "Use")
+    df <- rowData(exp)
+    df$Compound <- rownames(df)
+
+    df <- as.data.frame(df[, columns])
+    rownames(df) <- 1:nrow(df)
 
     render <- renderTable(
-        df = data,
-        readonly = FALSE,
-        rowHeaders = rownames(exp)
+        df = df,
+        preSelect = select
     )
 
     return(render)
@@ -48,10 +55,26 @@ compoundTable <- function(exp){
 #' @importFrom shiny req
 #' @importFrom SummarizedExperiment rowData
 #' @importFrom rhandsontable hot_to_r
-internalStandardTable <- function(input, experiment) {
-    req(!is.null(experiment))
-    aliquots <- hot_to_r(input$aliquots)
-    aliquots <- aliquots[aliquots$Use == 1, "Aliquot"]
+internalStandardTable <- function(input, exp) {
+
+
+    columns <- c("Compound", "RSDQC.Corrected", "Compound_is", "SuggestedIS", "RSDQC.Suggested")
+    df <- rowData(exp)
+    df$Compound <- rownames(df)
+
+    df <- as.data.frame(df[, columns])
+    rownames(df) <- 1:nrow(df)
+    df$RSDQC.Suggested <- round(df$RSDQC.Suggested, 3)
+
+    colnames(df) <- c("Compound", "RSDQC", "IS Used", "IS Suggested", "RSDQC Suggested")
+
+
+    render <- renderTable(
+        df = df
+    )
+
+    return(render)
+
 
     # if (!is.null(IS_compounds())) {
     #     is_df <- data.frame(
