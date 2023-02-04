@@ -41,7 +41,8 @@ compoundTable <- function(exp, select = which(!rowData(exp)$Use)){
 
     render <- renderTable(
         df = df,
-        preSelect = select
+        preSelect = select,
+        editable = TRUE
     )
 
     return(render)

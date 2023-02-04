@@ -7,7 +7,7 @@
 #' @importFrom DT datatable
 #' @importFrom dplyr %>%
 renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
-                        preSelect = c()) {
+                        preSelect = c(), editable = FALSE) {
 
     df <- as.data.frame(df)
 
@@ -24,31 +24,18 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
             mode = "multiple", selected = preSelect
         ),
         extensions = "Scroller",
+        # editable = list(
+        #     target = "column",
+        #     disable = list(
+        #         columns = 1:(ncol(df) - 1)
+        #     )
+        # ),
         options = list(
                        deferRender = TRUE,
                        scrollY = 500,
-                       scroller = TRUE)#,
-        # callback = JS("table.rows().every(function(i, tab, row) {
-        #   var $this = $(this.node());
-        #   $this.attr('id', this.data()[0]);
-        #   $this.addClass('shiny-input-checkbox');
-        # });
-        # Shiny.unbindAll(table.table().node());
-        # Shiny.bindAll(table.table().node());")
+                       scroller = TRUE
+        )
     )
-
-    # table <- rhandsontable(
-    #     data = df,
-    #     readOnly = readonly,
-    #     rowHeader = 1:nrow(df)
-    # )
-    #
-    # table <- hot_table(table, stretchH = "all") %>%
-    #     hot_cols(
-    #         columnSorting = TRUE,
-    #         fixedColumnsLeft = 1,
-    #         halign = "htLeft"
-    # )
 
     return(table)
 }
