@@ -39,7 +39,6 @@ compoundTable <- function(exp, select = which(!rowData(exp)$Use)){
     df <- rowData(exp)
     df$Compound <- rownames(df)
 
-    df$backgroundSignal <- df$backgroundSignal / 100
     df <- as.data.frame(df[, columns])
     rownames(df) <- 1:nrow(df)
 

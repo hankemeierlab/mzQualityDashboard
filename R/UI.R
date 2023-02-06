@@ -59,12 +59,6 @@ shiny.sidebar <- function() {
             menuSubItem("Aliquot Data", "ColData", icon = icon),
             menuSubItem("Compound Data", "RowData", icon = icon),
             menuSubItem("Assay Data", "Assays", icon = icon),
-            #menuSubItem("Batch Correction", "batch_correction", icon = icon),
-            #menuSubItem("QC Metrics", "qcTable", icon = icon),
-            #menuSubItem("PCA Metrics", "pca_metrics", icon = icon),
-            #menuSubItem("RSD replicates", "RSD_replicates", icon = icon),
-            #menuSubItem("Effects", "Effects", icon = icon),
-            #menuSubItem("Coefficient Variations", "CV_Table", icon = icon),
             menuSubItem("Concentrations", "concentrations_tab", icon = icon),
             menuSubItem("Model Info", "model_tab", icon = icon),
             menuSubItem("Carry-Over effect", "carryover_tab", icon = icon)
@@ -76,12 +70,10 @@ shiny.sidebar <- function() {
             menuSubItem("Compound", tabName = "Compounds", icon = icon),
             menuSubItem("Compound Per Batch", tabName = "batchAssay_tab", icon = icon),
             menuSubItem("PCA Plot", tabName = "PCA", icon = icon),
-            #menuSubItem("Batch Correction", tabName = "BatchBoxplot", icon = icon),
             menuSubItem("RSDQCs", tabName = "Correlation_heatmap", icon = icon),
-            #menuSubItem("RSD Plot", tabName = "rsdPlot_tab", icon = icon),
             menuSubItem("QC Plot", tabName = "QCViolins", icon = icon),
             menuSubItem("Calibration Plot", tabName = "Calibrations", icon = icon),
-            menuSubItem("Concentrations", tabName = "CalibrationModel", icon = icon)
+            menuSubItem("Concentrations", tabName = "concentrationPlot", icon = icon)
         ),
         menuItem("Download",
             tabName = "download",
@@ -602,37 +594,39 @@ shiny.ui <- function() {
                     shiny.box_plot("Calibration Plot", "calibration_plot", "65vh")
                 ),
                 tabItem(
-                    "CalibrationModel",
+                    "concentrationPlot",
                     shiny.box_controls(list(
-                        selectizeInput("linearCalibration_compound",
-                            label = "Compound",
-                            choices = c()
+                        selectizeInput(
+                          inputId = "concentrationCompound",
+                          label = "Compound",
+                          choices = c()
                         ),
-                        selectInput("linearCalibration_type",
-                                    label = "Type", multiple = TRUE,
-                                    choices = c()
+                        selectInput(
+                          inputId = "concentrationType",
+                          label = "Type",
+                          choices = c()
                         ),
-                        selectizeInput("linearCalibration_batch",
-                            label = "Batch",
-                            choices = c()
+                        selectizeInput(
+                          inputId = "concentrationBatch",
+                          label = "Batch",
+                          choices = c()
+                        ),
+                        selectizeInput(
+                          inputId = "concentrationModel",
+                          label = "Calibration Type",
+                          choices = c()
+                        ),
+                        selectizeInput(
+                          inputId = "concentrationAdjustment",
+                          label = "Adjust Model",
+                          choices = c("Regular", "Subtract CAL0")
                         )
-                    )),
-                    shiny.box_plot("Linear Calibration", "LinearCalibration", "55vh"),
-                    shiny.box_table("Table of Calibration lines", "CalTable",
-                                    height = "65vh", collapsed = TRUE)
+                    ))#,
+                    #shiny.box_plot("Linear Calibration", "LinearCalibration", "55vh"),
+                    #shiny.box_table("Table of Calibration lines", "CalTable",
+                     #               height = "65vh", collapsed = TRUE)
                 ),
-                tabItem(
-                    "CV_Coefficients",
-                    shiny.box_controls(list(
-                        selectizeInput("cv_plot_type", label = "Type",
-                            choices = c()
-                        ),
-                        selectizeInput("cv_batch", label = "Batch",
-                            choices = c()
-                        )
-                    )),
-                    shiny.box_plot("Coefficients of Variation", "cv_plot", "65vh")
-                ),
+
                 tabItem(
                     tabName = "download",
                     fluidRow(
