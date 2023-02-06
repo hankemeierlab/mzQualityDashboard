@@ -14,7 +14,6 @@ showOutliers <- function(exp) {
         colData(exp[, excl.aliquots])[, seq_len(3)]
     )
     cols <- c("RSDQC", "RSDQC.Corrected")
-    print(rowData(exp))
     df2 <- data.frame(
         Compounds = excl.compounds,
         rowData(exp[excl.compounds, ])[, cols]
@@ -238,13 +237,13 @@ loadingScreen <- function(){
         html = div(
             spin_loaders(8),
             h4("Loading...",
-               style = "color: white; line-height: 1vh;"),
+               style = "color: white; line-height: 1vh;")#,
 
-            style = "display: flex;
-                 width: 6vw;
-                 justify-content: space-between;
-                 align-items: self-start;
-                 align-content: center;"
+            # style = "display: flex;
+            #      width: 6vw;
+            #      justify-content: space-between;
+            #      align-items: self-start;
+            #      align-content: center;"
         ),
     )
 }

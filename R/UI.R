@@ -49,18 +49,22 @@ shiny.sidebar <- function() {
             tabName = "AM",
             icon = icon("circle-check")
         ),
+        menuItem("Internal Standards",
+                 tabName = "IS",
+                 icon = icon("circle-check")
+        ),
         menuItem("Tables",
             tabName = "reports", icon = icon("table-list"),
             menuSubItem("Combined Data", "Combined", icon = icon),
             menuSubItem("Aliquot Data", "ColData", icon = icon),
             menuSubItem("Compound Data", "RowData", icon = icon),
             menuSubItem("Assay Data", "Assays", icon = icon),
-            menuSubItem("Batch Correction", "batch_correction", icon = icon),
-            menuSubItem("QC Metrics", "qcTable", icon = icon),
-            menuSubItem("PCA Metrics", "pca_metrics", icon = icon),
-            menuSubItem("RSD replicates", "RSD_replicates", icon = icon),
-            menuSubItem("Effects", "Effects", icon = icon),
-            menuSubItem("Coefficient Variations", "CV_Table", icon = icon),
+            #menuSubItem("Batch Correction", "batch_correction", icon = icon),
+            #menuSubItem("QC Metrics", "qcTable", icon = icon),
+            #menuSubItem("PCA Metrics", "pca_metrics", icon = icon),
+            #menuSubItem("RSD replicates", "RSD_replicates", icon = icon),
+            #menuSubItem("Effects", "Effects", icon = icon),
+            #menuSubItem("Coefficient Variations", "CV_Table", icon = icon),
             menuSubItem("Concentrations", "concentrations_tab", icon = icon),
             menuSubItem("Model Info", "model_tab", icon = icon),
             menuSubItem("Carry-Over effect", "carryover_tab", icon = icon)
@@ -70,30 +74,14 @@ shiny.sidebar <- function() {
             menuSubItem("Heatmap", tabName = "Heatmap_tab", icon = icon),
             menuSubItem("Aliquot", tabName = "Aliquots_tab", icon = icon),
             menuSubItem("Compound", tabName = "Compounds", icon = icon),
-            menuSubItem("Compound Per Batch", tabName = "batchAssay_tab",
-                        icon = icon),
+            menuSubItem("Compound Per Batch", tabName = "batchAssay_tab", icon = icon),
             menuSubItem("PCA Plot", tabName = "PCA", icon = icon),
-            menuSubItem("Batch Correction",
-                tabName = "BatchBoxplot",
-                icon = icon
-            ),
-            menuSubItem("Volcano Plot", tabName = "volcanoPlot_tab",
-                        icon = icon),
+            #menuSubItem("Batch Correction", tabName = "BatchBoxplot", icon = icon),
             menuSubItem("RSDQCs", tabName = "Correlation_heatmap", icon = icon),
-            menuSubItem("RSD Plot", tabName = "rsdPlot_tab", icon = icon),
+            #menuSubItem("RSD Plot", tabName = "rsdPlot_tab", icon = icon),
             menuSubItem("QC Plot", tabName = "QCViolins", icon = icon),
-            menuSubItem("Calibration Plot",
-                tabName = "Calibrations",
-                icon = icon
-            ),
-            menuSubItem("Calibration Model",
-                tabName = "CalibrationModel",
-                icon = icon
-            ),
-            menuSubItem("Coefficient Variation",
-                tabName = "CV_Coefficients",
-                icon = icon
-            )
+            menuSubItem("Calibration Plot", tabName = "Calibrations", icon = icon),
+            menuSubItem("Concentrations", tabName = "CalibrationModel", icon = icon)
         ),
         menuItem("Download",
             tabName = "download",
@@ -208,7 +196,7 @@ shiny.homepage <- function() {
 #' @importFrom rhandsontable rHandsontableOutput
 #' @noRd
 shiny.ui <- function() {
-    header <- dashboardHeader(title = "mzQuality")
+    header <- dashboardHeader(title = HTML("mzQuality<sup>2</sup>"))
     dashboardPage(
         title = "mzQuality", header = header, sidebar = shiny.sidebar(),
         body = dashboardBody(
@@ -217,8 +205,10 @@ shiny.ui <- function() {
             tags$head(tags$style(HTML("
       .table.dataTable tbody td.active, .table.dataTable tbody tr.active td {
             background-color: rgba(200, 0, 0, 0.6) !important;
-        }
-      "))),
+      }"))),
+
+      tags$script(HTML("$('body').addClass('fixed');")),
+
 
             useWaiter(),
             autoWaiter(
@@ -250,19 +240,33 @@ shiny.ui <- function() {
                         type = "compounds", width = 12,
                         height = "50vh"
                     ),
+
+                ),
+                tabItem(
+                  tabName = "IS",
+                  fluidPage(
                     shiny.box_controls(title = "Internal Standards", list(
-                        radioButtons("SelectIS", "Use IS",
-                                     choices = c("Used", "Suggested"),
-                                     selected = "Used", inline = TRUE
-                        )
+                      radioButtons("SelectIS", "Use IS",
+                                   choices = c("Used", "Suggested"),
+                                   selected = "Used", inline = TRUE
+                      )
                     )),
                     shiny.box_table(
-                        title = "Internal Standards",
-                        type = "IStable",
-                        width = 12,
-                        height = "40vh"
+                      title = "Current Internal Standards",
+                      type = "IsCurrentTable",
+                      width = 4,
+                      height = "70vh"
+                    ),
+                    shiny.box_table(
+                      title = "Modify Internal Standards",
+                      type = "IsModifyTable",
+                      width = 8,
+                      height = "70vh"
                     )
+                  )
+
                 ),
+
                 tabItem("Combined", shiny.box_table("Data", "combined")),
                 tabItem("ColData", shiny.box_table("Data", "colData")),
                 tabItem("RowData", shiny.box_table("Data", "rowData")),
@@ -518,19 +522,26 @@ shiny.ui <- function() {
                 tabItem(
                     "PCA",
                     shiny.box_controls(list(
-                        selectizeInput("pca_assay", label = "Assay",
-                            choices = c()
-                        ),
-                        selectInput("pca_filtered",
-                            label = "Type", choices = c(),
-                            multiple = TRUE
-                        ),
-                        selectizeInput("pca_batch", label = "Batch",
-                            choices = c()),
-                        selectizeInput("pca_confidence",
-                            label = "95% CI",
-                            choices = c(TRUE, FALSE)
+                      fluidRow(
+                        column(6, selectizeInput("pca_assay", label = "Assay",
+                                                 choices = c()
+                        )),
+                        column(3, selectInput("pca_filtered",
+                                              label = "Type", choices = c(),
+                                              multiple = TRUE
+                        )),
+                        column(3, selectizeInput("pca_batch", label = "Batch",
+                                                 choices = c())
                         )
+                      ),
+                      fluidRow(
+                        column(2, numericInput("PCA_X", "Component X-axis", value = 1, min = 1, step = 1)),
+                        column(2, numericInput("PCA_Y", "Component Y-axis", value = 2, min = 1, step = 1)),
+                        column(2, selectizeInput("pca_confidence",
+                                                 label = "95% CI",
+                                                 choices = c(TRUE, FALSE)
+                        ))
+                      )
                     )),
                     shiny.box_plot("PCA Plot", "pca_plot", "65vh")
                 ),

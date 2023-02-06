@@ -9,7 +9,7 @@ renderAliquotPlot <- function(input, exp){
     req(!is.null(exp))
 
     p <- aliquotPlot(
-        exp = exp[, exp$Type == input$sample_filtered],
+        exp = exp[, exp$Type %in% input$sample_filtered],
         batch = input$sample_batch,
         assay = input$sample_assay
     )
@@ -27,13 +27,13 @@ renderAliquotPlot <- function(input, exp){
 renderCompoundPlot <- function(input, exp){
     req(!is.null(exp))
 
-    exp <- exp[, exp$Type == input$compound_filtered &
-                   exp$Batch == input$compound_batch]
+    exp <- exp[, exp$Type %in% input$compound_filtered &
+                   exp$Batch %in% input$compound_batch]
 
     p <- compoundPlot(
         exp = exp,
-        compound = input$compound_metabolite,
         assay = input$compound_assay,
+        compound = input$compound_metabolite,
         guides = input$compound_lines,
         useISTD = "ISTD" %in% input$compound_filtered
     )
@@ -58,7 +58,7 @@ renderViolinPlot <- function(input, exp){
         assay = input$qc_assay
     )
 
-    toPlotly(p)
+    toPlotly(p, dynamicTicks = FALSE)
 }
 
 #' @title
@@ -72,14 +72,20 @@ renderViolinPlot <- function(input, exp){
 renderPcaPlot <- function(input, exp, confidence = 0.95){
     req(!is.null(exp))
 
-    batches <- ifelse(input$pca_batch == "All", exp$Batch, input$pca_batch)
+
+    batches <- input$pca_batch
+    if (batches == "All") {
+        batches <- unique(exp$Batch)
+    }
 
     exp <- exp[, exp$Type %in% input$pca_filtered &
                    exp$Batch %in% batches]
 
     p <- pcaPlot(
         exp = exp,
-        assay = input$pca_assay
+        assay = input$pca_assay,
+        componentX = input$PCA_X,
+        componentY = input$PCA_Y
     )
 
     # Add 95% Confidence Interval, relocate to mzQuality package
@@ -116,8 +122,8 @@ renderBatchBoxPlot <- function(input, exp){
 #' @importFrom shiny req
 renderHeatMapPlot <- function(input, exp){
     req(!is.null(exp))
-    exp <- exp[, exp$Batch == input$heatmap_batch &
-                 exp$Type == input$heatmap_type]
+    exp <- exp[, exp$Batch %in% input$heatmap_batch &
+                 exp$Type %in% input$heatmap_type]
 
     p <- heatmapPlot(
         exp = exp,

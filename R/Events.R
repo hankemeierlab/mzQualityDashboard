@@ -33,15 +33,6 @@ submitDataEvent <- function(session, input){
 
     req(length(input$files$datapath) > 0 | input$useExamples == TRUE)
 
-
-    # Cant I make these the default..?
-    primaryAssay <- ifelse(input$areaIndex == "", "Area", input$areaIndex)
-    secondaryAssay <- ifelse(input$areaIsIndex == "","Area_is", input$areaIsIndex)
-
-    aliquotColumn <- ifelse(input$colIndex == "", "Aliquot", input$colIndex)
-    compoundColumn <- ifelse(input$rowIndex == "", "Compound", input$rowIndex)
-
-
     if (input$useExamples) {
         files <- list.files(system.file(package = "mzQuality"),
                             pattern = "dataset.txt",
@@ -62,7 +53,17 @@ submitDataEvent <- function(session, input){
     # Should convert to arrow reader for combined files
 
     combined <- buildCombined(files)
+    return(combined)
+}
 
+buildExperimentEvent <- function(session, input, combined){
+
+    # Cant I make these the default..?
+    primaryAssay <- ifelse(input$areaIndex == "", "Area", input$areaIndex)
+    secondaryAssay <- ifelse(input$areaIsIndex == "","Area_is", input$areaIsIndex)
+
+    aliquotColumn <- ifelse(input$colIndex == "", "Aliquot", input$colIndex)
+    compoundColumn <- ifelse(input$rowIndex == "", "Compound", input$rowIndex)
 
     qcCandidates <- grep("QC", combined$Type, value = TRUE, ignore.case = TRUE)
 
@@ -85,14 +86,14 @@ submitDataEvent <- function(session, input){
         qc = qcValue
     )
 
-    if (length(calFile) > 0) {
-        exp <- addConcentrations(
-            exp,
-            utils::read.delim(calFile),
-            input$filterCalCompounds
-        )
-        #concentrations(assay(exp[, exp$Type == metadata(exp)$concentration], "Concentration"))
-    }
+    # if (length(calFile) > 0) {
+    #     exp <- addConcentrations(
+    #         exp,
+    #         utils::read.delim(calFile),
+    #         input$filterCalCompounds
+    #     )
+    #     #concentrations(assay(exp[, exp$Type == metadata(exp)$concentration], "Concentration"))
+    # }
 
     if (input$filterISTD) {
         exp <- filterISTD(exp, "ISTD")
@@ -105,6 +106,8 @@ submitDataEvent <- function(session, input){
 
     return(exp)
 }
+
+
 
 #' @title
 #' @description
@@ -119,9 +122,9 @@ qcChangeEvent <- function(input, experiment){
 
     metadata(experiment)$QC <- input$qc_change
 
-    experiment <- doAnalysis(experiment)
-
-    if (as.logical(input$showOutliers)) showOutliers(exp)
+    # experiment <- doAnalysis(experiment)
+    #
+    # if (as.logical(input$showOutliers)) showOutliers(exp)
 
     return(experiment)
 }

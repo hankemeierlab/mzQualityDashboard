@@ -7,35 +7,54 @@
 #' @importFrom DT datatable
 #' @importFrom dplyr %>%
 renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
-                        preSelect = c(), editable = FALSE) {
+                        preSelect = c(), scrollY = 500, selectable = FALSE,
+                        editable = c()) {
 
     df <- as.data.frame(df)
 
     if (!is.null(rowHeaders)) {
-        newCols <- c("Compound", colnames(df))
-        df$Compound <- rowHeaders
-        df <- df[, newCols]
+        rows <- rowHeaders
+    } else {
+        rows <- FALSE
     }
+
+    selection = "none"
+    if (selectable) {
+        selection <- list(
+            mode = "multiple",
+            selected = as.vector(preSelect)
+        )
+    }
+
+    if (length(editable) > 0){
+        editable <- list(
+            target = "column",
+            disable = list(
+                columns = which(!colnames(df) %in% editable)
+            )
+        )
+    } else {
+        editable <- FALSE
+    }
+
 
     table <- DT::datatable(style = "bootstrap4",
         data = df,
         escape = FALSE,
-        selection = list(
-            mode = "multiple", selected = preSelect
-        ),
-        extensions = "Scroller",
-        # editable = list(
-        #     target = "column",
-        #     disable = list(
-        #         columns = 1:(ncol(df) - 1)
-        #     )
-        # ),
+        selection = selection,
+        rownames = rows,
+        extensions = c("Scroller", "FixedColumns"),
+        editable = editable,
         options = list(
-                       deferRender = TRUE,
-                       scrollY = 500,
-                       scroller = TRUE
+            deferRender = TRUE,
+            scrollY = scrollY,
+            scroller = TRUE,
+            scrollX = TRUE,
+            fixedColumns = list(leftColumns = 1)
         )
     )
+
+
 
     return(table)
 }

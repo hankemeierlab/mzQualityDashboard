@@ -5,7 +5,7 @@
 #' @param experiment
 #' @importFrom shiny req
 #' @importFrom SummarizedExperiment colData
-aliquotTable <- function(experiment){
+aliquotTable <- function(experiment, select = which(!experiment$Use)){
     req(!is.null(experiment))
     df <- colData(experiment)
     df$Aliquot <- rownames(df)
@@ -16,7 +16,9 @@ aliquotTable <- function(experiment){
 
     render <- renderTable(
         df = df,
-        preSelect = which(!df$Use)
+        preSelect = select,
+        scrollY = 600,
+        selectable = TRUE
     )
 
     return(render)
@@ -32,20 +34,46 @@ aliquotTable <- function(experiment){
 compoundTable <- function(exp, select = which(!rowData(exp)$Use)){
     req(!is.null(exp))
 
-    columns <- c("Compound", "RSDQC", "RSDQC.Corrected", "backgroundSignal", "Use")
+    columns <- c("Compound", "RSDQC", "RSDQC.Corrected",
+                 "backgroundSignal", "qcPresence", "matrixEffectFactor", "Use")
     df <- rowData(exp)
     df$Compound <- rownames(df)
 
+    df$backgroundSignal <- df$backgroundSignal / 100
     df <- as.data.frame(df[, columns])
     rownames(df) <- 1:nrow(df)
+
+    colnames(df) <- c("Compound", "RSDQC", "RSDQC Corrected",
+                      "Background Signal", "Found in SQC", "Matrix Effect Factor", "Use")
 
     render <- renderTable(
         df = df,
         preSelect = select,
-        editable = TRUE
-    )
+        scrollY = 600,
+        selectable = TRUE
+    ) %>%
+        formatPercentage(columns = c("Background Signal", "Found in SQC",
+                                     "Matrix Effect Factor"),
+                         digits = 2, dec.mark = ".") %>%
+        formatRound(columns = c("RSDQC",  "RSDQC Corrected"), dec.mark = ".")
+
 
     return(render)
+}
+
+currentInternalStandardTable <- function(exp){
+  df <- rowData(exp)
+  df$Compound <- rownames(df)
+  columns <- c("Compound", "Compound_is", "RSDQC", "RSDQC.Corrected")
+
+  df$Compound <- rownames(df)
+  df <- as.data.frame(df[, columns])
+
+  rownames(df) <- 1:nrow(df)
+  colnames(df) <- c("Compound", "Current IS", "RSDQC", "RSDQC Corrected")
+
+  renderISTable(df) %>%
+    formatRound(columns = c("RSDQC", "RSDQC Corrected"), dec.mark = ".")
 }
 
 #' @title
@@ -56,51 +84,69 @@ compoundTable <- function(exp, select = which(!rowData(exp)$Use)){
 #' @importFrom shiny req
 #' @importFrom SummarizedExperiment rowData
 #' @importFrom rhandsontable hot_to_r
-internalStandardTable <- function(input, exp) {
+internalStandardTable <- function(input, exp, selected) {
 
 
-    columns <- c("Compound", "RSDQC.Corrected", "Compound_is", "SuggestedIS", "RSDQC.Suggested")
-    df <- rowData(exp)
+  df <- rowData(exp)
+
+    if (!"Compound_is" %in% colnames(df)) return(NULL)
+
+    columns <- c("Compound", "Compound_is", "RSDQC.Corrected", "SuggestedIS", "SuggestedRSDQC")
+
+
     df$Compound <- rownames(df)
+
 
     df <- as.data.frame(df[, columns])
     rownames(df) <- 1:nrow(df)
-    df$RSDQC.Suggested <- round(df$RSDQC.Suggested, 3)
 
-    colnames(df) <- c("Compound", "RSDQC", "IS Used", "IS Suggested", "RSDQC Suggested")
+    choices <- sort(unique(df$Compound_is))
+
+    for (i in 1:nrow(df)) {
+        id <- paste0("sel", i)
+        df$currentIS[i] <- as.character(
+            div(style = "margin-bottom:-20px; cursor: pointer;",
+                class = "select-input",
+                selectInput(inputId = id,
+                            label = NULL,
+                            choices = choices,
+                            selected = selected[i]
+                )
+            )
+        )
+    }
 
 
-    render <- renderTable(
-        df = df
+
+    colnames(df) <- c("Compound","Original IS", "Original RSDQC Corrected", "Suggested IS", "Suggested RSDQC Corrected", "Selected IS")
+    return(
+      renderISTable(df) %>%
+      formatRound(columns = c("Original RSDQC Corrected", "Suggested RSDQC Corrected"), dec.mark = ".")
     )
+}
 
-    return(render)
+renderISTable <- function(df){
 
+  render <- DT::datatable(
+    data = df,
+    style = "bootstrap4",
+    extensions = 'FixedHeader',
+    escape = FALSE,
+    selection = 'none',
+    rownames = FALSE,
+    options = list(
+      paging = FALSE,
+      fixedHeader = TRUE,
+      #ordering = FALSE,
+      ordering = TRUE,
+      scrollY = 800,
+      preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
+      drawCallback = JS('function() { Shiny.bindAll(this.api().table().node()); } ')
+    )
+  )
 
-    # if (!is.null(IS_compounds())) {
-    #     is_df <- data.frame(
-    #         Used.IS = rowData(experiment)$Compound_is,
-    #         Suggested.IS = unlist(rowData(experiment)$SuggestedIS),
-    #         Selected.IS = as.vector(IS_compounds())
-    #     )
-    #
-    #     source_col <- sort(unique(is_df$Used.IS))
-    #     is_comps <- is_df$Selected.IS
-    #     exp <- replaceIS(exp[, aliquots], is_comps)
-    # }
+  return(render)
 
-    # comps <- cbind(comps, is_df)
-    # hot_table(stretchH = "all", rhandsontable(comps,
-    #                                           readOnly = FALSE
-    # ) %>%
-    #     hot_cols(
-    #         columnSorting = TRUE, fixedColumnsLeft = 1,
-    #         halign = "htLeft"
-    #     ) %>%
-    #     hot_col("Selected.IS",
-    #             type = "dropdown",
-    #             source = source_col
-    #     ))
 }
 
 #' @title
@@ -109,11 +155,13 @@ internalStandardTable <- function(input, exp) {
 #' @returns
 #' @param experiment
 #' @importFrom shiny req
-combinedTable <- function(experiment){
-    req(!is.null(experiment))
-    df <- expToCombined(experiment)
+combinedTable <- function(combined){
+    req(nrow(combined) > 0)
 
-    render <- renderTable(df = df, readonly = TRUE)
+    render <- renderTable(
+        df = combined,
+        scrollY = 1000
+    )
 
     return(render)
 }
@@ -133,7 +181,10 @@ rowDataTable <- function(exp){
         as.data.frame(rowData(exp))
     )
 
-    return(renderTable(data))
+    return(renderTable(
+        df = data,
+        scrollY = 1000
+    ))
 }
 
 #' @title
@@ -144,14 +195,17 @@ rowDataTable <- function(exp){
 #' @importFrom shiny req
 #' @importFrom SummarizedExperiment colData
 colDataTable <- function(exp){
-    req(!is.null(exp))
+  req(!is.null(exp))
 
-    data <- cbind(
-        Aliquot = colnames(exp),
-        as.data.frame(colData(exp))
-    )
+  data <- cbind(
+    Aliquot = colnames(exp),
+    as.data.frame(colData(exp),)
+  )
 
-    return(renderTable(data))
+  return(renderTable(
+    df = data,
+    scrollY = 1000
+  ))
 
 }
 
@@ -167,9 +221,15 @@ assayTable <- function(input, exp){
     assayTable <- exp[, exp$Batch == input$assay_batch &
                         exp$Type == input$assay_type]
 
-    table <- createAssayTable(assayTable, input$assay_name)
+    table <- as.data.frame(cbind(
+      Compound = rownames(exp),
+      round(assay(assayTable, input$assay_name), 3)
+    ))
 
-    return(renderTable(table))
+    return(renderTable(
+        df = table,
+        scrollY = 800
+    ))
 }
 
 #' @title

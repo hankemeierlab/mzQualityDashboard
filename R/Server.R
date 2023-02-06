@@ -27,125 +27,177 @@ server <- function(input, output, session) {
   w <- loadingScreen()
 
   # Set the total exp and subset `exp`
-  exp <- SummarizedExperiment()
+  combined <- data.frame()
+  experiment <- SummarizedExperiment()
+  rsdqcs <- data.frame()
+
+# Experiment update -----------------------------------------------------
+
+  exp <- reactive({
+
+    # rows <- input$aliquots_rows_selected
+    # n <- rows[length(rows)]
+    # test <- experiment$Type[n] %in% c("SQC", "BLANK")
+    #
+    # selected <- isolate(input$compounds_rows_selected)
+    # if (is.null(selected)) {
+    #   selected <- which(!rowData(isolate(exp()))$Use)
+    # }
+
+    metadata(experiment)$QC <- input$qc_change
+
+    is <- unlist(lapply(1:nrow(experiment), function(i) input[[ paste0("sel", i) ]] ))
+    if (all(!is.null(is))) {
+      experiment <- mzQuality2::replaceInternalStandards(experiment, is)
+    }
+
+    if (length(input$aliquots_rows_selected) > 0) {
+      # Get the aliquots for the analysis
+      aliquots <- colnames(experiment)[-input$aliquots_rows_selected]
+
+      # Do analysis
+      x <- doAnalysis(
+        exp = experiment,
+        aliquots = aliquots
+      )
+    } else {
+      x <- experiment
+    }
+    # # Return x
+    return(x)
+  })
 
 # Tables ------------------------------------------------------------------
 
-  # # Aliquot Selection Table
-  # output$aliquots <- renderRHandsontable(
-  #     aliquotTable(exp)
-  # )
-  #
-  # # Compound Selection Table
-  # output$compounds <- renderRHandsontable(
-  #     compoundTable(exp)
-  # )
+  # Current Internal Standard table
+  output$IsCurrentTable <- renderDataTable({
+    currentInternalStandardTable(
+      exp = exp()
+    )
+  })
+
+  # # Modify Internal Standard table
+  output$IsModifyTable <- renderDataTable(server = TRUE, {
+    # Force change when QC type has changed
+    input$qc_change
+
+    # Build the internal standard table
+    internalStandardTable(
+      input = isolate(input),
+      exp = experiment,
+      selected = rowData(experiment)$Compound_is)
+
+  })
+
+  output$compounds <- renderDataTable({
+    compoundTable(exp(), select = which(!rowData(exp())$Use))
+  })
 
   # Combined Overall Table
   output$combined <- renderDataTable(
-      combinedTable(exp)
+      combinedTable(combined)
   )
 
   # Compound Details Table
   output$rowData <- renderDataTable(
-      rowDataTable(exp)
+      rowDataTable(exp()[-input$compounds_rows_selected, ])
   )
 
   # Aliquot Details Table
   output$colData <- renderDataTable(
-      colDataTable(exp)
+      colDataTable(exp()[-input$compounds_rows_selected, ])
   )
 
   # Assay / Values Table
   output$assay <- renderDataTable(
-      assayTable(input, exp)
+      assayTable(input, exp()[-input$compounds_rows_selected, ])
   )
 
   # Batch Effect Correction Factor Table
   output$batch_correction_table <- renderDataTable(
-      batchCorrectionFactorTable(exp)
+      batchCorrectionFactorTable(exp()[-input$compounds_rows_selected, ])
   )
 
   # Table of Model Effects, R2, etc.
   output$model_table <- renderDataTable(
-      modelPropertyTable(input, exp)
+      modelPropertyTable(input, exp()[-input$compounds_rows_selected, ])
   )
 
   # Table of Background effects
   output$effect_table <- renderDataTable(
-      backGroundEffectTable(input, exp)
+      backGroundEffectTable(input, exp()[-input$compounds_rows_selected, ])
   )
 
   # Table of Carry Over Effect
   output$carryOverTable <- renderDataTable(
-      carryOverTable(exp)
+      carryOverTable(exp()[-input$compounds_rows_selected, ])
   )
 
   # Table of RT Shift
   output$shift <- renderDataTable(
-      rtShiftTable(input, exp)
+      rtShiftTable(input, exp()[-input$compounds_rows_selected, ])
   )
 
   # Table of Replicate RSDQCs
   output$replicates <- renderDataTable(
-      replicateTable(input, exp)
+      replicateTable(input, exp()[-input$compounds_rows_selected, ])
   )
 
 # Plots -------------------------------------------------------------------
 
   # Aliquot Plot
   output$sample_plot <- renderPlotly(
-      renderAliquotPlot(input, exp)
+      renderAliquotPlot(input, exp()[-input$compounds_rows_selected, ])
   )
 
   # Compound Plot
   output$compound_plot <- renderPlotly(
-      renderCompoundPlot(input, exp)
+      renderCompoundPlot(input, exp()[-input$compounds_rows_selected, ])
   )
 
   # QC Violin Plot
   output$badqc_plot <- renderPlotly(
-      renderViolinPlot(input, exp)
+      renderViolinPlot(input, exp()[-input$compounds_rows_selected, ])
   )
 
   # Principle Component Plot
   output$pca_plot <- renderPlotly(
-      renderPcaPlot(input, exp)
+      renderPcaPlot(input, exp()[-input$compounds_rows_selected, ])
   )
 
   # Batch Effect Box Plot
   output$batch_boxplot <- renderPlotly(
-      renderBatchBoxPlot(input, exp)
+      renderBatchBoxPlot(input, exp()[-input$compounds_rows_selected, ])
   )
 
   # Heatmap Plot
   output$heatmap <- renderPlotly(
-      renderHeatMapPlot(input, exp)
+      renderHeatMapPlot(input, exp()[-input$compounds_rows_selected, ])
   )
 
   # Batch Assay Plot
   output$batchAssayplot <- renderPlotly(
-      renderBatchAssayPlot(input, exp)
+      renderBatchAssayPlot(input, exp()[-input$compounds_rows_selected, ])
   )
 
   # RSDQC Heatmap Plot
   output$correlation_heatmap <- renderPlotly(
-      renderRsdqcPlot(input, exp)
+      renderRsdqcPlot(input, exp()[-input$compounds_rows_selected, ])
   )
 
   # (Academic) Calibration Plot
   output$calibration_plot <- renderPlotly(
-      renderCalibrationPlot(input, exp)
+      renderCalibrationPlot(input, exp()[-input$compounds_rows_selected, ])
   )
 
   # Relative Standard Deviation Plot
   output$rsd_plot <- renderPlotly(
-      renderRsdPlot(input, exp)
+      renderRsdPlot(input, exp()[-input$compounds_rows_selected, ])
   )
 
   # Linear Model Plot, should look into for model creation
   output$LinearCalibration <- renderPlotly(
-      renderModelPlot(input, exp)
+      renderModelPlot(input, exp()[-input$compounds_rows_selected, ])
   )
 
 # Events ------------------------------------------------------------------
@@ -153,67 +205,43 @@ server <- function(input, output, session) {
   # Event when the submit button is clicked on the start screen
   observeEvent(input$submit, {
       w$show()
-      exp <<- submitDataEvent(session, input)
+      combined <<- submitDataEvent(session, input)
 
-      updateInputs(session, exp)
+      experiment <<- buildExperimentEvent(session, input, combined)
 
-      # Aliquot Selection Table
-      output$aliquots <- renderDataTable(server = FALSE,
-          aliquotTable(exp)
+      # # Aliquot Selection Table
+      output$aliquots <- renderDataTable(
+        aliquotTable(experiment)
       )
 
-      # Compound Selection Table
-      output$compounds <- renderDataTable(
-          compoundTable(exp)
-      )
+      updateInputs(session, experiment)
 
-      output$IStable <- renderDataTable(
-          internalStandardTable(input, exp)
-      )
+      updateSelectizeInput(session, "compound_metabolite", choices = rownames(experiment))
+      updateSelectizeInput(session, "batchAssayCompound", choices = rownames(experiment))
+      updateSelectizeInput(session, "calibration_compound", choices = rownames(experiment))
 
       updateTabsetPanel(session, inputId = "sidebar", "AM")
       w$hide()
   })
 
 
-
-  observeEvent(input$aliquots_rows_selected, {
-      req(!is.null(exp))
-
-      output$compounds <- renderDataTable({
-          aliquots <- colnames(exp)
-          if (!is.null(input$aliquots_rows_selected)) {
-              aliquots <- aliquots[-input$aliquots_rows_selected]
-          }
-          exp <- doAnalysis(exp, aliquots = aliquots)
-
-          select <- unique(c(!rowData(exp)$Use, isolate(input$compounds_rows_selected)))
-
-          compoundTable(exp, select = select)
-      })
-  })
-
   # Event when a compound has been clicked / changed
   # Need to look up how this works with datatables
-  observeEvent(input$compounds, {
-      req(!is.null(exp))
+  observeEvent(input$compounds_rows_selected, {
+      req(!is.null(exp()))
 
-      # # Update tables whenever needed, update exp accordingly
-      # # Hopefully this function does not retrigger..
-      #exp <<- compoundTableClick(input, exp)
-      #
-      # comps <- rownames(exp())
-      #
-      # updateSelectizeInput(session, "compound_metabolite", choices = comps)
-      # updateSelectizeInput(session, "batchAssayCompound", choices = comps)
-      # updateSelectizeInput(session, "calibration_compound", choices = comps)
+      compounds <- rownames(exp())[-input$compounds_rows_selected]
 
+      updateSelectizeInput(session, "compound_metabolite", choices = compounds)
+      updateSelectizeInput(session, "batchAssayCompound", choices = compounds)
+      updateSelectizeInput(session, "calibration_compound", choices = compounds)
   })
 
-  # Event triggered when the QC has been changed
-  # observeEvent(input$qc_change, {
-  #     exp(qcChangeEvent(input, exp()))
-  # })
+  observeEvent(input$sidebar, {
+    if (input$sidebar == "IS" & nrow(rsdqcs) == 0) {
+      experiment <<- mzQuality2:::calculateCorrectedRSDQCs2(exp())
+    }
+  })
 
 
   # Event triggered when refreshing the page
