@@ -27,27 +27,16 @@ compoundTableClick <- function(input, exp){
 #' @importFrom shiny req updateSelectInput
 submitDataEvent <- function(session, input){
 
-    if (length(input$files$datapath) == 0 & !input$useExamples) {
+    if (length(input$files$datapath) == 0) {
         shinyalert::shinyalert("Please select your files")
     }
 
-    req(length(input$files$datapath) > 0 | input$useExamples == TRUE)
+    req(length(input$files$datapath) > 0)
 
-    if (input$useExamples) {
-        files <- list.files(system.file(package = "mzQuality"),
-                            pattern = "dataset.txt",
-                            full.names = TRUE
-        )
-        calFile <- list.files(system.file(package = "mzQuality"),
-                              pattern = "concentrations.txt",
-                              full.names = TRUE
-        )
-    } else {
-        dirn <- dirname(input$files$datapath)
-        files <- file.path(dirn, input$files$name)
-        file.rename(input$files$datapath, files)
-        calFile <- input$calFile$datapath
-    }
+
+    dirn <- dirname(input$files$datapath)
+    files <- file.path(dirn, input$files$name)
+    file.rename(input$files$datapath, files)
 
     # Build a combined file using the file(s) given
     # Should convert to arrow reader for combined files
@@ -58,19 +47,12 @@ submitDataEvent <- function(session, input){
 
 buildExperimentEvent <- function(session, input, combined){
 
-    # Cant I make these the default..?
-    primaryAssay <- ifelse(input$areaIndex == "", "Area", input$areaIndex)
-    secondaryAssay <- ifelse(input$areaIsIndex == "","Area_is", input$areaIsIndex)
-
-    aliquotColumn <- ifelse(input$colIndex == "", "Aliquot", input$colIndex)
-    compoundColumn <- ifelse(input$rowIndex == "", "Compound", input$rowIndex)
-
     qcCandidates <- grep("QC", combined$Type, value = TRUE, ignore.case = TRUE)
-
     qcValue <- "SQC"
     if (!"SQC" %in% combined$Type) {
         qcValue <- qcCandidates[1]
     }
+
 
     updateSelectInput(session, "qc_change",
                       choices = unique(qcCandidates),
@@ -79,21 +61,13 @@ buildExperimentEvent <- function(session, input, combined){
 
     exp <- buildExperiment(
         df = combined,
-        rowIndex = compoundColumn,
-        colIndex = aliquotColumn,
-        primaryAssay = primaryAssay,
-        secondaryAssay = secondaryAssay,
         qc = qcValue
     )
 
-    # if (length(calFile) > 0) {
-    #     exp <- addConcentrations(
-    #         exp,
-    #         utils::read.delim(calFile),
-    #         input$filterCalCompounds
-    #     )
-    #     #concentrations(assay(exp[, exp$Type == metadata(exp)$concentration], "Concentration"))
-    # }
+    if (length(input$calFile) > 0) {
+        conc <- utils::read.delim(input$calFile$datapath, check.names = FALSE)
+        exp <- mzQuality2:::addConcentrations2(exp, conc)
+    }
 
     if (input$filterISTD) {
         exp <- filterISTD(exp, "ISTD")

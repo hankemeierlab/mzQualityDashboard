@@ -1,0 +1,84 @@
+---
+title: "mzQuality Compound report"
+output: 
+    html_document:
+      toc: true
+      toc_float: true
+      fig_height: 10
+params:
+  SE: ""
+  project: "mzQuality"
+  vendor: "Unknown"
+---
+
+<style type="text/css">
+div.main-container {
+  max-width: 100vw !important;
+}
+</style>
+
+# About
+
+```{r about, echo=FALSE}
+df <- summaryTable(params$SE, params$project, params$vendor)
+knitr::kable(
+  x = df,
+  format = "simple"
+)
+```
+
+
+# Compound Plot
+```{r compound, echo=FALSE, out.width="100%", out.height="200%", fig.asp=3, warning=FALSE}
+se <- params$SE
+plots <- assayNames(se)
+myTabs = lapply(plots, function(x) tabPanel(x, ggplotly(compoundPlot(se, x, rownames(se)), dynamicTicks = TRUE)))
+do.call(tabsetPanel, myTabs)
+```
+
+# Batch plots
+```{r batchPlot, echo=FALSE, out.width="100%"}
+se <- params$SE
+plots <- assayNames(se)
+myTabs = lapply(plots, function(x) {
+  tryCatch({
+    return(tabPanel(x, ggplotly(batchAssayPlot(se, x, rownames(se)), dynamicTicks = TRUE)))
+  }, error = function(z){
+    return(NULL)
+  })
+})
+
+do.call(tabsetPanel, myTabs)
+```
+
+# Calibration Plots
+```{r calibration, echo=FALSE, out.width="100%"}
+se <- params$SE
+myTabs = lapply(unique(se$Batch), function(x) {
+  p <- calibrationPlot(se, batch = x, assay = "Ratio Corrected", compound = rownames(se))
+  tabPanel(paste("Batch", x), ggplotly(p, dynamicTicks = TRUE))
+})
+do.call(tabsetPanel, myTabs)
+```
+
+# Calibration Model Plots
+```{r calibrationModel, echo=FALSE, out.width="100%"}
+if (!is.null(metadata(se)$concentration)) {
+  se <- params$SE
+  myTabs = lapply(unique(se$Batch), function(x) {
+    tryCatch({
+      p <- plotLinearCalibration(aliquotFilter(se, Batch = x), 
+                               compound = rownames(se), types = unique(se$Type),
+                               calType = metadata(se)$concentration)
+    tabPanel(paste("Batch", x), ggplotly(p, dynamicTicks = TRUE))
+    }, error = function(z){
+      
+    })
+    
+  })
+  do.call(tabsetPanel, myTabs)
+} else {
+  p("No CAL line concentrations were submitted")
+}
+
+```

@@ -224,15 +224,52 @@ renderRsdPlot <- function(input, exp){
 #' @importFrom shiny req
 #' @importFrom SummarizedExperiment assayNames
 #' @importFrom S4Vectors metadata
-renderModelPlot <- function(input, exp){
-    req("Concentration" %in% assayNames(exp) & !is.null(exp))
+renderModelPlot <- function(df, model, compound){
 
-    exp <- exp[, exp$Batch == input$linearCalibration_batch]
 
-    plotLinearCalibration(
-        exp = exp,
-        compound = input$linearCalibration_compound,
-        types = input$linearCalibration_type,
-        calType = metadata(exp)$concentration
-    )
+
+    #df <- df[complete.cases(df), ]
+    # df$Outlier <- "normal"
+    #
+    # idx <- df$Type == calType
+    # df$Outlier[idx] <- model$outliers[1:length(idx)]
+
+    #ranges <- rowData(exp[compound, ])$LinearRangePerType
+
+    #vals <- as.numeric(ranges[sprintf("Batch_%s_Type_%s", batch, types)])
+
+    #subtitle <- sprintf("Batch: %s,  R2: %.3f", batch, r2[compound, batch])
+    #ranges <- sprintf("Linear-Range: %s, Value: %.3f", types, vals)
+
+    #ranges <- paste(ranges, collapse = "\n")
+
+    #subtitle <- sprintf("%s\n%s", subtitle, ranges)
+
+    df$Concentration[df$Type %in% 'SAMPLE'] <- 0
+
+
+    lowerIntercept <- df$Ratio[which(df$Calno == 2)][1]
+    upperIntercept <- df$Ratio[which(df$Calno == 6)][1]
+
+    p <- ggplot(df, aes(x = .data$Concentration, y = .data$Ratio)) + #
+        geom_point(aes(fill = .data$Type), size = 2) + # shape = Outlier
+        scale_fill_manual(values = c("red", "blue", "gray")) +
+        scale_shape_manual(values = c(21, 24)) +
+        ggplot2::geom_hline(yintercept = lowerIntercept, linetype = "dashed") +
+        ggplot2::geom_hline(yintercept = upperIntercept, linetype = "dashed") +
+        ggtitle(compound) + #, subtitle) +
+        geom_line(data = fortify(model), aes(x = .fitted, y = Assay)) +
+        theme_minimal()
+
+
+    toPlotly(p)
+
+    # exp <- exp[, exp$Batch == input$linearCalibration_batch]
+    #
+    # plotLinearCalibration(
+    #     exp = exp,
+    #     compound = input$linearCalibration_compound,
+    #     types = input$linearCalibration_type,
+    #     calType = metadata(exp)$concentration
+    # )
 }

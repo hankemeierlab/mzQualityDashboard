@@ -1,0 +1,43 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@300;500&display=swap");
+
+.waiter-overlay-content{
+position: absolute;
+top: 0.9vh; /*30 pixels from the top*/
+left: 48vw; /*48% from the left*/
+}
+
+p, div, h3 {
+  font-family: "Nunito", sans-serif;
+}
+
+* {
+  font-family: "Nunito", sans-serif;
+  font-weight: 500;
+}
+
+
+.skin-blue .left-side, .skin-blue .wrapper {
+    background-color: rgb(236,240,245);
+}
+
+/* logo */
+.skin-blue .main-header .logo {
+  background-color: rgb(31, 191, 156);
+  font-family: "Nunito", sans-serif !important;
+
+}
+
+/* logo when hovered */
+.skin-blue .main-header .logo:hover {
+  background-color: rgb(31, 191, 156);;
+}
+
+/* navbar (rest of the header) */
+.skin-blue .main-header .navbar {
+  background-color: rgb(31, 191, 156);;
+}
+
+/* color selected rows red */
+.table.dataTable tbody td.active, .table.dataTable tbody tr.active td {
+              background-color: rgba(200, 0, 0, 0.6) !important;
+}

@@ -20,13 +20,14 @@ showOutliers <- function(exp) {
     )
 
     box1 <- box(
-        width = 12, collapsible = FALSE, solidHeader = TRUE,
+        collapsible = FALSE,
+        solidHeader = TRUE,
         title = "Excluded Aliquots",
         renderRHandsontable(render_table(df))
     )
 
     box2 <- box(
-        width = 12, collapsible = FALSE, solidHeader = TRUE,
+        collapsible = FALSE, solidHeader = TRUE,
         title = "Excluded Compounds",
         renderRHandsontable(render_table(df2))
     )
@@ -54,12 +55,12 @@ updateInputs <- function(session, exp) {
         "sample_batch", "correlation_batch",
         "heatmap_batch", "pca_batch", "rt_shift_batch",
         "concentration_batch", "assay_batch", "qc_batch",
-        "replicate_batch", "effect_batch", "cv_batch"
+        "replicate_batch", "effect_batch", "cv_batch", "concentrationBatch"
     )
     for (inp in batch_inputs) {
         updateSelectizeInput(session, inp,
                              choices = batches,
-                             selected = batches[[2]]
+                             selected = batches[2]
         )
     }
 
