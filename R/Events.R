@@ -4,7 +4,6 @@
 #' @returns
 #' @param input
 #' @param exp
-#' @importFrom rhandsontable hot_to_r
 #' @importFrom shiny req
 compoundTableClick <- function(input, exp){
     req(!is.null(exp))
@@ -23,7 +22,6 @@ compoundTableClick <- function(input, exp){
 #' @details
 #' @returns
 #' @param input
-#' @importFrom shinyalert shinyalert
 #' @importFrom shiny req updateSelectInput
 submitDataEvent <- function(session, input){
 
@@ -91,7 +89,6 @@ buildExperimentEvent <- function(session, input, combined){
 #' @param input
 #' @param experiment
 #' @importFrom shiny req updateSelectInput
-#' @importFrom S4Vectors metadata<-
 qcChangeEvent <- function(input, experiment){
     req(!is.null(experiment))
 
@@ -110,9 +107,7 @@ qcChangeEvent <- function(input, experiment){
 #' @returns
 #' @param input
 #' @param experiment
-#' @importFrom rhandsontable hot_to_r
 #' @importFrom shiny req
-#' @importFrom SummarizedExperiment assay<- assay
 calTableClickEvent <- function(){
 
     # DEFUNCT
@@ -148,8 +143,6 @@ calTableClickEvent <- function(){
 #' @returns
 #' @param input
 #' @param experiment
-#' @importFrom rhandsontable hot_to_r
-#' @importFrom shiny req
 #' @importFrom stats na.omit
 updateExperiment <- function(input, experiment){
 

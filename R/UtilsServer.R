@@ -3,8 +3,6 @@
 #' @details
 #' @returns
 #' @param exp
-#' @importFrom rhandsontable rhandsontable hot_cols hot_table
-#' @importFrom DT datatable
 #' @importFrom dplyr %>%
 renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
                         preSelect = c(), scrollY = 500, selectable = FALSE,
@@ -65,7 +63,6 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
 #' more complex plots, where panning and zooming may be needed.
 #' @param plot ggplot2 object
 #' @returns Plotly object of the given ggplot
-#' @importFrom plotly ggplotly layout
 #' @export
 #' @examples
 #' # Read example dataset
@@ -90,11 +87,11 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
 #' toPlotly(p)
 toPlotly <- function(plot, dynamicTicks = TRUE) {
     if (dynamicTicks) {
-        p <- ggplotly(plot, dynamicTicks = TRUE, tooltip = c("text"))
+        p <- plotly::ggplotly(plot, dynamicTicks = TRUE, tooltip = c("text"))
         p <- plotly::layout(p, yaxis = list(exponentformat = "E"))
 
     } else {
-        p <- suppressWarnings(ggplotly(plot))
+        p <- suppressWarnings(plotly::ggplotly(plot))
     }
     # Return Plotly
     return(p)
@@ -107,7 +104,6 @@ toPlotly <- function(plot, dynamicTicks = TRUE) {
 #' @param exp
 #' @param assayName
 #' @importFrom shiny req
-#' @importFrom SummarizedExperiment assay
 createAssayTable <- function(exp, assayName) {
     req(!is.null(exp))
     as.data.frame(cbind(
@@ -180,7 +176,7 @@ downloadZip <- function(project, exp, fileOut, fullExp = NULL) {
 
     if (input$compound_report) {
         loginfo("Creating Compound Reports")
-        pboptions(type = "shiny", title = "Generating Compound Reports...")
+        pbapply::pboptions(type = "shiny", title = "Generating Compound Reports...")
         compoundReports(exp, compounds)
     }
     zipFolder(fileOut, output_folder)

@@ -4,7 +4,6 @@
 #' @returns
 #' @param experiment
 #' @importFrom shiny req
-#' @importFrom SummarizedExperiment colData
 aliquotTable <- function(experiment, select = which(!experiment$use)){
     req(!is.null(experiment))
     df <- colData(experiment)
@@ -29,8 +28,6 @@ aliquotTable <- function(experiment, select = which(!experiment$use)){
 #' @details
 #' @returns
 #' @param exp
-#' @importFrom shiny req
-#' @importFrom SummarizedExperiment rowData
 compoundTable <- function(exp, select = which(!rowData(exp)$Use)){
     req(!is.null(exp))
 
@@ -38,6 +35,8 @@ compoundTable <- function(exp, select = which(!rowData(exp)$Use)){
                  "backgroundSignal", "qcPresence", "matrixEffectFactor", "use")
     df <- rowData(exp)
     df$compound <- rownames(df)
+
+    print(df)
 
     df <- as.data.frame(df[, columns])
     rownames(df) <- 1:nrow(df)
@@ -51,10 +50,10 @@ compoundTable <- function(exp, select = which(!rowData(exp)$Use)){
         scrollY = 600,
         selectable = TRUE
     ) %>%
-        formatPercentage(columns = c("Background Signal", "Found in SQC",
+        DT::formatPercentage(columns = c("Background Signal", "Found in SQC",
                                      "Matrix Effect Factor"),
                          digits = 2, dec.mark = ".") %>%
-        formatRound(columns = c("RSDQC",  "RSDQC Corrected"), dec.mark = ".")
+        DT::formatRound(columns = c("RSDQC",  "RSDQC Corrected"), dec.mark = ".")
 
 
     return(render)
@@ -70,7 +69,7 @@ currentInternalStandardTable <- function(exp){
   colnames(df) <- c("Compound", "Compound IS", "RSDQC", "RSDQC Corrected")
 
   renderISTable(df) %>%
-    formatRound(columns = c("RSDQC", "RSDQC Corrected"), dec.mark = ".")
+      DT::formatRound(columns = c("RSDQC", "RSDQC Corrected"), dec.mark = ".")
 }
 
 #' @title
@@ -79,8 +78,6 @@ currentInternalStandardTable <- function(exp){
 #' @returns
 #' @param exp
 #' @importFrom shiny req
-#' @importFrom SummarizedExperiment rowData
-#' @importFrom rhandsontable hot_to_r
 internalStandardTable <- function(input, exp, selected) {
 
 
@@ -117,7 +114,7 @@ internalStandardTable <- function(input, exp, selected) {
     colnames(df) <- c("Compound", "Original IS", "Original RSDQC Corrected", "Suggested IS", "Suggested RSDQC Corrected", "Selected IS")
     return(
       renderISTable(df) %>%
-      formatRound(columns = c("Original RSDQC Corrected", "Suggested RSDQC Corrected"), dec.mark = ".")
+          DT::formatRound(columns = c("Original RSDQC Corrected", "Suggested RSDQC Corrected"), dec.mark = ".")
     )
 }
 
@@ -133,11 +130,10 @@ renderISTable <- function(df){
     options = list(
       paging = FALSE,
       fixedHeader = TRUE,
-      #ordering = FALSE,
       ordering = TRUE,
       scrollY = 800,
-      preDrawCallback = JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
-      drawCallback = JS('function() { Shiny.bindAll(this.api().table().node()); } ')
+      preDrawCallback = DT::JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
+      drawCallback = DT::JS('function() { Shiny.bindAll(this.api().table().node()); } ')
     )
   )
 
@@ -168,7 +164,6 @@ combinedTable <- function(combined){
 #' @returns
 #' @param exp
 #' @importFrom shiny req
-#' @importFrom SummarizedExperiment rowData
 rowDataTable <- function(exp){
     req(!is.null(exp))
 
@@ -189,7 +184,6 @@ rowDataTable <- function(exp){
 #' @returns
 #' @param exp
 #' @importFrom shiny req
-#' @importFrom SummarizedExperiment colData
 colDataTable <- function(exp){
   req(!is.null(exp))
 
@@ -234,8 +228,6 @@ assayTable <- function(input, exp){
 #' @returns
 #' @param exp
 #' @importFrom shiny req
-#' @importFrom S4Vectors metadata
-#' @importFrom SummarizedExperiment assay
 batchCorrectionFactorTable <- function(exp){
     req(!is.null(exp))
 
@@ -290,7 +282,6 @@ backGroundEffectTable <- function(input, exp){
 #' @returns
 #' @param exp
 #' @importFrom shiny req
-#' @importFrom SummarizedExperiment rowData
 carryOverTable <- function(exp){
     req("CarryOver" %in% colnames(rowData(exp)) & !is.null(exp))
     df <- as.data.frame(rowData(exp)$CarryOver)
@@ -326,7 +317,6 @@ rtShiftTable <- function(input, exp){
 #' @returns
 #' @param exp
 #' @importFrom shiny req
-#' @importFrom SummarizedExperiment colData assay
 #' @importFrom stats setNames
 replicateTable <- function(input, exp){
     req(!is.null(exp))

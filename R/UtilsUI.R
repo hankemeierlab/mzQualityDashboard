@@ -41,8 +41,6 @@ showOutliers <- function(exp) {
 #' @title Update the inputs from the server
 #' @param session Current Rshiny session
 #' @param exp SummarizedExperiment object
-#' @importFrom SummarizedExperiment assays<-
-#' @importFrom S4Vectors metadata
 #' @importFrom shiny req updateSelectizeInput updateSelectInput
 #' @noRd
 updateInputs <- function(session, exp) {

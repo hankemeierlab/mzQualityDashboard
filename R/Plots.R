@@ -195,7 +195,6 @@ renderCalibrationPlot <- function(input, exp){
 #' @param input
 #' @param exp
 #' @importFrom shiny req
-#' @importFrom plotly highlight
 renderRsdPlot <- function(input, exp){
     req(!is.null(exp))
 
@@ -222,8 +221,6 @@ renderRsdPlot <- function(input, exp){
 #' @param input
 #' @param exp
 #' @importFrom shiny req
-#' @importFrom SummarizedExperiment assayNames
-#' @importFrom S4Vectors metadata
 renderModelPlot <- function(df, model, compound){
 
 

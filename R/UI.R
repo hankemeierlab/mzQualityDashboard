@@ -4,7 +4,6 @@
 #' @returns
 #' @importFrom shinydashboard box
 #' @importFrom shinyhelper helper
-#' @importFrom DT dataTableOutput
 shiny.box_table <- function(title, type, height = "80vh") {
 
     return(box(
@@ -29,7 +28,6 @@ shiny.box_table <- function(title, type, height = "80vh") {
 #' @returns
 #' @importFrom shinydashboard box
 #' @importFrom shinyhelper helper
-#' @importFrom plotly plotlyOutput
 shiny.box_plot <- function(title, type, height) {
 
   return(box(
@@ -44,7 +42,7 @@ shiny.box_plot <- function(title, type, height) {
       helper(content = title, fade = TRUE, icon = "circle-question"),
 
     # Actual Plot
-    plotlyOutput(type, height = height)
+    plotly::plotlyOutput(type, height = height)
   ))
 }
 
@@ -124,7 +122,6 @@ sidebar <- function() {
 
 
 #' @title UI for shiny app
-#' @importFrom plotly plotlyOutput
 #' @importFrom shiny h2 tags textInput selectizeInput actionButton includeCSS
 #' fluidPage tabsetPanel tabPanel column selectInput p downloadButton icon
 #' fileInput fluidRow h4 sliderInput tagList uiOutput checkboxInput
@@ -133,7 +130,6 @@ sidebar <- function() {
 #' dashboardBody tabItems tabItem dashboardPage dashboardSidebar box
 #' @importFrom waiter useWaiter autoWaiter spin_loaders
 #' @importFrom shinyhelper helper
-#' @importFrom rhandsontable rHandsontableOutput
 #' @noRd
 ui <- function() {
   header <- dashboardHeader(title = HTML("mzQuality<sup>2</sup>"))
