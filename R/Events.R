@@ -10,9 +10,9 @@ compoundTableClick <- function(input, exp){
     req(!is.null(exp))
 
     comp_df <- hot_to_r(input$compounds)
-    comps <- comp_df$Compound[comp_df$Use == 1]
+    comps <- comp_df$compound[comp_df$use == 1]
     if (length(comps) == 0) {
-        comps <- comp_df$Compound
+        comps <- comp_df$compound
     }
 
     return(doAnalysis(exp, compounds = comps))
@@ -47,9 +47,9 @@ submitDataEvent <- function(session, input){
 
 buildExperimentEvent <- function(session, input, combined){
 
-    qcCandidates <- grep("QC", combined$Type, value = TRUE, ignore.case = TRUE)
+    qcCandidates <- grep("QC", combined$type, value = TRUE, ignore.case = TRUE)
     qcValue <- "SQC"
-    if (!"SQC" %in% combined$Type) {
+    if (!"SQC" %in% combined$type) {
         qcValue <- qcCandidates[1]
     }
 
@@ -61,7 +61,7 @@ buildExperimentEvent <- function(session, input, combined){
 
     exp <- buildExperiment(
         df = combined,
-        qc = qcValue
+        qc = qcValue,
     )
 
     if (length(input$calFile) > 0) {
@@ -78,6 +78,7 @@ buildExperimentEvent <- function(session, input, combined){
 
     exp <- doAnalysis(exp = exp, doAll = TRUE)
 
+    print(exp)
     return(exp)
 }
 
@@ -119,11 +120,11 @@ calTableClickEvent <- function(){
     req("Concentration" %in% assayNames(exp()) & !is.null(experiment()))
 
     exp <- experiment()
-    x <- exp[, exp$Batch == input$linearCalibration_batch &
-                 exp$Type == metadata(exp)$concentration]
+    x <- exp[, exp$batch == input$linearCalibration_batch &
+                 exp$type == metadata(exp)$concentration]
 
     table <- hot_to_r(input$CalTable)
-    comps <- table$Compound
+    comps <- table$compound
     table <- table[,-1]
     to_remove <- which(table == FALSE)
 
@@ -156,7 +157,7 @@ updateExperiment <- function(input, experiment){
     aliquot_df <- hot_to_r(input$aliquots)
     comp_df <- hot_to_r(input$compounds)
 
-    comps <- which(comp_df$Use == 1)
+    comps <- which(comp_df$use == 1)
     if (length(comps) == 0) {
         comps <- 1:nrow(experiment)
     }
@@ -169,7 +170,7 @@ updateExperiment <- function(input, experiment){
 
     return(doAnalysis(
         experiment,
-        aliquots = which(aliquot_df$Use == 1),
+        aliquots = which(aliquot_df$use == 1),
         compounds = comps
     ))
 }

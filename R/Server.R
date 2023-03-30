@@ -37,11 +37,11 @@ server <- function(input, output, session) {
 
     # rows <- input$aliquots_rows_selected
     # n <- rows[length(rows)]
-    # test <- experiment$Type[n] %in% c("SQC", "BLANK")
+    # test <- experiment$type[n] %in% c("SQC", "BLANK")
     #
     # selected <- isolate(input$compounds_rows_selected)
     # if (is.null(selected)) {
-    #   selected <- which(!rowData(isolate(exp()))$Use)
+    #   selected <- which(!rowData(isolate(exp()))$use)
     # }
 
     metadata(experiment)$QC <- isolate(input$qc_change)
@@ -106,12 +106,12 @@ server <- function(input, output, session) {
     internalStandardTable(
       input = isolate(input),
       exp = experiment,
-      selected = rowData(experiment)$Compound_is)
+      selected = rowData(experiment)$compound_is)
 
   })
 
   output$compounds <- renderDataTable({
-    compoundTable(exp(), select = which(!rowData(exp())$Use))
+    compoundTable(exp(), select = which(!rowData(exp())$use))
   })
 
   # Combined Overall Table
@@ -259,8 +259,8 @@ server <- function(input, output, session) {
       assay(exp[compound, colnames(concentrations)], "Concentration", withDimnames = FALSE) <- m
 
 
-      cals <- exp$Type == calType
-      subset <- exp[compound, exp$Batch == batch & (exp$Type %in% "SAMPLE" | cals)]
+      cals <- exp$type == calType
+      subset <- exp[compound, exp$batch == batch & (exp$type %in% "SAMPLE" | cals)]
 
       ratios <- as.vector(assay(subset, "Ratio"))
       conc <- as.vector(assay(subset, "Concentration"))
@@ -273,8 +273,8 @@ server <- function(input, output, session) {
         Aliquot = colnames(subset),
         Concentration = round(conc, 4),
         Ratio = round(ratios, 4),
-        Type = subset$Type,
-        Calno = subset$Calno
+        Type = subset$type,
+        Calno = subset$calno
       )
 
 
@@ -305,6 +305,7 @@ server <- function(input, output, session) {
 
       updateInputs(session, experiment)
 
+
       updateTabsetPanel(session, inputId = "sidebar", "selectedData")
       w$hide()
   })
@@ -321,7 +322,7 @@ server <- function(input, output, session) {
       updateSelectizeInput(session, "batchAssayCompound", choices = compounds, server = TRUE)
       updateSelectizeInput(session, "calibration_compound", choices = compounds, server = TRUE)
 
-      cals <- !is.na(exp()$Calno)
+      cals <- !is.na(exp()$calno)
       if (!is.null(metadata(exp())$concentration)) {
           a <- rowSums(is.na(assay(exp()[, cals], "Concentration"))) != sum(cals)
           choices <- names(which(a))
@@ -355,7 +356,17 @@ server <- function(input, output, session) {
   output$download_zip <- downloadHandler(
       contentType = "application/zip",
       filename = "mzQuality.zip",
-      content = function(x) downloadZip(x, experiment)
+      content = function(x) {
+          req(!is.null(exp))
+
+          withProgress(message = "Generating output files...", {
+              w$show()
+              project <- ifelse(input$project == "", "mzQuality", input$project)
+              zip <- downloadZip(project, exp(), x, experiment)
+              w$hide()
+              zip
+          })
+      }
   )
 }
 

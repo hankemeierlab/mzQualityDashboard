@@ -5,13 +5,13 @@
 #' @param experiment
 #' @importFrom shiny req
 #' @importFrom SummarizedExperiment colData
-aliquotTable <- function(experiment, select = which(!experiment$Use)){
+aliquotTable <- function(experiment, select = which(!experiment$use)){
     req(!is.null(experiment))
     df <- colData(experiment)
-    df$Aliquot <- rownames(df)
-    columns <- c("Aliquot", "Type", "Datetime", "Batch", "Use")
+    df$aliquot <- rownames(df)
+    columns <- c("aliquot", "type", "datetime", "batch", "use")
     df <- as.data.frame(df[, columns])
-    df$Datetime <- as.character(df$Datetime)
+    df$datetime <- as.character(df$datetime)
     rownames(df) <- 1:nrow(df)
 
     render <- renderTable(
@@ -34,10 +34,10 @@ aliquotTable <- function(experiment, select = which(!experiment$Use)){
 compoundTable <- function(exp, select = which(!rowData(exp)$Use)){
     req(!is.null(exp))
 
-    columns <- c("Compound", "RSDQC", "RSDQC.Corrected",
-                 "backgroundSignal", "qcPresence", "matrixEffectFactor", "Use")
+    columns <- c("compound", "rsdqc", "rsdqcCorrected",
+                 "backgroundSignal", "qcPresence", "matrixEffectFactor", "use")
     df <- rowData(exp)
-    df$Compound <- rownames(df)
+    df$compound <- rownames(df)
 
     df <- as.data.frame(df[, columns])
     rownames(df) <- 1:nrow(df)
@@ -62,14 +62,12 @@ compoundTable <- function(exp, select = which(!rowData(exp)$Use)){
 
 currentInternalStandardTable <- function(exp){
   df <- rowData(exp)
-  df$Compound <- rownames(df)
-  columns <- c("Compound", "Compound_is", "RSDQC", "RSDQC.Corrected")
+  df$compound <- rownames(df)
 
-  df$Compound <- rownames(df)
-  df <- as.data.frame(df[, columns])
+  df <- as.data.frame(df[, c("compound", "compound_is", "rsdqc", "rsdqcCorrected")])
 
   rownames(df) <- 1:nrow(df)
-  colnames(df) <- c("Compound", "Current IS", "RSDQC", "RSDQC Corrected")
+  colnames(df) <- c("Compound", "Compound IS", "RSDQC", "RSDQC Corrected")
 
   renderISTable(df) %>%
     formatRound(columns = c("RSDQC", "RSDQC Corrected"), dec.mark = ".")
@@ -88,18 +86,17 @@ internalStandardTable <- function(input, exp, selected) {
 
   df <- rowData(exp)
 
-    if (!"Compound_is" %in% colnames(df)) return(NULL)
+    if (!"compound_is" %in% colnames(df)) return(NULL)
 
-    columns <- c("Compound", "Compound_is", "RSDQC.Corrected", "SuggestedIS", "SuggestedRSDQC")
+    columns <- c("compound", "compound_is", "rsdqcCorrected", "suggestedIS", "suggestedRSDQC")
 
-
-    df$Compound <- rownames(df)
+    df$compound <- rownames(df)
 
 
     df <- as.data.frame(df[, columns])
     rownames(df) <- 1:nrow(df)
 
-    choices <- sort(unique(df$Compound_is))
+    choices <- sort(unique(df$compound_is))
 
     for (i in 1:nrow(df)) {
         id <- paste0("sel", i)
@@ -117,7 +114,7 @@ internalStandardTable <- function(input, exp, selected) {
 
 
 
-    colnames(df) <- c("Compound","Original IS", "Original RSDQC Corrected", "Suggested IS", "Suggested RSDQC Corrected", "Selected IS")
+    colnames(df) <- c("Compound", "Original IS", "Original RSDQC Corrected", "Suggested IS", "Suggested RSDQC Corrected", "Selected IS")
     return(
       renderISTable(df) %>%
       formatRound(columns = c("Original RSDQC Corrected", "Suggested RSDQC Corrected"), dec.mark = ".")

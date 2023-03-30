@@ -122,59 +122,53 @@ createAssayTable <- function(exp, assayName) {
 #' @returns
 #' @param exp
 #' @importFrom shiny req
-downloadZip <- function(fileOut, exp) {
-    req(!is.null(exp))
+downloadZip <- function(project, exp, fileOut, fullExp = NULL) {
 
-    withProgress(message = "Generating output files...", {
-        w$show()
-        project <- ifelse(input$project == "", "mzQuality", input$project)
-        datetime <- format(metadata(exp)$Date, "%Y%m%d_%H%M%S")
-        output_folder <- file.path(getwd(), project, datetime)
+    datetime <- format(metadata(exp)$Date, "%Y%m%d_%H%M%S")
+    output_folder <- file.path(getwd(), project, datetime)
 
-        reports <- file.path(output_folder, "reports")
-        plots <- file.path(output_folder, "plots")
-        compounds <- file.path(plots, "compounds")
+    reports <- file.path(output_folder, "reports")
+    plots <- file.path(output_folder, "plots")
+    compounds <- file.path(plots, "compounds")
 
-        dir.create(reports, recursive = TRUE, showWarnings = FALSE)
-        dir.create(compounds, recursive = TRUE, showWarnings = FALSE)
+    dir.create(reports, recursive = TRUE, showWarnings = FALSE)
+    dir.create(compounds, recursive = TRUE, showWarnings = FALSE)
 
-        combFile <- file.path(output_folder, "combined.tsv")
-        utils::write.table(expToCombined(experiment()),
-                           file = combFile,
-                           sep = "\t", row.names = FALSE
+    combFile <- file.path(output_folder, "combined.tsv")
+    utils::write.table(expToCombined(fullExp),
+                       file = combFile,
+                       sep = "\t", row.names = FALSE
+    )
+
+    exportTables(exp, reports)
+
+    x <- doAnalysis(fullExp[, colnames(exp)])
+    file <- "Metabolites_samples_to_keep.xlsx"
+    exportFilterWorkbook(x, file.path(reports, file))
+
+    selected <- rownames(exp)
+    na_rsdqc <- rownames(x)[which(is.na(rowData(x)$rsdqcCorrected))]
+    x <- x[c(selected, na_rsdqc), ]
+
+    file <- "QC_corrected_sample_final_report.xlsx"
+    exportExcel(x[, x$Type == "SAMPLE"], file.path(reports, file))
+
+    file <- "QC_corrected_all_final_report.xlsx"
+    exportExcel(x, file.path(reports, file))
+
+    if (!is.null(IS_compounds())) {
+        comps <- hot_to_r(input$compounds)
+        is_df <- data.frame(
+            Compound = rownames(experiment()),
+            Used.IS = rowData(experiment())$compound_is,
+            Suggested.IS = rowData(experiment())$suggestedIS,
         )
 
-        exportTables(exp, reports)
-
-        x <- doAnalysis(experiment()[, colnames(exp)])
-        file <- "Metabolites_samples_to_keep.xlsx"
-        exportFilterWorkbook(x, file.path(reports, file))
-
-        selected <- rownames(exp)
-        na_rsdqc <- rownames(x)[which(is.na(rowData(x)$RSDQC.Corrected))]
-        x <- x[c(selected, na_rsdqc), ]
-
-        file <- "QC_corrected_sample_final_report.xlsx"
-        exportExcel(x[, x$Type == "SAMPLE"], file.path(reports, file))
-
-        file <- "QC_corrected_all_final_report.xlsx"
-        exportExcel(x, file.path(reports, file))
-
-        if (!is.null(IS_compounds())) {
-            comps <- hot_to_r(input$compounds)
-            is_df <- data.frame(
-                Compound = rownames(experiment()),
-                Used.IS = rowData(experiment())$Compound_is,
-                Suggested.IS = rowData(experiment())$SuggestedIS,
-                Selected.IS = comps$Selected.IS
-            )
-
-            utils::write.table(is_df,
-                               file = file.path(reports, "Used_IS.tsv"),
-                               sep = "\t", row.names = FALSE
-            )
-        }
-    })
+        utils::write.table(is_df,
+                           file = file.path(reports, "Used_IS.tsv"),
+                           sep = "\t", row.names = FALSE
+        )
+    }
 
     if (input$summary_report) {
         withProgress(message = "Generating Summary Report...", {
@@ -189,7 +183,5 @@ downloadZip <- function(fileOut, exp) {
         pboptions(type = "shiny", title = "Generating Compound Reports...")
         compoundReports(exp, compounds)
     }
-    w$hide()
-
     zipFolder(fileOut, output_folder)
 }

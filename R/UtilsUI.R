@@ -5,15 +5,15 @@
 #' @param exp
 #' @importFrom shiny req
 showOutliers <- function(exp) {
-    excl.aliquots <- colnames(exp)[which(!as.logical(exp$Use))]
-    rsdqc <- rowData(exp)$RSDQC.Corrected
+    excl.aliquots <- colnames(exp)[which(!as.logical(exp$use))]
+    rsdqc <- rowData(exp)$rsdqcCorrected
     excl.compounds <- names(which(!rsdqc < 30 | is.na(rsdqc)))
 
     df <- data.frame(
         Aliquots = excl.aliquots,
         colData(exp[, excl.aliquots])[, seq_len(3)]
     )
-    cols <- c("RSDQC", "RSDQC.Corrected")
+    cols <- c("rsdqc", "rsdqcCorrected")
     df2 <- data.frame(
         Compounds = excl.compounds,
         rowData(exp[excl.compounds, ])[, cols]
@@ -47,10 +47,10 @@ showOutliers <- function(exp) {
 #' @noRd
 updateInputs <- function(session, exp) {
     req(!is.null(exp))
-    batches <- c("All", unique(exp$Batch))
-    types <- sort(unique(exp$Type))
+    batches <- c("All", unique(exp$batch))
+    types <- sort(unique(exp$type))
     qc <- metadata(exp)$QC
-    qcTypes <- unique(c(qc, grep("QC", exp$Type, value = TRUE)))
+    qcTypes <- unique(c(qc, grep("QC", exp$type, value = TRUE)))
     batch_inputs <- c(
         "sample_batch", "correlation_batch",
         "heatmap_batch", "pca_batch", "rt_shift_batch",
@@ -81,13 +81,13 @@ updateInputs <- function(session, exp) {
                       selected = c(metadata(exp)$concentration, "SAMPLE"))
 
     updateSelectizeInput(session, "calibration_batch",
-                         choices = unique(exp$Batch),
-                         selected = unique(exp$Batch)[1]
+                         choices = unique(exp$batch),
+                         selected = unique(exp$batch)[1]
     )
 
     updateSelectizeInput(session, "compound_batch",
-                         choices = unique(exp$Batch),
-                         selected = unique(exp$Batch)[1]
+                         choices = unique(exp$batch),
+                         selected = unique(exp$batch)[1]
     )
 
     updateSelectInput(session, "compound_filtered",
@@ -120,49 +120,54 @@ updateInputs <- function(session, exp) {
 
     updateSelectizeInput(session, "assay_name",
                          choices = assays,
-                         selected = "Ratio Corrected"
+                         selected = "Ratio_Corrected"
     )
     updateSelectizeInput(session, "concentration_assay",
-                         choices = assays, selected = "Ratio Corrected"
+                         choices = assays, selected = "Ratio_Corrected"
     )
     updateSelectizeInput(session, "compound_assay",
                          choices = assays,
-                         selected = "Ratio Corrected"
+                         selected = "Ratio_Corrected"
     )
     updateSelectizeInput(session, "sample_assay",
                          choices = assays,
-                         selected = "Ratio Corrected"
+                         selected = "Ratio_Corrected"
     )
     updateSelectizeInput(session, "pca_assay",
                          choices = assays,
-                         selected = "Ratio Corrected"
+                         selected = "Ratio_Corrected"
     )
     updateSelectizeInput(session, "heatmap_assay",
                          choices = assays,
-                         selected = "Ratio Corrected"
+                         selected = "Ratio_Corrected"
     )
     updateSelectizeInput(session, "qc_assay",
                          choices = assays,
-                         selected = "Ratio Corrected"
+                         selected = "Ratio_Corrected"
     )
     updateSelectizeInput(session, "rsd_assay",
                          choices = assays,
-                         selected = "Ratio Corrected"
+                         selected = "Ratio_Corrected"
     )
 
     updateSelectizeInput(session, "volcanoAssay",
                          choices = assays,
-                         selected = "Ratio Corrected")
+                         selected = "Ratio_Corrected")
 
     updateSelectizeInput(session, "batchAssay",
                          choices = assays,
-                         selected = "Ratio Corrected")
+                         selected = "Ratio_Corrected")
     updateSelectizeInput(session, "calibration_assay",
-                         choices = assays, selected = "Ratio Corrected"
+                         choices = assays, selected = "Ratio_Corrected"
     )
     updateSelectizeInput(session, "linearCalibration_assay",
-                         choices = assays, selected = "Ratio Corrected"
+                         choices = assays, selected = "Ratio_Corrected"
     )
+    updateSelectizeInput(session, "downloadAssayPicker",
+                         choices = assays, selected = "Ratio_Corrected"
+    )
+
+
 
     updateSelectizeInput(session, "cv_plot_type",
                          choices = qcTypes,
@@ -204,7 +209,7 @@ updateInputs <- function(session, exp) {
     updateSelectInput(session, "compound_lines", choices = ops)
     updateSelectInput(session, "calibration_guides", choices = ops)
 
-    batches <- unique(exp$Batch)
+    batches <- unique(exp$batch)
 
     updateSelectInput(session, "linearCalibration_batch",
                       choices = batches, selected = batches[1]

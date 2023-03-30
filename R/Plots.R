@@ -9,7 +9,7 @@ renderAliquotPlot <- function(input, exp){
     req(!is.null(exp))
 
     p <- aliquotPlot(
-        exp = exp[, exp$Type %in% input$sample_filtered],
+        exp = exp[, exp$type %in% input$sample_filtered],
         batch = input$sample_batch,
         assay = input$sample_assay
     )
@@ -27,15 +27,15 @@ renderAliquotPlot <- function(input, exp){
 renderCompoundPlot <- function(input, exp){
     req(!is.null(exp))
 
-    exp <- exp[, exp$Type %in% input$compound_filtered &
-                   exp$Batch %in% input$compound_batch]
+    exp <- exp[, exp$type %in% input$compound_filtered &
+                   exp$batch %in% input$compound_batch]
 
     p <- compoundPlot(
         exp = exp,
         assay = input$compound_assay,
         compound = input$compound_metabolite,
         guides = input$compound_lines,
-        useISTD = "ISTD" %in% input$compound_filtered
+        includeIS = "ISTD" %in% input$compound_filtered
     )
 
     toPlotly(p)
@@ -50,8 +50,8 @@ renderCompoundPlot <- function(input, exp){
 #' @importFrom shiny req
 renderViolinPlot <- function(input, exp){
     req(!is.null(exp))
-    exp <- exp[, exp$Type == input$qc_type &
-                   exp$Batch == input$qc_batch]
+    exp <- exp[, exp$type == input$qc_type &
+                   exp$batch == input$qc_batch]
 
     p <- violinPlot(
         exp = exp,
@@ -75,11 +75,11 @@ renderPcaPlot <- function(input, exp, confidence = 0.95){
 
     batches <- input$pca_batch
     if (batches == "All") {
-        batches <- unique(exp$Batch)
+        batches <- unique(exp$batch)
     }
 
-    exp <- exp[, exp$Type %in% input$pca_filtered &
-                   exp$Batch %in% batches]
+    exp <- exp[, exp$type %in% input$pca_filtered &
+                   exp$batch %in% batches]
 
     p <- pcaPlot(
         exp = exp,
@@ -106,7 +106,7 @@ renderPcaPlot <- function(input, exp, confidence = 0.95){
 #' @importFrom shiny req
 renderBatchBoxPlot <- function(input, exp){
     req(!is.null(exp))
-    exp <- exp[, exp$Type == input$batch_filtered]
+    exp <- exp[, exp$type == input$batch_filtered]
 
     p <- batchCorrectionPlot(exp)
 
@@ -122,8 +122,8 @@ renderBatchBoxPlot <- function(input, exp){
 #' @importFrom shiny req
 renderHeatMapPlot <- function(input, exp){
     req(!is.null(exp))
-    exp <- exp[, exp$Batch %in% input$heatmap_batch &
-                 exp$Type %in% input$heatmap_type]
+    exp <- exp[, exp$batch %in% input$heatmap_batch &
+                 exp$type %in% input$heatmap_type]
 
     p <- heatmapPlot(
         exp = exp,
@@ -142,7 +142,7 @@ renderHeatMapPlot <- function(input, exp){
 #' @importFrom shiny req
 renderBatchAssayPlot <- function(input, exp){
     req(!is.null(exp))
-    exp <- exp[, exp$Type == input$batchAssayType]
+    exp <- exp[, exp$type == input$batchAssayType]
 
     p <- batchAssayPlot(
         exp = exp,
@@ -175,7 +175,7 @@ renderRsdqcPlot <- function(input, exp){
 #' @param exp
 #' @importFrom shiny req
 renderCalibrationPlot <- function(input, exp){
-    req(!is.null(exp) & any(c("CAL", "ACAL") %in% exp$Type))
+    req(!is.null(exp) & any(c("CAL", "ACAL") %in% exp$type))
 
     p <- calibrationPlot(
         exp = exp,
@@ -245,14 +245,14 @@ renderModelPlot <- function(df, model, compound){
 
     #subtitle <- sprintf("%s\n%s", subtitle, ranges)
 
-    df$Concentration[df$Type %in% 'SAMPLE'] <- 0
+    df$Concentration[df$type %in% 'SAMPLE'] <- 0
 
 
-    lowerIntercept <- df$Ratio[which(df$Calno == 2)][1]
-    upperIntercept <- df$Ratio[which(df$Calno == 6)][1]
+    lowerIntercept <- df$Ratio[which(df$calno == 2)][1]
+    upperIntercept <- df$Ratio[which(df$calno == 6)][1]
 
     p <- ggplot(df, aes(x = .data$Concentration, y = .data$Ratio)) + #
-        geom_point(aes(fill = .data$Type), size = 2) + # shape = Outlier
+        geom_point(aes(fill = .data$type), size = 2) + # shape = Outlier
         scale_fill_manual(values = c("red", "blue", "gray")) +
         scale_shape_manual(values = c(21, 24)) +
         ggplot2::geom_hline(yintercept = lowerIntercept, linetype = "dashed") +
