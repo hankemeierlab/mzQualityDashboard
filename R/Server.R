@@ -317,15 +317,17 @@ server <- function(input, output, session) {
 
       compounds <- useCompounds()
 
-      updateSelectizeInput(session, "compound_metabolite", choices = compounds)
-      updateSelectizeInput(session, "batchAssayCompound", choices = compounds)
-      updateSelectizeInput(session, "calibration_compound", choices = compounds)
+      updateSelectizeInput(session, "compound_metabolite", choices = compounds, server = TRUE)
+      updateSelectizeInput(session, "batchAssayCompound", choices = compounds, server = TRUE)
+      updateSelectizeInput(session, "calibration_compound", choices = compounds, server = TRUE)
 
       cals <- !is.na(exp()$Calno)
-      a <- rowSums(is.na(assay(exp()[, cals], "Concentration"))) != sum(cals)
-      choices <- names(which(a))
-      choices <- choices[choices %in% compounds]
-      updateSelectizeInput(inputId = "concentrationCompound", choices = choices, selected = choices[1])
+      if (!is.null(metadata(exp())$concentration)) {
+          a <- rowSums(is.na(assay(exp()[, cals], "Concentration"))) != sum(cals)
+          choices <- names(which(a))
+          choices <- choices[choices %in% compounds]
+          updateSelectizeInput(inputId = "concentrationCompound", choices = choices, selected = choices[1])
+      }
   })
 
   observeEvent(input$sidebar, {

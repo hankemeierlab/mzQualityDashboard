@@ -2,6 +2,7 @@
 
 export(openDashboard)
 export(toPlotly)
+importFrom(DT,dataTableOutput)
 importFrom(DT,datatable)
 importFrom(DT,renderDataTable)
 importFrom(S4Vectors,"metadata<-")
