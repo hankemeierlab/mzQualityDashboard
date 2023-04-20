@@ -52,7 +52,7 @@ updateInputs <- function(session, exp) {
     batch_inputs <- c(
         "sample_batch", "correlation_batch",
         "heatmap_batch", "pca_batch", "rt_shift_batch",
-        "concentration_batch", "assay_batch", "qc_batch",
+        "concentration_batch", "assay_batch", "qc_batch", "modelBatch",
         "replicate_batch", "effect_batch", "cv_batch", "concentrationBatch"
     )
     for (inp in batch_inputs) {
@@ -64,7 +64,7 @@ updateInputs <- function(session, exp) {
 
     type_inputs <- c(
         "correlation_type", "rt_shift_type", "cv_type", "batchAssayType",
-        "replicate_type", "assay_type", "concentration_type"
+        "replicate_type", "assay_type", "concentrationType"
     )
     for (inp in type_inputs) {
         updateSelectizeInput(session,
@@ -113,6 +113,9 @@ updateInputs <- function(session, exp) {
                       selected = types
     )
 
+    updateSelectInput(session, "compound_trends", choices = types, selected = metadata(exp)$QC)
+
+    updateSelectizeInput(session, "qc_type", choices = types, selected = metadata(exp)$QC)
 
     assays <- assayNames(exp)
 
@@ -190,10 +193,6 @@ updateInputs <- function(session, exp) {
                          choices = qcTypes,
                          selected = qc
     )
-    updateSelectizeInput(session, "qc_type",
-                         choices = qcTypes,
-                         selected = qc
-    )
 
     updateSliderInput(session, "rsd_number",
                       value = 5,
@@ -204,7 +203,6 @@ updateInputs <- function(session, exp) {
         "95% CI", "Limit of Blank", "Limit of Detection",
         "Limit of Quantification"
     )
-    updateSelectInput(session, "compound_lines", choices = ops)
     updateSelectInput(session, "calibration_guides", choices = ops)
 
     batches <- unique(exp$batch)

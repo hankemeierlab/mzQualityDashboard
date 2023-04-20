@@ -167,9 +167,17 @@ combinedTable <- function(combined){
 rowDataTable <- function(exp){
     req(!is.null(exp))
 
+    cols <- sapply(rowData(exp), function(x) !"matrix" %in% class(x))
+
+    x <- rowData(exp)[, cols]
+    cols <- sapply(x, function(z) "numeric" %in% class(z))
+
+    x <- cbind(x[-which(cols)], round(as.data.frame(x[, which(cols)]), 3))
+    print(x)
+
     data <- cbind(
         Compound = rownames(exp),
-        as.data.frame(rowData(exp))
+        as.data.frame(x)
     )
 
     return(renderTable(
@@ -208,8 +216,8 @@ colDataTable <- function(exp){
 #' @importFrom shiny req
 assayTable <- function(input, exp){
     req(!is.null(exp))
-    assayTable <- exp[, exp$Batch == input$assay_batch &
-                        exp$Type == input$assay_type]
+    assayTable <- exp[, exp$batch == input$assay_batch &
+                        exp$type == input$assay_type]
 
     table <- as.data.frame(cbind(
       Compound = rownames(exp),
@@ -218,6 +226,24 @@ assayTable <- function(input, exp){
 
     return(renderTable(
         df = table,
+        scrollY = 800
+    ))
+}
+
+concentrationTable <- function(input, exp) {
+    req(!is.null(exp))
+    assayTable <- exp[input$concentrationCompound,
+                      exp$batch == input$concentrationBatch &
+                      exp$type %in% "ACAL"]
+
+
+    table <- as.data.frame(cbind(
+        Compound = rownames(exp),
+        round(assay(assayTable, input$concentrationAssay), 3)
+    ))
+
+    return(renderTable(
+        df = stack(table),
         scrollY = 800
     ))
 }
@@ -231,7 +257,7 @@ assayTable <- function(input, exp){
 batchCorrectionFactorTable <- function(exp){
     req(!is.null(exp))
 
-    exp <- exp[, exp$Type == metadata(exp)$QC]
+    exp <- exp[, exp$type == metadata(exp)$QC]
 
     exp <- exp[, which(!duplicated(exp$Batch))]
 
@@ -242,24 +268,28 @@ batchCorrectionFactorTable <- function(exp){
     return(renderTable(df, rowHeaders = rownames(exp)))
 }
 
-modelPropertyTable <- function(input, exp){
+modelTable <- function(input, exp){
+    req(!is.null(exp))
 
-    # DEFUNCT FUNCTION
-    req(!is.null(exp) & !is.null(metadata(exp)$Models))
-    func <- input$model_function
-    x <- exp()
-    models <- metadata(x)$Models
-    res <- do.call(cbind, lapply(names(models), function(batchName){
-        batchModels <- models[[batchName]]
-        df <- do.call(rbind, lapply(batchModels, function(compoundModel){
-            do.call(func, list(compoundModel$Model))
-        }))
-        colnames(df) <- colnames(x[, x$Type == metadata(x)$concentration &
-                                       x$Batch == batchName])
-        df
-    }))
-    render_table(cbind(Compound = rownames(res), round(res, 3)))
+    df <- rowData(exp)[[input$model_function]]
+
+    if (any(colnames(df) %in% colnames(exp))) {
+        exp <- exp[, exp$batch %in% input$modelBatch]
+        df <- df[, intersect(colnames(df), colnames(exp)), drop = FALSE]
+
+    } else {
+        df <- df[, intersect(colnames(df), input$modelBatch), drop = FALSE]
+        colnames(df) <- input$modelBatch
+    }
+
+    idx <- complete.cases(df)
+    df <- df[idx, ]
+    rows <- rownames(exp)[idx]
+
+    return(renderTable(round(df, 3), rowHeaders = rows))
 }
+
+
 
 #' @title
 #' @description

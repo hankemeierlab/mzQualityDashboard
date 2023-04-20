@@ -33,31 +33,10 @@ assayTablePage <- function(){
                 ))
             )
         )),
-        shiny.box_table("Assay", "assay", height = "65vh")
+        shiny.box_table("Assay", "assayData", height = "65vh")
     )
 }
 
-
-
-concentrationTablePage <- function(){
-    fluidPage(
-        shiny.box_controls(list(
-            fluidRow(
-                column(6, selectizeInput("concentration_type",
-                                         label = "Aliquot type",
-                                         choices = c()
-                )),
-                column(6, selectizeInput("concentration_batch",
-                                         label = "Batch",
-                                         choices = c()
-                ))
-            )
-        )),
-        shiny.box_table("Modelled concentrations", "concentrations",
-                        height = "65vh"
-        )
-    )
-}
 
 qcTablePlot <- function(){
     fluidPage(
@@ -82,7 +61,8 @@ modelTablePage <- function(){
                 column(6, selectizeInput(
                     inputId = "model_function",
                     label = "Function",
-                    choices = c("residuals", "fitted.values", "effects")))
+                    choices = c("studentizedResiduals", "concentrationR2", "Outliers", "linearRanges", "calRatios"))),
+                column(6, selectInput("modelBatch", label = "Batch", choices = c(), multiple = TRUE))
             )
         )),
         shiny.box_table("Model Info", "model_table", height = "65vh")

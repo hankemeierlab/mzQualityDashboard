@@ -62,10 +62,6 @@ buildExperimentEvent <- function(session, input, combined){
         qc = qcValue,
     )
 
-    if (length(input$calFile) > 0) {
-        conc <- utils::read.delim(input$calFile$datapath, check.names = FALSE)
-        exp <- mzQuality2:::addConcentrations2(exp, conc)
-    }
 
     if (input$filterISTD) {
         exp <- filterISTD(exp, "ISTD")
@@ -76,7 +72,12 @@ buildExperimentEvent <- function(session, input, combined){
 
     exp <- doAnalysis(exp = exp, doAll = TRUE)
 
-    print(exp)
+    addedConcentrations <- length(input$calFile) > 0
+    if (addedConcentrations) {
+        conc <- utils::read.delim(input$calFile$datapath, check.names = FALSE)
+        exp <- addConcentrations(exp, conc)
+    }
+
     return(exp)
 }
 

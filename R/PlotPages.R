@@ -20,8 +20,8 @@ compoundPlotPage <- function(){
                                       label = "Batch",
                                       choices = c(), multiple = TRUE
                 )),
-                column(4, selectInput("compound_lines",
-                                      label = "Guides",
+                column(4, selectInput("compound_trends",
+                                      label = "Trendlines",
                                       choices = c(), multiple = TRUE
                 ))
             )
@@ -47,7 +47,7 @@ pcaPlotPage <- function(){
             ),
             fluidRow(
                 column(2, numericInput("PCA_X", "Component X-axis", value = 1, min = 1, step = 1)),
-                column(2, numericInput("PCA_Y", "Component Y-axis", value = 2, min = 1, step = 1)),
+                column(2, numericInput("PCA_Y", "Component Y-axis", value = 2, min = 2, step = 1)),
                 column(2, selectizeInput("pca_confidence",
                                          label = "95% CI",
                                          choices = c(TRUE, FALSE)
@@ -84,10 +84,10 @@ qcPlotPage <- function(){
                                          choices = c()
                 )),
                 column(4, selectizeInput("qc_type",
-                                         label = "QC type",
-                                         choices = c("SQC", "LQC")
+                                         label = "Type",
+                                         choices = c()
                 )),
-                column(4, selectizeInput("qc_batch", label = "Batch",
+                column(4, selectInput("qc_batch", label = "Batch", multiple = TRUE,
                                          choices = c()
                 ))
             )
@@ -131,55 +131,36 @@ concentrationPlotPage <- function(){
                     label = "Compound",
                     choices = c()
                 )),
-                column(3, selectizeInput(
-                    inputId = "concentrationAssay",
-                    label = "Assay",
-                    choices = c("Ratio", "Ratio Corrected")
-                )),
-                column(3, selectizeInput(
-                    inputId = "concentrationBatch",
-                    label = "Batch",
-                    choices = c()
-                )),
                 column(3, selectInput(
                     inputId = "concentrationType",
                     label = "Type",
-                    choices = c()
-                ))
-            ),
-            fluidRow(
-                column(3, selectizeInput(
-                    inputId = "concentrationModel",
-                    label = "Calibration Type",
-                    choices = c("CAL", "ACAL")
+                    choices = c(),
+                    multiple = TRUE
                 )),
-                column(3, selectizeInput(
-                    inputId = "concentrationWeighted",
-                    label = "Use a weighted model (not implemented)",
-                    choices = c(TRUE, FALSE)
+                column(2, selectizeInput(
+                    inputId = "concentrationAssay",
+                    label = "Assay",
+                    choices = c("Concentration", "Concentration_Corrected")
                 )),
-                column(3, selectInput(
-                    inputId = "concentrationAdjustment",
-                    label = "Adjust Model",
-                    multiple = FALSE,
-                    choices = c("No Adjustment", "Subtract CAL0", "Force Through Origin")
+                column(2, selectInput(
+                    inputId = "concentrationBatch",
+                    label = "Batch",
+                    choices = c(),
+                    multiple = TRUE
                 )),
-                column(3, selectizeInput(
-                    inputId = "concentrationOutliers",
-                    label = "Remove Outliers",
-                    choices = c(TRUE, FALSE)
-                ))
+                column(2, checkboxInput("concentrationPlotOnLine", "Plot concentrations on Calibration Line"))
+
             )
         )),
         fluidRow(
-            column(4, shiny.box_table(
-                "Data",
-                "ConcentrationTable",
-                height = "65vh"
-            )),
-            column(8, shiny.box_plot(
+            # column(4, shiny.box_table(
+            #     "Data",
+            #     "concentrationTable",
+            #     height = "65vh"
+            # )),
+            column(12, shiny.box_plot(
                 "Calibration Model Plot",
-                "LinearCalibration",
+                "concentrationPlot",
                 "65vh")
             )
         )

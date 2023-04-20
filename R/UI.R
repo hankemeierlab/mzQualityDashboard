@@ -100,7 +100,6 @@ sidebar <- function() {
             menuSubItem("Aliquot Data", "ColData", icon = icon),
             menuSubItem("Compound Data", "RowData", icon = icon),
             menuSubItem("Assay Data", "Assays", icon = icon),
-            menuSubItem("Concentrations", "concentrations_tab", icon = icon),
             menuSubItem("Model Info", "model_tab", icon = icon),
             menuSubItem("Carry-Over effect", "carryover_tab", icon = icon)
         ),
@@ -162,7 +161,6 @@ ui <- function() {
         tabItem(tabName = "RowData", compoundTablePage()),
         tabItem(tabName = "Assays", assayTablePage()),
         tabItem(tabName = "qcTable", qcTablePlot()),
-        tabItem(tabName = "concentrations_tab", concentrationTablePage()),
         tabItem(tabName = "model_tab", modelTablePage()),
         tabItem(tabName = "Heatmap_tab", heatmapPlotPage()),
         tabItem(tabName = "Aliquots_tab", aliquotPlotPage()),

@@ -55,7 +55,12 @@ server <- function(input, output, session) {
       exp = experiment,
       aliquots = aliquots,
       doAll = length(input$aliquots_rows_selected) == 0
-    )
+    ) %>%
+        calculateConcentrations(type = "ACAL") %>%
+        addBatchCorrectionAssay(assay = "Concentration")
+
+    updateInputs(session, x)
+
 
     # # Return x
     return(x)
@@ -123,7 +128,7 @@ server <- function(input, output, session) {
   )
 
   # Assay / Values Table
-  output$assay <- DT::renderDataTable(
+  output$assayData <- DT::renderDataTable(
       assayTable(input, exp()[useCompounds(), ])
   )
 
@@ -134,7 +139,7 @@ server <- function(input, output, session) {
 
   # Table of Model Effects, R2, etc.
   output$model_table <- DT::renderDataTable(
-      modelPropertyTable(input, exp()[useCompounds(), ])
+      modelTable(input, exp()[useCompounds(), ])
   )
 
   # Table of Background effects
@@ -155,6 +160,10 @@ server <- function(input, output, session) {
   # Table of Replicate RSDQCs
   output$replicates <- DT::renderDataTable(
       replicateTable(input, exp()[useCompounds(), ])
+  )
+
+  output$concentrationTable <- DT::renderDataTable(
+      concentrationTable(input, exp()[useCompounds(), ])
   )
 
 
@@ -211,81 +220,10 @@ server <- function(input, output, session) {
   )
 
 
-  # Linear Model Plot, should look into for model creation
-  observe({
-    if (input$sidebar == "concentrationPlot") {
-      exp <- exp()[useCompounds(), ]
-      req("Concentration" %in% assayNames(exp) & !is.null(exp))
 
-
-      compound <- input$concentrationCompound
-      calType <- input$concentrationModel
-      batch <- input$concentrationBatch
-
-      # modifiers <- input$concentrationAdjustment
-      # print(modifiers)
-      # if (length(modifiers) == 0){
-      #   modifiers <- c()
-      # }
-
-      model <- setCompoundModel(
-        exp = exp,
-        assay = input$concentrationAssay,
-        compound = compound,
-        batch = batch,
-        weighted = FALSE, #as.logical(input$concentrationWeighted),
-        type = calType,
-        modifiers = input$concentrationAdjustment,
-        removeOutliers = as.logical(input$concentrationOutliers)
-      )
-
-      concentrations <- getCompoundConcentrations(
-        exp = exp,
-        model = model,
-        batch = batch,
-        compound = compound,
-        assay = input$concentrationAssay,
-        type = calType
-      )
-
-      m <- as.matrix(concentrations)
-      assay(exp[compound, colnames(concentrations)], "Concentration", withDimnames = FALSE) <- m
-
-
-      cals <- exp$type == calType
-      subset <- exp[compound, exp$batch == batch & (exp$type %in% "SAMPLE" | cals)]
-
-      ratios <- as.vector(assay(subset, "Ratio"))
-      conc <- as.vector(assay(subset, "Concentration"))
-
-
-      idx <- as.integer(rownames(model$model))
-      ratios[idx] <- model$model$Assay[idx]
-
-      df <- data.frame(
-        Aliquot = colnames(subset),
-        Concentration = round(conc, 4),
-        Ratio = round(ratios, 4),
-        Type = subset$type,
-        Calno = subset$calno
-      )
-
-
-      table <- datatable(df,
-        escape = FALSE,
-        extensions = c("Scroller"),
-        options = list(
-          scrollY = 600,
-          scroller = TRUE
-        )
-      )
-
-      output$ConcentrationTable <- DT::renderDataTable(table)
-      output$LinearCalibration <- plotly::renderPlotly(renderModelPlot(df, model, compound))
-
-    }
-  })
-
+  output$concentrationPlot <- plotly::renderPlotly(
+      renderConcentrationPlot(input, exp()[useCompounds(), ])
+  )
 
 
 # Events ------------------------------------------------------------------
@@ -315,11 +253,15 @@ server <- function(input, output, session) {
       updateSelectizeInput(session, "batchAssayCompound", choices = compounds, server = TRUE)
       updateSelectizeInput(session, "calibration_compound", choices = compounds, server = TRUE)
 
-      cals <- !is.na(exp()$calno)
-      if (!is.null(metadata(exp())$concentration)) {
-          a <- rowSums(is.na(assay(exp()[, cals], "Concentration"))) != sum(cals)
-          choices <- names(which(a))
+
+      type <- metadata(exp())$concentration
+      if (!is.null(type)) {
+          knowns <- assay(exp()[, exp()$type == type], "Concentration")
+
+          choices <- rownames(knowns)[rowSums(knowns == 0) != ncol(knowns)]
           choices <- choices[choices %in% compounds]
+          print(choices)
+          print(knowns[choices, ])
           updateSelectizeInput(inputId = "concentrationCompound", choices = choices, selected = choices[1])
       }
   })

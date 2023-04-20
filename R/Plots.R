@@ -8,10 +8,11 @@
 renderAliquotPlot <- function(input, exp){
     req(!is.null(exp))
 
-    p <- aliquotPlot(
-        exp = exp[, exp$type %in% input$sample_filtered],
+    p <- aliquotPlotNew(
+        exp = exp,
         batch = input$sample_batch,
-        assay = input$sample_assay
+        assay = input$sample_assay,
+        types = input$sample_filtered
     )
 
     toPlotly(p)
@@ -27,18 +28,24 @@ renderAliquotPlot <- function(input, exp){
 renderCompoundPlot <- function(input, exp){
     req(!is.null(exp))
 
-    exp <- exp[, exp$type %in% input$compound_filtered &
-                   exp$batch %in% input$compound_batch]
 
-    p <- compoundPlot(
+    library(ggplot2)
+    p <- compoundPlotNew(
         exp = exp,
         assay = input$compound_assay,
         compound = input$compound_metabolite,
-        guides = input$compound_lines,
-        includeIS = "ISTD" %in% input$compound_filtered
+        batches = input$compound_batch,
+        types = input$compound_filtered,
+        withinTrend = TRUE,
+        trendTypes = input$compound_trends,
+        #includeIS = "ISTD" %in% input$compound_filtered
     )
+    N <- length(input$compound_batch)
+    if (N > 1) {
+        p <- facetPlot(p, ncol = round(N / 2))
+    }
 
-    toPlotly(p)
+    toPlotly(p, dynamicTicks = FALSE)
 }
 
 #' @title
@@ -50,12 +57,20 @@ renderCompoundPlot <- function(input, exp){
 #' @importFrom shiny req
 renderViolinPlot <- function(input, exp){
     req(!is.null(exp))
-    exp <- exp[, exp$type == input$qc_type &
-                   exp$batch == input$qc_batch]
 
-    p <- violinPlot(
+    batches <- input$qc_batch
+    if ("All" %in% batches) {
+        batches <- unique(exp$batch)
+    }
+
+    p <- violinPlotNew(
         exp = exp,
-        assay = input$qc_assay
+        assay = input$qc_assay,
+        batches = batches,
+        types = input$qc_type,
+        addMedian = TRUE,
+        addConfidenceInterval = TRUE,
+        withinTrend = FALSE
     )
 
     toPlotly(p, dynamicTicks = FALSE)
@@ -78,21 +93,18 @@ renderPcaPlot <- function(input, exp, confidence = 0.95){
         batches <- unique(exp$batch)
     }
 
-    exp <- exp[, exp$type %in% input$pca_filtered &
-                   exp$batch %in% batches]
 
-    p <- pcaPlot(
+    p <- pcaPlotNew(
         exp = exp,
         assay = input$pca_assay,
-        componentX = input$PCA_X,
-        componentY = input$PCA_Y
+        pc1 = input$PCA_X,
+        pc2 = input$PCA_Y,
+        batches = batches,
+        sampleAsBatch = TRUE,
+        addConfidenceInterval = input$pca_confidence,
+        types = input$pca_filtered,
+        doLog = TRUE
     )
-
-    # Add 95% Confidence Interval, relocate to mzQuality package
-    if (as.logical(input$pca_confidence)) {
-        p <- p + stat_ellipse(level = confidence)
-    }
-
     # Convert to Plotly
     toPlotly(p)
 }
@@ -131,6 +143,28 @@ renderHeatMapPlot <- function(input, exp){
     )
 
     return(toPlotly(p))
+}
+
+renderConcentrationPlot <- function(input, exp){
+    req(!is.null(exp))
+    p <- concentrationPlotNew(
+        exp = exp,
+        assay = input$concentrationAssay,
+        compound = input$concentrationCompound,
+        calType = "ACAL",
+        batch = input$concentrationBatch,
+        plotOnCalibrationLine = input$concentrationPlotOnLine,
+        types = input$concentrationType
+    )
+
+    library(ggplot2)
+    N <- length(input$concentrationBatch)
+    if (N > 1) {
+        p <- p %>%
+            facetPlot(by = "batch", shareY = TRUE, shareX = TRUE, ncol = round(N / 2))
+    }
+
+    return(toPlotly(p, dynamicTicks = N == 1))
 }
 
 #' @title

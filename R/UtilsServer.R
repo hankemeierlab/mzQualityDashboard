@@ -48,7 +48,8 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
             scrollY = scrollY,
             scroller = TRUE,
             scrollX = TRUE,
-            fixedColumns = list(leftColumns = 1)
+            fixedColumns = list(leftColumns = 1),
+            columnDefs = list(list(className = 'dt-left', targets = "_all"))
         )
     )
 
