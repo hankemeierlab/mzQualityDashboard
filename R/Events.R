@@ -75,7 +75,7 @@ buildExperimentEvent <- function(session, input, combined){
     addedConcentrations <- length(input$calFile) > 0
     if (addedConcentrations) {
         conc <- utils::read.delim(input$calFile$datapath, check.names = FALSE)
-        exp <- addConcentrations(exp, conc)
+        exp <- addConcentrations(exp, conc, filterComps = FALSE)
     }
 
     return(exp)
@@ -113,7 +113,7 @@ calTableClickEvent <- function(){
 
     # DEFUNCT
 
-    req("Concentration" %in% assayNames(exp()) & !is.null(experiment()))
+    req("concentration" %in% assayNames(exp()) & !is.null(experiment()))
 
     exp <- experiment()
     x <- exp[, exp$batch == input$linearCalibration_batch &
@@ -125,15 +125,15 @@ calTableClickEvent <- function(){
     to_remove <- which(table == FALSE)
 
     if (length(to_remove) > 0) {
-        assay(x, "Concentration")[to_remove] <- NA
+        assay(x, "concentration")[to_remove] <- NA
     }
 
     to_add <- which(table == TRUE)
     if (length(to_add) > 0) {
-        assay(x, "Concentration")[to_add] <- concentrations()[to_add]
+        assay(x, "concentration")[to_add] <- concentrations()[to_add]
     }
     if (length(to_remove) > 0 | length(to_add) > 0) {
-        assay(exp, "Concentration")[rownames(x), colnames(x)] <- assay(x, "Concentration")
+        assay(exp, "concentration")[rownames(x), colnames(x)] <- assay(x, "concentration")
         experiment(exp)
     }
 }

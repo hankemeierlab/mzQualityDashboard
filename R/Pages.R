@@ -29,7 +29,7 @@ homePage <- function() {
                 ),
                 fileInput(
                     inputId = "calFile",
-                    label = "Calibration file",
+                    label = "(Optional) Select your file with known concentrations",
                     multiple = FALSE,
                     accept = c(".txt", ".tsv")
                 ),
@@ -40,10 +40,6 @@ homePage <- function() {
                 ),
                 checkboxInput("filterSST", "Remove SSTs from Aliquots",
                               value = TRUE
-                ),
-                checkboxInput("showOutliers",
-                              value = TRUE,
-                              "Show popup of removed Aliquots and Compounds"
                 )
             ),
             title = NULL,

@@ -55,12 +55,15 @@ server <- function(input, output, session) {
       exp = experiment,
       aliquots = aliquots,
       doAll = length(input$aliquots_rows_selected) == 0
-    ) %>%
-        calculateConcentrations(type = "ACAL") %>%
-        addBatchCorrectionAssay(assay = "Concentration")
+    )
+
+    if ("concentration" %in% assayNames(x)) {
+        x <- x %>%
+            calculateConcentrations(type = "ACAL") %>%
+            addBatchCorrectionAssay(assay = "concentration")
+    }
 
     updateInputs(session, x)
-
 
     # # Return x
     return(x)
@@ -256,12 +259,10 @@ server <- function(input, output, session) {
 
       type <- metadata(exp())$concentration
       if (!is.null(type)) {
-          knowns <- assay(exp()[, exp()$type == type], "Concentration")
+          knowns <- assay(exp()[, exp()$type == type], "concentration")
 
           choices <- rownames(knowns)[rowSums(knowns == 0) != ncol(knowns)]
           choices <- choices[choices %in% compounds]
-          print(choices)
-          print(knowns[choices, ])
           updateSelectizeInput(inputId = "concentrationCompound", choices = choices, selected = choices[1])
       }
   })
@@ -291,15 +292,24 @@ server <- function(input, output, session) {
   output$download_zip <- downloadHandler(
       contentType = "application/zip",
       filename = "mzQuality.zip",
-      content = function(x) {
+      content = function(file) {
           req(!is.null(exp))
 
           withProgress(message = "Generating output files...", {
               w$show()
               project <- ifelse(input$project == "", "mzQuality", input$project)
-              zip <- downloadZip(project, exp(), x, experiment)
+              zip <- downloadZip(
+                  project = project,
+                  exp = exp(),
+                  fileOut = file,
+                  fullExp = experiment,
+                  summaryReport = as.logical(input$summary_report),
+                  compoundReport = as.logical(input$compound_report),
+                  summaryPlots = input$downloadPlotPicker,
+                  assays = input$downloadAssayPicker
+              )
               w$hide()
-              zip
+              return(zip)
           })
       }
   )
@@ -325,3 +335,7 @@ openDashboard <- function(browser = TRUE, host = "0.0.0.0", port = 3838) {
     launch.browser = browser
   ))
 }
+
+#' @rdname openDashboard
+#' @export
+shiny <- openDashboard

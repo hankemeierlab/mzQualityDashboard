@@ -15,7 +15,12 @@ renderAliquotPlot <- function(input, exp){
         types = input$sample_filtered
     )
 
-    toPlotly(p)
+    N <- length(input$sample_batch)
+    if (N > 1) {
+        p <- facetPlot(p, ncol = round(N / 2))
+    }
+
+    suppressWarnings(plotly::ggplotly(p = p))
 }
 
 #' @title
@@ -45,7 +50,7 @@ renderCompoundPlot <- function(input, exp){
         p <- facetPlot(p, ncol = round(N / 2))
     }
 
-    toPlotly(p, dynamicTicks = FALSE)
+    toPlotly(p, dynamicTicks = TRUE)
 }
 
 #' @title
@@ -87,19 +92,12 @@ renderViolinPlot <- function(input, exp){
 renderPcaPlot <- function(input, exp, confidence = 0.95){
     req(!is.null(exp))
 
-
-    batches <- input$pca_batch
-    if (batches == "All") {
-        batches <- unique(exp$batch)
-    }
-
-
     p <- pcaPlotNew(
         exp = exp,
         assay = input$pca_assay,
-        pc1 = input$PCA_X,
-        pc2 = input$PCA_Y,
-        batches = batches,
+        pc1 = 1, #input$PCA_X,
+        pc2 = 2, #input$PCA_Y,
+        batches = input$pca_batch,
         sampleAsBatch = TRUE,
         addConfidenceInterval = input$pca_confidence,
         types = input$pca_filtered,
@@ -147,6 +145,8 @@ renderHeatMapPlot <- function(input, exp){
 
 renderConcentrationPlot <- function(input, exp){
     req(!is.null(exp))
+
+
     p <- concentrationPlotNew(
         exp = exp,
         assay = input$concentrationAssay,
@@ -276,13 +276,13 @@ renderModelPlot <- function(df, model, compound){
 
     #subtitle <- sprintf("%s\n%s", subtitle, ranges)
 
-    df$Concentration[df$type %in% 'SAMPLE'] <- 0
+    df$concentration[df$type %in% 'SAMPLE'] <- 0
 
 
-    lowerIntercept <- df$Ratio[which(df$calno == 2)][1]
-    upperIntercept <- df$Ratio[which(df$calno == 6)][1]
+    lowerIntercept <- df$ratio[which(df$calno == 2)][1]
+    upperIntercept <- df$ratio[which(df$calno == 6)][1]
 
-    p <- ggplot(df, aes(x = .data$Concentration, y = .data$Ratio)) + #
+    p <- ggplot(df, aes(x = .data$concentration, y = .data$ratio)) + #
         geom_point(aes(fill = .data$type), size = 2) + # shape = Outlier
         scale_fill_manual(values = c("red", "blue", "gray")) +
         scale_shape_manual(values = c(21, 24)) +

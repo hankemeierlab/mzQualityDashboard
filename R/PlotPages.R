@@ -34,25 +34,29 @@ pcaPlotPage <- function(){
     fluidPage(
         shiny.box_controls(list(
             fluidRow(
-                column(6, selectizeInput("pca_assay", label = "Assay",
+                column(3, selectizeInput("pca_assay", label = "Assay",
                                          choices = c()
                 )),
                 column(3, selectInput("pca_filtered",
                                       label = "Type", choices = c(),
                                       multiple = TRUE
                 )),
-                column(3, selectizeInput("pca_batch", label = "Batch",
-                                         choices = c())
-                )
-            ),
-            fluidRow(
-                column(2, numericInput("PCA_X", "Component X-axis", value = 1, min = 1, step = 1)),
-                column(2, numericInput("PCA_Y", "Component Y-axis", value = 2, min = 2, step = 1)),
-                column(2, selectizeInput("pca_confidence",
+                column(3, selectInput("pca_batch", label = "Batch",
+                                         choices = c(), multiple = TRUE)
+                ),
+                column(3, selectizeInput("pca_confidence",
                                          label = "95% CI",
                                          choices = c(TRUE, FALSE)
                 ))
             )
+            # fluidRow(
+            #     # column(2, numericInput("PCA_X", "Component X-axis", value = 1, min = 1, step = 1)),
+            #     # column(2, numericInput("PCA_Y", "Component Y-axis", value = 2, min = 2, step = 1)),
+            #     column(2, selectizeInput("pca_confidence",
+            #                              label = "95% CI",
+            #                              choices = c(TRUE, FALSE)
+            #     ))
+            # )
         )),
         shiny.box_plot("PCA Plot", "pca_plot", "65vh")
     )
@@ -140,7 +144,7 @@ concentrationPlotPage <- function(){
                 column(2, selectizeInput(
                     inputId = "concentrationAssay",
                     label = "Assay",
-                    choices = c("Concentration", "Concentration_Corrected")
+                    choices = c("concentration", "concentration_corrected")
                 )),
                 column(2, selectInput(
                     inputId = "concentrationBatch",
@@ -201,8 +205,8 @@ aliquotPlotPage <- function(){
                                       label = "Type", choices = c(),
                                       multiple = TRUE
                 )),
-                column(4, selectizeInput("sample_batch", label = "Batch",
-                                         choices = c()
+                column(4, selectInput("sample_batch", label = "Batch",
+                                         choices = c(), multiple = TRUE
                 ))
             )
         )),

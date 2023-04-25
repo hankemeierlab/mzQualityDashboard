@@ -2,9 +2,12 @@
 % Please edit documentation in R/Server.R
 \name{openDashboard}
 \alias{openDashboard}
+\alias{shiny}
 \title{Run mzQuality in the browser}
 \usage{
 openDashboard(browser = TRUE, host = "0.0.0.0", port = 3838)
+
+shiny(browser = TRUE, host = "0.0.0.0", port = 3838)
 }
 \arguments{
 \item{browser}{Should the browser be started?}

@@ -36,7 +36,6 @@ compoundTable <- function(exp, select = which(!rowData(exp)$Use)){
     df <- rowData(exp)
     df$compound <- rownames(df)
 
-    print(df)
 
     df <- as.data.frame(df[, columns])
     rownames(df) <- 1:nrow(df)
@@ -173,7 +172,6 @@ rowDataTable <- function(exp){
     cols <- sapply(x, function(z) "numeric" %in% class(z))
 
     x <- cbind(x[-which(cols)], round(as.data.frame(x[, which(cols)]), 3))
-    print(x)
 
     data <- cbind(
         Compound = rownames(exp),
@@ -261,7 +259,7 @@ batchCorrectionFactorTable <- function(exp){
 
     exp <- exp[, which(!duplicated(exp$Batch))]
 
-    df <- assay(exp, "Ratio") / assay(exp, "Ratio Corrected")
+    df <- assay(exp, "ratio") / assay(exp, "ratio_corrected")
 
     colnames(df) <- paste("Batch", unique(exp$Batch))
 
@@ -362,7 +360,7 @@ replicateTable <- function(input, exp){
 
     df <- do.call(cbind, lapply(replicates, function(name) {
         # Replace with RSDQC function? Also saves import
-        df <- assay(x[, x$Sample == name], "Ratio Corrected")
+        df <- assay(x[, x$Sample == name], "ratio_corrected")
         rowSds(df, na.rm = TRUE) / rowMeans(df, na.rm = TRUE) * 100
     }))
 

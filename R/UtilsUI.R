@@ -45,22 +45,28 @@ showOutliers <- function(exp) {
 #' @noRd
 updateInputs <- function(session, exp) {
     req(!is.null(exp))
-    batches <- c("All", unique(exp$batch))
+    batches <- unique(exp$batch)
     types <- sort(unique(exp$type))
     qc <- metadata(exp)$QC
     qcTypes <- unique(c(qc, grep("QC", exp$type, value = TRUE)))
     batch_inputs <- c(
         "sample_batch", "correlation_batch",
-        "heatmap_batch", "pca_batch", "rt_shift_batch",
+        "heatmap_batch", "rt_shift_batch",
         "concentration_batch", "assay_batch", "qc_batch", "modelBatch",
         "replicate_batch", "effect_batch", "cv_batch", "concentrationBatch"
     )
     for (inp in batch_inputs) {
         updateSelectizeInput(session, inp,
                              choices = batches,
-                             selected = batches[2]
+                             selected = batches[1]
         )
     }
+
+    updateSelectizeInput(session, "pca_batch",
+                         choices = unique(exp$batch),
+                         selected = unique(exp$batch)
+    )
+
 
     type_inputs <- c(
         "correlation_type", "rt_shift_type", "cv_type", "batchAssayType",
@@ -72,11 +78,12 @@ updateInputs <- function(session, exp) {
                              choices = types
         )
     }
-    updateSelectInput(session, "pcaMetricsType", choices = types,
+
+    updateSelectInput(session, "concentrationType", choices = types,
                       selected = c(metadata(exp)$QC, "SAMPLE"))
 
-    updateSelectInput(session, "linearCalibration_type", choices = types,
-                      selected = c(metadata(exp)$concentration, "SAMPLE"))
+    updateSelectInput(session, "pcaMetricsType", choices = types,
+                      selected = c(metadata(exp)$QC, "SAMPLE"))
 
     updateSelectizeInput(session, "calibration_batch",
                          choices = unique(exp$batch),
@@ -118,54 +125,55 @@ updateInputs <- function(session, exp) {
     updateSelectizeInput(session, "qc_type", choices = types, selected = metadata(exp)$QC)
 
     assays <- assayNames(exp)
+    assays <- assays[!assays %in% "ACALRange"]
 
     updateSelectizeInput(session, "assay_name",
                          choices = assays,
-                         selected = "Ratio_Corrected"
+                         selected = "ratio_corrected"
     )
     updateSelectizeInput(session, "concentration_assay",
-                         choices = assays, selected = "Ratio_Corrected"
+                         choices = assays, selected = "ratio_corrected"
     )
     updateSelectizeInput(session, "compound_assay",
                          choices = assays,
-                         selected = "Ratio_Corrected"
+                         selected = "ratio_corrected"
     )
     updateSelectizeInput(session, "sample_assay",
                          choices = assays,
-                         selected = "Ratio_Corrected"
+                         selected = "ratio_corrected"
     )
     updateSelectizeInput(session, "pca_assay",
                          choices = assays,
-                         selected = "Ratio_Corrected"
+                         selected = "ratio_corrected"
     )
     updateSelectizeInput(session, "heatmap_assay",
                          choices = assays,
-                         selected = "Ratio_Corrected"
+                         selected = "ratio_corrected"
     )
     updateSelectizeInput(session, "qc_assay",
                          choices = assays,
-                         selected = "Ratio_Corrected"
+                         selected = "ratio_corrected"
     )
     updateSelectizeInput(session, "rsd_assay",
                          choices = assays,
-                         selected = "Ratio_Corrected"
+                         selected = "ratio_corrected"
     )
 
     updateSelectizeInput(session, "volcanoAssay",
                          choices = assays,
-                         selected = "Ratio_Corrected")
+                         selected = "ratio_corrected")
 
     updateSelectizeInput(session, "batchAssay",
                          choices = assays,
-                         selected = "Ratio_Corrected")
+                         selected = "ratio_corrected")
     updateSelectizeInput(session, "calibration_assay",
-                         choices = assays, selected = "Ratio_Corrected"
+                         choices = assays, selected = "ratio_corrected"
     )
     updateSelectizeInput(session, "linearCalibration_assay",
-                         choices = assays, selected = "Ratio_Corrected"
+                         choices = assays, selected = "ratio_corrected"
     )
     updateSelectizeInput(session, "downloadAssayPicker",
-                         choices = assays, selected = "Ratio_Corrected"
+                         choices = assays, selected = "ratio_corrected"
     )
 
 
@@ -211,7 +219,7 @@ updateInputs <- function(session, exp) {
                       choices = batches, selected = batches[1]
     )
     updateSelectInput(session, "pcaMetricsBatch",
-                      choices = c("All", batches), selected = batches[1]
+                      choices = batches, selected = batches[1]
     )
 
 
