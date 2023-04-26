@@ -33,7 +33,6 @@ renderAliquotPlot <- function(input, exp){
 renderCompoundPlot <- function(input, exp){
     req(!is.null(exp))
 
-
     library(ggplot2)
     p <- compoundPlotNew(
         exp = exp,
@@ -43,14 +42,13 @@ renderCompoundPlot <- function(input, exp){
         types = input$compound_filtered,
         withinTrend = TRUE,
         trendTypes = input$compound_trends,
-        #includeIS = "ISTD" %in% input$compound_filtered
     )
     N <- length(input$compound_batch)
     if (N > 1) {
         p <- facetPlot(p, ncol = round(N / 2))
     }
 
-    toPlotly(p, dynamicTicks = TRUE)
+    toPlotly(p, dynamicTicks = FALSE)
 }
 
 #' @title

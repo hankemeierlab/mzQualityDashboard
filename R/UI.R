@@ -111,7 +111,7 @@ sidebar <- function() {
             menuSubItem("PCA Plot", tabName = "PCA", icon = icon),
             menuSubItem("RSDQCs", tabName = "Correlation_heatmap", icon = icon),
             menuSubItem("QC Plot", tabName = "QCViolins", icon = icon),
-            menuSubItem("Calibration Plot", tabName = "Calibrations", icon = icon),
+           # menuSubItem("Calibration Plot", tabName = "Calibrations", icon = icon),
             menuSubItem("Concentrations", tabName = "concentrationPlot", icon = icon)
         ),
         menuItem("Download", tabName = "download", icon = icon("file-arrow-down"))
@@ -147,9 +147,7 @@ ui <- function() {
         color = transparent(0.7),
         fadeout = TRUE,
         html = div(
-          spin_loaders(8, color = "black"),
-          h4("Loading..."),
-          style = "position: absolute;"
+          spin_loaders(8, color = "black")
         )
       ),
       tabItems(
@@ -169,7 +167,7 @@ ui <- function() {
         tabItem(tabName = "PCA", pcaPlotPage()),
         tabItem(tabName = "Correlation_heatmap", rsdqcPlotPage()),
         tabItem(tabName = "QCViolins", qcPlotPage()),
-        tabItem(tabName = "Calibrations", calibrationPlotPage()),
+       # tabItem(tabName = "Calibrations", calibrationPlotPage()),
         tabItem(tabName = "concentrationPlot", concentrationPlotPage()),
         tabItem(tabName = "download", downloadPage())
       )

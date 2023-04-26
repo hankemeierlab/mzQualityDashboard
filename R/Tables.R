@@ -59,10 +59,12 @@ compoundTable <- function(exp, select = which(!rowData(exp)$Use)){
 }
 
 currentInternalStandardTable <- function(exp){
-  df <- rowData(exp)
-  df$compound <- rownames(df)
+    df <- rowData(exp)
+    df$compound <- rownames(df)
 
   df <- as.data.frame(df[, c("compound", "compound_is", "rsdqc", "rsdqcCorrected")])
+
+
 
   rownames(df) <- 1:nrow(df)
   colnames(df) <- c("Compound", "Compound IS", "RSDQC", "RSDQC Corrected")
@@ -80,7 +82,7 @@ currentInternalStandardTable <- function(exp){
 internalStandardTable <- function(input, exp, selected) {
 
 
-  df <- rowData(exp)
+    df <- rowData(exp)
 
     if (!"compound_is" %in% colnames(df)) return(NULL)
 

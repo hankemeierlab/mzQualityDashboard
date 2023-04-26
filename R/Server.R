@@ -40,7 +40,10 @@ server <- function(input, output, session) {
     metadata(experiment)$QC <- isolate(input$qc_change)
 
     is <- unlist(lapply(1:nrow(experiment), function(i) input[[ paste0("sel", i) ]] ))
-    if (all(!is.null(is))) {
+    print(is)
+
+    if (all(!is.null(is)) & metadata(experiment)$hasIS) {
+
       experiment <- replaceInternalStandards(experiment, is)
     }
 
@@ -93,19 +96,24 @@ server <- function(input, output, session) {
 
   # Current Internal Standard table
   output$IsCurrentTable <- DT::renderDataTable({
+      print("should be triggered")
+    req(metadata(exp())$hasIS)
     currentInternalStandardTable(
       exp = exp()
     )
   })
 
   # # Modify Internal Standard table
-  output$IsModifyTable <- DT::renderDataTable(server = TRUE, {
+  output$IsModifyTable <- DT::renderDataTable( server = TRUE, {
+      req(metadata(exp())$hasIS)
+
+
     # Force change when QC type has changed
     input$qc_change
 
     # Build the internal standard table
     internalStandardTable(
-      input = isolate(input),
+      input = input,
       exp = experiment,
       selected = rowData(experiment)$compound_is)
 
@@ -238,8 +246,6 @@ server <- function(input, output, session) {
       experiment <<- buildExperimentEvent(session, input, combined)
 
       updateInputs(session, experiment)
-
-
       updateTabsetPanel(session, inputId = "sidebar", "selectedData")
       w$hide()
   })
@@ -269,7 +275,17 @@ server <- function(input, output, session) {
 
   observeEvent(input$sidebar, {
     if (input$sidebar == "IS" & nrow(rsdqcs) == 0) {
-      experiment <<- mzQuality2:::calculateCorrectedRSDQCs2(exp())
+        x <- exp()
+
+        req(metadata(x)$hasIS)
+
+        m <- t(mzQuality2:::calculateCorrectedRSDQCs2(x))
+        rowData(experiment)$rsdqcCorrected <- rowData(x)$rsdqcCorrected
+        rowData(experiment)$rsdqc <- rowData(x)$rsdqc
+        rowData(experiment)$suggestedIS <- colnames(m)[apply(m, 1, which.min)]
+        rowData(experiment)$suggestedRSDQC <- apply(m, 1, min)
+
+        experiment <<- experiment
     }
   })
 
@@ -284,9 +300,7 @@ server <- function(input, output, session) {
       updateSelectizeInput(session, "qc_change", choices = c(), selected = "")
   })
 
-  observeEvent(input$CalTable, ignoreNULL = TRUE, ignoreInit = TRUE, {
-    # DEFUNCT
-  })
+
 
   # Event triggered when the download button is clicked
   output$download_zip <- downloadHandler(
@@ -295,6 +309,7 @@ server <- function(input, output, session) {
       content = function(file) {
           req(!is.null(exp))
 
+
           withProgress(message = "Generating output files...", {
               w$show()
               project <- ifelse(input$project == "", "mzQuality", input$project)
@@ -302,7 +317,7 @@ server <- function(input, output, session) {
                   project = project,
                   exp = exp(),
                   fileOut = file,
-                  fullExp = experiment,
+                  #fullExp = experiment,
                   summaryReport = as.logical(input$summary_report),
                   compoundReport = as.logical(input$compound_report),
                   summaryPlots = input$downloadPlotPicker,

@@ -187,8 +187,8 @@ downloadPage <- function(){
                                     "QC Plot", "Calibration Plot",
                                     "Concentrations"
                         ),
-                        selected = c("Aliquot", "Compound", "PCA Plot",
-                                     "RSDQCs", "QC Plot"
+                        selected = c("Aliquot", "Compound", "PCA",
+                                     "RSDQCs", "QC"
                         ),
                         multiple = TRUE
                     )),
