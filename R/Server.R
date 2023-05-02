@@ -16,7 +16,7 @@ server <- function(input, output, session) {
 
   mbLimit <- 500
   options(shiny.maxRequestSize = mbLimit * 1024^2)
-  observe_helpers(help_dir = system.file("helppages", package = "mzQuality"))
+  observe_helpers(help_dir = system.file("helppages", package = "mzQuality2"))
   w <- loadingScreen()
 
   # Set the total exp and subset `exp`

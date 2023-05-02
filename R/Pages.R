@@ -1,6 +1,6 @@
 #' @title Shiny homepage
 homePage <- function() {
-    version <- as.character(utils::packageVersion("mzQuality"))
+    version <- as.character(utils::packageVersion("mzQuality2"))
     versionType <- switch(stringr::str_count(version, "\\."),
                           "2" = "Stable",
                           "3" = "Nightly",
