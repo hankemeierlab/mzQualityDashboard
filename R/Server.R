@@ -1,3 +1,11 @@
+# dataframe that holds usernames, passwords and other user data
+user_base <- tibble::tibble(
+    user = c("user1", "user2"),
+    password = sapply(c("pass1", "pass2"), sodium::password_store),
+    permissions = c("admin", "standard"),
+    name = c("User One", "User Two")
+)
+
 #' @title Shiny server function
 #' @param input Input variable for incoming UI requests
 #' @param output Output variable for updating the UI
@@ -10,6 +18,33 @@
 #' updateCheckboxInput
 #' @noRd
 server <- function(input, output, session) {
+
+    shinyjs::hide("menuHidden")
+    shinyjs::runjs("document.getElementsByClassName('sidebar-toggle')[0].style.visibility = 'hidden';")
+
+    # login status and info will be managed by shinyauthr module and stores here
+    credentials <- callModule(shinyauthr::login, "login",
+                              data = user_base,
+                              user_col = user,
+                              pwd_col = password,
+                              sodium_hashed = TRUE,
+                              log_out = reactive(logout_init()))
+
+    # logout status managed by shinyauthr module and stored here
+    logout_init <- callModule(shinyauthr::logout, "logout", reactive(credentials()$user_auth))
+
+    # this opens or closes the sidebar on login/logout
+    observe({
+        if(credentials()$user_auth) {
+            shinyjs::removeClass(selector = "body", class = "sidebar-collapse")
+            shinyjs::show("menuHidden")
+            # move to pipeline page
+        } else {
+            shinyjs::addClass(selector = "body", class = "sidebar-collapse")
+            shinyjs::hide("menuHidden")
+        }
+    })
+
 
 
 # Initialize Variables and Settings ---------------------------------------

@@ -28,6 +28,7 @@ Imports:
     plotly,
     rhandsontable,
     shinyalert,
+    shinyauthr,
     shinydashboard,
     shinyhelper,
     S4Vectors,

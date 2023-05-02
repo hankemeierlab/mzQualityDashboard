@@ -80,8 +80,9 @@ shiny.box_controls <- function(inputs, title = "Controls", width = NULL,
 
 
 sidebar <- function() {
-    icon <- icon("angles-right")
-    dashboardSidebar(sidebarMenu(
+    icon <- icon("angles-right", verifa_fa = FALSE)
+    dashboardSidebar(collapsed = TRUE,
+                     sidebarMenu(
         id = "sidebar",
         menuItem("Create project",
             tabName = "home",
@@ -131,16 +132,19 @@ sidebar <- function() {
 #' @importFrom shinyhelper helper
 #' @noRd
 ui <- function() {
-  header <- dashboardHeader(title = HTML("mzQuality<sup>2</sup>"))
+  header <- dashboardHeader(title = HTML("mzQuality<sup>2</sup>"),
+                            tags$li(class = "dropdown", style = "padding: 8px;",
+                                    shinyauthr::logoutUI("logout")))
   dashboardPage(
     title = "mzQuality",
     header = header,
     sidebar = sidebar(),
     body = dashboardBody(
 
-      theme = bslib::bs_theme(version = 5, bootswatch = "slate"),
-      tags$script(HTML("$('body').addClass('fixed');")),
+      #theme = bslib::bs_theme(version = 5, bootswatch = "slate"),
       includeCSS(system.file("markup.css", package = "mzQualityDashboard")),
+
+      tags$script(HTML("$('body').addClass('fixed');")),
 
       useWaiter(),
       autoWaiter(
@@ -150,26 +154,32 @@ ui <- function() {
           spin_loaders(8, color = "black")
         )
       ),
-      tabItems(
-        tabItem(tabName = "home", homePage()),
-        tabItem(tabName = "selectedData", selectDataPage()),
-        tabItem(tabName = "IS", internalStandardPage()),
-        tabItem(tabName = "Combined", combinedTablePage()),
-        tabItem(tabName = "ColData", sampleTablePage()),
-        tabItem(tabName = "RowData", compoundTablePage()),
-        tabItem(tabName = "Assays", assayTablePage()),
-        tabItem(tabName = "qcTable", qcTablePlot()),
-        tabItem(tabName = "model_tab", modelTablePage()),
-        tabItem(tabName = "Heatmap_tab", heatmapPlotPage()),
-        tabItem(tabName = "Aliquots_tab", aliquotPlotPage()),
-        tabItem(tabName = "Compounds", compoundPlotPage()),
-        tabItem(tabName = "batchAssay_tab", compoundPerBatchPage()),
-        tabItem(tabName = "PCA", pcaPlotPage()),
-        tabItem(tabName = "Correlation_heatmap", rsdqcPlotPage()),
-        tabItem(tabName = "QCViolins", qcPlotPage()),
-       # tabItem(tabName = "Calibrations", calibrationPlotPage()),
-        tabItem(tabName = "concentrationPlot", concentrationPlotPage()),
-        tabItem(tabName = "download", downloadPage())
+
+      shinyauthr::loginUI("login"),
+      shinyjs::hidden(
+          div(id = "menuHidden",
+              tabItems(
+                tabItem(tabName = "home", homePage()),
+                tabItem(tabName = "selectedData", selectDataPage()),
+                tabItem(tabName = "IS", internalStandardPage()),
+                tabItem(tabName = "Combined", combinedTablePage()),
+                tabItem(tabName = "ColData", sampleTablePage()),
+                tabItem(tabName = "RowData", compoundTablePage()),
+                tabItem(tabName = "Assays", assayTablePage()),
+                tabItem(tabName = "qcTable", qcTablePlot()),
+                tabItem(tabName = "model_tab", modelTablePage()),
+                tabItem(tabName = "Heatmap_tab", heatmapPlotPage()),
+                tabItem(tabName = "Aliquots_tab", aliquotPlotPage()),
+                tabItem(tabName = "Compounds", compoundPlotPage()),
+                tabItem(tabName = "batchAssay_tab", compoundPerBatchPage()),
+                tabItem(tabName = "PCA", pcaPlotPage()),
+                tabItem(tabName = "Correlation_heatmap", rsdqcPlotPage()),
+                tabItem(tabName = "QCViolins", qcPlotPage()),
+               # tabItem(tabName = "Calibrations", calibrationPlotPage()),
+                tabItem(tabName = "concentrationPlot", concentrationPlotPage()),
+                tabItem(tabName = "download", downloadPage())
+              )
+          )
       )
     )
   )
