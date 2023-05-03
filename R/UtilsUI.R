@@ -120,6 +120,7 @@ updateInputs <- function(session, exp) {
                       selected = types
     )
 
+
     updateSelectInput(session, "compound_trends", choices = types, selected = metadata(exp)$QC)
 
     updateSelectizeInput(session, "qc_type", choices = types, selected = metadata(exp)$QC)

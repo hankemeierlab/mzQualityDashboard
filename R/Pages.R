@@ -183,12 +183,12 @@ downloadPage <- function(){
                         inputId = "downloadPlotPicker",
                         label = "Choose Plots",
                         choices = c("Heatmap", "Aliquot", "Compound",
-                                    "Compound Per Batch", "PCA Plot", "RSDQCs",
-                                    "QC Plot", "Calibration Plot",
+                                    "Compound Per Batch", "PCA", "RSDQC",
+                                    "QC", "Calibration Plot",
                                     "Concentrations"
                         ),
                         selected = c("Aliquot", "Compound", "PCA",
-                                     "RSDQCs", "QC"
+                                     "RSDQC", "QC"
                         ),
                         multiple = TRUE
                     )),

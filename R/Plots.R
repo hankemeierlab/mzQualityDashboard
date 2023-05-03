@@ -143,7 +143,7 @@ renderHeatMapPlot <- function(input, exp){
 }
 
 renderConcentrationPlot <- function(input, exp){
-    req(!is.null(exp))
+    req(!is.null(exp) & "concentration" %in% assayNames(exp))
 
 
     p <- concentrationPlotNew(

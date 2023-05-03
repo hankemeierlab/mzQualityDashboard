@@ -64,14 +64,7 @@ pcaPlotPage <- function(){
 
 rsdqcPlotPage <- function(){
     fluidPage(
-        shiny.box_controls(list(
-            fluidRow(
-                column(12, selectizeInput("rsdqc_type",
-                           label = "QC Type",
-                           choices = c()
-                ))
-            )
-        )),
+
         shiny.box_plot(
             "Internal Standard - Compound Corrected RSDQCs",
             "correlation_heatmap", "80vh"
