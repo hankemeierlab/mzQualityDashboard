@@ -133,9 +133,10 @@ renderHeatMapPlot <- function(input, exp){
     exp <- exp[, exp$batch %in% input$heatmap_batch &
                  exp$type %in% input$heatmap_type]
 
-    p <- heatmapPlot(
+    p <- mzQuality2:::heatmapPlot(
         exp = exp,
-        assay = input$heatmap_assay
+        assay = input$heatmap_assay,
+        method = "interactive"
     )
 
     return(toPlotly(p))
@@ -194,8 +195,7 @@ renderBatchAssayPlot <- function(input, exp){
 #' @importFrom shiny req
 renderRsdqcPlot <- function(input, exp){
     req(metadata(exp)$hasIS & !is.null(exp))
-    p <- rsdqcPlot(exp)
-
+    p <- mzQuality2:::rsdqcPlot(exp, method = "interactive")
     return(toPlotly(p))
 }
 
