@@ -18,36 +18,41 @@ user_base <- tibble::tibble(
 #' updateCheckboxInput
 #' @noRd
 server <- function(input, output, session) {
+    if (Sys.getenv("useLogin")) {
 
-    shinyjs::hide("menuHidden")
-    shinyjs::runjs("document.getElementsByClassName('sidebar-toggle')[0].style.visibility = 'hidden';")
+        shinyjs::hide("menuHidden")
 
-    # login status and info will be managed by shinyauthr module and stores here
-    credentials <- callModule(shinyauthr::login, "login",
-                              data = user_base,
-                              user_col = user,
-                              pwd_col = password,
-                              sodium_hashed = TRUE,
-                              log_out = reactive(logout_init()))
+        # login status and info will be managed by shinyauthr module and stores here
+        credentials <- callModule(shinyauthr::login, "login",
+                                  data = user_base,
+                                  user_col = user,
+                                  pwd_col = password,
+                                  sodium_hashed = TRUE,
+                                  log_out = reactive(logout_init()))
 
-    # logout status managed by shinyauthr module and stored here
-    logout_init <- callModule(shinyauthr::logout, "logout", reactive(credentials()$user_auth))
+        # logout status managed by shinyauthr module and stored here
+        logout_init <- callModule(shinyauthr::logout, "logout", reactive(credentials()$user_auth))
 
-    # this opens or closes the sidebar on login/logout
-    observe({
-        if(credentials()$user_auth) {
-            shinyjs::removeClass(selector = "body", class = "sidebar-collapse")
-            shinyjs::show("menuHidden")
-            # move to pipeline page
-        } else {
-            shinyjs::addClass(selector = "body", class = "sidebar-collapse")
-            shinyjs::hide("menuHidden")
-        }
-    })
+        # this opens or closes the sidebar on login/logout
+        observe({
+            if(credentials()$user_auth) {
+                shinyjs::removeClass(selector = "body", class = "sidebar-collapse")
+                shinyjs::show("menuHidden")
+                # move to pipeline page
+            } else {
+                shinyjs::addClass(selector = "body", class = "sidebar-collapse")
+                shinyjs::hide("menuHidden")
+            }
+        })
+    } else {
+        shinyjs::removeClass(selector = "body", class = "sidebar-collapse")
+        shinyjs::show("menuHidden")
+    }
 
 
 
 # Initialize Variables and Settings ---------------------------------------
+    shinyjs::runjs("document.getElementsByClassName('sidebar-toggle')[0].style.visibility = 'hidden';")
 
   mbLimit <- 500
   options(shiny.maxRequestSize = mbLimit * 1024^2)
@@ -377,7 +382,12 @@ server <- function(input, output, session) {
 #' if (FALSE) {
 #'     openDashboard()
 #' }
-openDashboard <- function(browser = TRUE, host = "0.0.0.0", port = 3838) {
+openDashboard <- function(browser = TRUE, host = "0.0.0.0", port = 3838,
+                          mount = NA, useLogin = FALSE) {
+
+    Sys.setenv("DashboardMount" = mount)
+    Sys.setenv("useLogin" = useLogin)
+
   library(mzQuality2)
   shinyApp(ui, server, options = list(
     host = host,

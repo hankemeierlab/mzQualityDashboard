@@ -5,9 +5,21 @@
 \alias{shiny}
 \title{Run mzQuality in the browser}
 \usage{
-openDashboard(browser = TRUE, host = "0.0.0.0", port = 3838)
+openDashboard(
+  browser = TRUE,
+  host = "0.0.0.0",
+  port = 3838,
+  mount = NA,
+  useLogin = FALSE
+)
 
-shiny(browser = TRUE, host = "0.0.0.0", port = 3838)
+shiny(
+  browser = TRUE,
+  host = "0.0.0.0",
+  port = 3838,
+  mount = NA,
+  useLogin = FALSE
+)
 }
 \arguments{
 \item{browser}{Should the browser be started?}

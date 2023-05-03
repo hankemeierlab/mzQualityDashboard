@@ -19,7 +19,7 @@ more complex plots, where panning and zooming may be needed.
 }
 \examples{
 # Read example dataset
-data <- read.delim(system.file(package = "mzQuality", "dataset.txt"))
+data <- read.delim(system.file(package = "mzQuality2", "dataset.txt"))
 
 # Construct experiment
 exp <- buildExperiment(
