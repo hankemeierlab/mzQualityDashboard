@@ -111,7 +111,7 @@ createAssayTable <- function(exp, assayName) {
     req(!is.null(exp))
     as.data.frame(cbind(
         Compound = rownames(exp),
-        round(assay(exp, assayName), 3)
+        round(assay(exp, assayName), 5)
     ))
 }
 

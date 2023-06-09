@@ -52,25 +52,25 @@ compoundTable <- function(exp, select = which(!rowData(exp)$Use)){
         DT::formatPercentage(columns = c("Background Signal", "Found in SQC",
                                      "Matrix Effect Factor"),
                          digits = 2, dec.mark = ".") %>%
-        DT::formatRound(columns = c("RSDQC",  "RSDQC Corrected"), dec.mark = ".")
+        DT::formatRound(columns = c("RSDQC",  "RSDQC Corrected"), dec.mark = ".", digits = 5)
 
 
     return(render)
 }
 
 currentInternalStandardTable <- function(exp){
+
     df <- rowData(exp)
     df$compound <- rownames(df)
 
-  df <- as.data.frame(df[, c("compound", "compound_is", "rsdqc", "rsdqcCorrected")])
-
+  df <- as.data.frame(df)[, c("compound", "rsdqc", "rsdqcCorrected")]
 
 
   rownames(df) <- 1:nrow(df)
-  colnames(df) <- c("Compound", "Compound IS", "RSDQC", "RSDQC Corrected")
+  colnames(df) <- c("Compound", "RSDQC", "RSDQC Corrected")
 
   renderISTable(df) %>%
-      DT::formatRound(columns = c("RSDQC", "RSDQC Corrected"), dec.mark = ".")
+      DT::formatRound(columns = c("RSDQC", "RSDQC Corrected"), dec.mark = ".", digits = 5)
 }
 
 #' @title
@@ -83,15 +83,13 @@ internalStandardTable <- function(input, exp, selected) {
 
 
     df <- rowData(exp)
-
     if (!"compound_is" %in% colnames(df)) return(NULL)
 
     columns <- c("compound", "compound_is", "rsdqcCorrected", "suggestedIS", "suggestedRSDQC")
 
     df$compound <- rownames(df)
 
-
-    df <- as.data.frame(df[, columns])
+    df <- as.data.frame(df)[, columns]
     rownames(df) <- 1:nrow(df)
 
     choices <- sort(unique(df$compound_is))
@@ -100,7 +98,7 @@ internalStandardTable <- function(input, exp, selected) {
         id <- paste0("sel", i)
         df$currentIS[i] <- as.character(
             div(style = "margin-bottom:-20px; cursor: pointer;",
-                class = "select-input",
+              class = "select-input",
                 selectInput(inputId = id,
                             label = NULL,
                             choices = choices,
@@ -110,31 +108,44 @@ internalStandardTable <- function(input, exp, selected) {
         )
     }
 
-
-
     colnames(df) <- c("Compound", "Original IS", "Original RSDQC Corrected", "Suggested IS", "Suggested RSDQC Corrected", "Selected IS")
-    return(
-      renderISTable(df) %>%
-          DT::formatRound(columns = c("Original RSDQC Corrected", "Suggested RSDQC Corrected"), dec.mark = ".")
-    )
+    return(df)
 }
 
-renderISTable <- function(df){
+renderISTable <- function(df, charLimits = "_all"){
+
+
 
   render <- DT::datatable(
     data = df,
     style = "bootstrap4",
-    extensions = 'FixedHeader',
+    extensions = c("Scroller", "FixedColumns"),
     escape = FALSE,
     selection = 'none',
     rownames = FALSE,
     options = list(
-      paging = FALSE,
       fixedHeader = TRUE,
       ordering = TRUE,
-      scrollY = 800,
-      preDrawCallback = DT::JS('function() { Shiny.unbindAll(this.api().table().node()); }'),
-      drawCallback = DT::JS('function() { Shiny.bindAll(this.api().table().node()); } ')
+      scrollY = 900,
+      scroller = TRUE,
+
+      columnDefs = list(list(
+        targets = charLimits, render = DT::JS(
+          "function(data, type, row, meta) {",
+          "return type === 'display' && data.length > 30 ?",
+          "'<span title=\"' + data + '\">' + data.substr(0, 30) + '...</span>' : data;",
+          "}")
+      ))
+    ),
+
+
+    callback = DT::JS("table.rows().every(function(i, tab, row) {
+        var $this = $(this.node());
+        $this.attr('id', this.data()[0]);
+        $this.addClass('shiny-input-container');
+      });
+      Shiny.unbindAll(table.table().node());
+      Shiny.bindAll(table.table().node());"
     )
   )
 
@@ -173,7 +184,7 @@ rowDataTable <- function(exp){
     x <- rowData(exp)[, cols]
     cols <- sapply(x, function(z) "numeric" %in% class(z))
 
-    x <- cbind(x[-which(cols)], round(as.data.frame(x[, which(cols)]), 3))
+    x <- cbind(x[-which(cols)], round(as.data.frame(x[, which(cols)]), 5))
 
     data <- cbind(
         Compound = rownames(exp),
@@ -221,7 +232,7 @@ assayTable <- function(input, exp){
 
     table <- as.data.frame(cbind(
       Compound = rownames(exp),
-      round(assay(assayTable, input$assay_name), 3)
+      round(assay(assayTable, input$assay_name), 5)
     ))
 
     return(renderTable(
@@ -239,7 +250,7 @@ concentrationTable <- function(input, exp) {
 
     table <- as.data.frame(cbind(
         Compound = rownames(exp),
-        round(assay(assayTable, input$concentrationAssay), 3)
+        round(assay(assayTable, input$concentrationAssay), 5)
     ))
 
     return(renderTable(
@@ -286,7 +297,7 @@ modelTable <- function(input, exp){
     df <- df[idx, ]
     rows <- rownames(exp)[idx]
 
-    return(renderTable(round(df, 3), rowHeaders = rows))
+    return(renderTable(round(df, 5), rowHeaders = rows))
 }
 
 
@@ -335,7 +346,7 @@ rtShiftTable <- function(input, exp){
                       `Internal Standard` = rowData(exp)$Compound_is
     )
 
-    data <- as.data.frame(round(assay(exp, assay), 3)) %>%
+    data <- as.data.frame(round(assay(exp, assay), 5)) %>%
         dplyr::distinct()
 
     return(renderTable(data, rowHeaders = rt_istd))

@@ -29,7 +29,6 @@ submitDataEvent <- function(session, input){
         shinyalert::shinyalert("Please select your files")
     }
 
-    req(length(input$files$datapath) > 0)
 
 
     dirn <- dirname(input$files$datapath)

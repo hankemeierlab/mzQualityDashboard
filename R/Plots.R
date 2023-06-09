@@ -93,8 +93,8 @@ renderPcaPlot <- function(input, exp, confidence = 0.95){
     p <- pcaPlotNew(
         exp = exp,
         assay = input$pca_assay,
-        pc1 = 1, #input$PCA_X,
-        pc2 = 2, #input$PCA_Y,
+        pc1 = 1,
+        pc2 = 2,
         batches = input$pca_batch,
         sampleAsBatch = TRUE,
         addConfidenceInterval = input$pca_confidence,

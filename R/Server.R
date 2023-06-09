@@ -1,7 +1,7 @@
 # dataframe that holds usernames, passwords and other user data
 user_base <- tibble::tibble(
-    user = c("user1", "user2"),
-    password = sapply(c("pass1", "pass2"), sodium::password_store),
+    user = c("user1", "user"),
+    password = sapply(c("pass1", "mslab"), sodium::password_store),
     permissions = c("admin", "standard"),
     name = c("User One", "User Two")
 )
@@ -18,6 +18,11 @@ user_base <- tibble::tibble(
 #' updateCheckboxInput
 #' @noRd
 server <- function(input, output, session) {
+
+    if (!is.na(Sys.getenv("DashboardMount", unset = NA))) {
+        setwd(Sys.getenv("DashboardMount"))
+    }
+
     if (Sys.getenv("useLogin")) {
 
         shinyjs::hide("menuHidden")
@@ -49,12 +54,10 @@ server <- function(input, output, session) {
         shinyjs::show("menuHidden")
     }
 
-
-
 # Initialize Variables and Settings ---------------------------------------
     shinyjs::runjs("document.getElementsByClassName('sidebar-toggle')[0].style.visibility = 'hidden';")
 
-  mbLimit <- 500
+  mbLimit <- 1000
   options(shiny.maxRequestSize = mbLimit * 1024^2)
   observe_helpers(help_dir = system.file("helppages", package = "mzQuality2"))
   w <- loadingScreen()
@@ -63,27 +66,50 @@ server <- function(input, output, session) {
   combined <- data.frame()
   experiment <- SummarizedExperiment()
   rsdqcs <- data.frame()
+  project <- reactiveVal()
+  fs <- mzQuality2::getFileSystem(connection = "remote")
+
+# DataLake ----------------------------------------------------------------
+
+  if (as.logical(Sys.getenv("useDataLake", unset = FALSE))) {
+    shinyjs::enable("dataLakeBuckets")
+    updateSelectizeInput(inputId = "dataLakeBuckets", choices = c("", fs$ls()))
+  }
+
+  observeEvent(input$dataLakeBuckets, {
+    req(as.logical(Sys.getenv("useDataLake", unset = FALSE)) & input$dataLakeBuckets != "")
+
+    fs <<- mzQuality2::setFolder(folder = fs, projectName = "", bucket = input$dataLakeBuckets)
+    updateSelectizeInput(inputId = "dataLakeProjects", choices = c("", fs$ls()))
+    shinyjs::enable("dataLakeProjects")
+  })
+
+  observeEvent(input$dataLakeProjects, {
+    req(as.logical(Sys.getenv("useDataLake", unset = FALSE)) & input$dataLakeProjects != "")
+
+    fs <<- fs$cd(input$dataLakeProjects)$cd("Exports")
+    exports <- grep("mzQuality", fs$ls(), value = TRUE)
+    updateSelectizeInput(inputId = "dataLakeExports", choices = c("", exports))
+    shinyjs::enable("dataLakeExports")
+
+  })
+
+
+
 
 # Experiment update -----------------------------------------------------
 
   exp <- reactive({
 
-    # rows <- input$aliquots_rows_selected
-    # n <- rows[length(rows)]
-    # test <- experiment$type[n] %in% c("SQC", "BLANK")
-    #
-    # selected <- isolate(input$compounds_rows_selected)
-    # if (is.null(selected)) {
-    #   selected <- which(!rowData(isolate(exp()))$use)
-    # }
+
 
     metadata(experiment)$QC <- isolate(input$qc_change)
 
     is <- unlist(lapply(1:nrow(experiment), function(i) input[[ paste0("sel", i) ]] ))
-    print(is)
 
+    replacedIS <- FALSE
     if (all(!is.null(is)) & metadata(experiment)$hasIS) {
-
+      replacedIS <- TRUE
       experiment <- replaceInternalStandards(experiment, is)
     }
 
@@ -97,7 +123,7 @@ server <- function(input, output, session) {
     x <- doAnalysis(
       exp = experiment,
       aliquots = aliquots,
-      doAll = length(input$aliquots_rows_selected) == 0
+      doAll = length(input$aliquots_rows_selected) == 0 | replacedIS
     )
 
     if ("concentration" %in% assayNames(x)) {
@@ -136,51 +162,75 @@ server <- function(input, output, session) {
 
   # Current Internal Standard table
   output$IsCurrentTable <- DT::renderDataTable({
-      print("should be triggered")
     req(metadata(exp())$hasIS)
     currentInternalStandardTable(
-      exp = exp()
+      exp = isolate(exp())
     )
   })
 
+
+
   # # Modify Internal Standard table
-  output$IsModifyTable <- DT::renderDataTable( server = TRUE, {
-      req(metadata(exp())$hasIS)
+  output$IsModifyTable <- DT::renderDataTable(server = FALSE, {
 
 
     # Force change when QC type has changed
     input$qc_change
 
     # Build the internal standard table
-    internalStandardTable(
+    df <- internalStandardTable(
       input = input,
-      exp = experiment,
+      exp = isolate(exp()),
       selected = rowData(experiment)$compound_is)
 
+    render <- renderISTable(df, c(1, 2, 4))
+    DT::formatRound(render, columns = c("Original RSDQC Corrected", "Suggested RSDQC Corrected"), dec.mark = ".", digits = 5)
   })
 
   output$compounds <- DT::renderDataTable({
-    compoundTable(exp(), select = which(!rowData(exp())$use))
+    shinyWidgets::execute_safely({
+
+        compounds <- rownames(exp())
+
+        updateSelectizeInput(session, "compound_metabolite", choices = compounds, server = TRUE)
+        updateSelectizeInput(session, "batchAssayCompound", choices = compounds, server = TRUE)
+        updateSelectizeInput(session, "calibration_compound", choices = compounds, server = TRUE)
+
+      compoundTable(exp(), select = which(!rowData(exp())$use))
+    }, title = "Table Viewer Failed", message = "Could not create the table")
+
   })
 
   # Combined Overall Table
   output$combined <- DT::renderDataTable(
+    shinyWidgets::execute_safely({
       combinedTable(combined)
+    }, title = "Table Viewer Failed", message = "Could not create the table")
+
   )
 
   # Compound Details Table
   output$rowData <- DT::renderDataTable(
+    shinyWidgets::execute_safely({
       rowDataTable(exp()[useCompounds(), ])
+    }, title = "Table Viewer Failed", message = "Could not create the table")
+
   )
 
   # Aliquot Details Table
   output$colData <- DT::renderDataTable(
+    shinyWidgets::execute_safely({
       colDataTable(exp()[useCompounds(), ])
+    }, title = "Table Viewer Failed", message = "Could not create the table")
+
   )
 
   # Assay / Values Table
   output$assayData <- DT::renderDataTable(
+    shinyWidgets::execute_safely({
       assayTable(input, exp()[useCompounds(), ])
+    }, title = "Table Viewer Failed", message = "Could not create the table")
+
   )
 
   # Batch Effect Correction Factor Table
@@ -203,18 +253,11 @@ server <- function(input, output, session) {
       carryOverTable(exp()[useCompounds(), ])
   )
 
-  # Table of RT Shift
-  output$shift <- DT::renderDataTable(
-      rtShiftTable(input, exp()[useCompounds(), ])
-  )
-
-  # Table of Replicate RSDQCs
-  output$replicates <- DT::renderDataTable(
-      replicateTable(input, exp()[useCompounds(), ])
-  )
-
   output$concentrationTable <- DT::renderDataTable(
+    shinyWidgets::execute_safely({
       concentrationTable(input, exp()[useCompounds(), ])
+    }, title = "Table Viewer Failed", message = "Could not create the table")
+
   )
 
 
@@ -222,72 +265,117 @@ server <- function(input, output, session) {
 
   # Aliquot Plot
   output$sample_plot <- plotly::renderPlotly({
-    renderAliquotPlot(input, exp()[useCompounds(), ])
+    shinyWidgets::execute_safely({
+
+      renderAliquotPlot(input, exp()[useCompounds(), ])
+    }, title = "Plot Failed", message = "Could not create the plot")
   })
 
   # Compound Plot
   output$compound_plot <- plotly::renderPlotly(
+    shinyWidgets::execute_safely({
       renderCompoundPlot(input, exp()[useCompounds(), ])
+    }, title = "Plot Failed", message = "Could not create the plot")
+
   )
 
   # QC Violin Plot
   output$badqc_plot <- plotly::renderPlotly(
+    shinyWidgets::execute_safely({
       renderViolinPlot(input, exp()[useCompounds(), ])
+    }, title = "Plot Failed", message = "Could not create the plot")
+
   )
 
   # Principle Component Plot
   output$pca_plot <- plotly::renderPlotly(
+    shinyWidgets::execute_safely({
       renderPcaPlot(input, exp()[useCompounds(), ])
+    }, title = "Plot Failed", message = "Could not create the plot")
+
   )
 
   # Batch Effect Box Plot
   output$batch_boxplot <- plotly::renderPlotly(
+    shinyWidgets::execute_safely({
       renderBatchBoxPlot(input, exp()[useCompounds(), ])
+    }, title = "Plot Failed", message = "Could not create the plot")
   )
 
   # Heatmap Plot
   output$heatmap <- plotly::renderPlotly(
+    shinyWidgets::execute_safely({
       renderHeatMapPlot(input, exp()[useCompounds(), ])
+    }, title = "Plot Failed", message = "Could not create the plot")
   )
 
   # Batch Assay Plot
   output$batchAssayplot <- plotly::renderPlotly(
+    shinyWidgets::execute_safely({
       renderBatchAssayPlot(input, exp()[useCompounds(), ])
+    }, title = "Plot Failed", message = "Could not create the plot")
   )
 
   # RSDQC Heatmap Plot
   output$correlation_heatmap <- plotly::renderPlotly(
+    shinyWidgets::execute_safely({
       renderRsdqcPlot(input, exp()[useCompounds(), ])
+    }, title = "Plot Failed", message = "Could not create the plot")
   )
 
   # (Academic) Calibration Plot
   output$calibration_plot <- plotly::renderPlotly(
+    shinyWidgets::execute_safely({
       renderCalibrationPlot(input, exp()[useCompounds(), ])
+    }, title = "Plot Failed", message = "Could not create the plot")
   )
 
   # Relative Standard Deviation Plot
   output$rsd_plot <- plotly::renderPlotly(
+    shinyWidgets::execute_safely({
       renderRsdPlot(input, exp()[useCompounds(), ])
+    }, title = "Plot Failed", message = "Could not create the plot")
   )
 
-
-
   output$concentrationPlot <- plotly::renderPlotly(
+    shinyWidgets::execute_safely({
       renderConcentrationPlot(input, exp()[useCompounds(), ])
+    }, title = "Plot Failed", message = "Could not create the plot (No concentrations provided?)", include_error = FALSE)
   )
 
 
 # Events ------------------------------------------------------------------
 
+
+
   # Event when the submit button is clicked on the start screen
   observeEvent(input$submit, {
-      w$show()
-      combined <<- submitDataEvent(session, input)
-      experiment <<- buildExperimentEvent(session, input, combined)
+    dataLakeTest <- input$dataLakeProjects != "" && input$dataLakeExports != ""
+    localFileTest <- length(input$files$datapath) > 0
+    req(localFileTest | dataLakeTest)
+    w$show()
 
-      updateInputs(session, experiment)
-      updateTabsetPanel(session, inputId = "sidebar", "selectedData")
-      w$hide()
+
+    proj <- ifelse(input$project == "", "mzQuality", input$project)
+    timeFormat <- format(lubridate::now(), "%d-%m-%Y_%H.%M.%S")
+    project(glue::glue("{project}_{timeFormat}", project = proj, timeFormat = timeFormat))
+
+    if (dataLakeTest) {
+      combined <<- buildCombined(fs$path(input$dataLakeExports))
+    } else {
+      shinyWidgets::execute_safely({
+        combined <<- submitDataEvent(session, input)
+      }, message = "
+        A problem occured with your data. Ensure that your aliquots are named correctly.
+        If this problem still occurs, contact the developer"
+      )
+    }
+
+    experiment <<- buildExperimentEvent(session, input, combined)
+
+    updateInputs(session, experiment)
+    updateTabsetPanel(session, inputId = "sidebar", "selectedData")
+    w$hide()
   })
 
 
@@ -313,21 +401,6 @@ server <- function(input, output, session) {
       }
   })
 
-  observeEvent(input$sidebar, {
-    if (input$sidebar == "IS" & nrow(rsdqcs) == 0) {
-        x <- exp()
-
-        req(metadata(x)$hasIS)
-
-        m <- t(mzQuality2:::calculateCorrectedRSDQCs2(x))
-        rowData(experiment)$rsdqcCorrected <- rowData(x)$rsdqcCorrected
-        rowData(experiment)$rsdqc <- rowData(x)$rsdqc
-        rowData(experiment)$suggestedIS <- colnames(m)[apply(m, 1, which.min)]
-        rowData(experiment)$suggestedRSDQC <- apply(m, 1, min)
-
-        experiment <<- experiment
-    }
-  })
 
 
   # Event triggered when refreshing the page
@@ -341,33 +414,49 @@ server <- function(input, output, session) {
   })
 
 
+  observeEvent(input$createZip, {
+      req(!is.null(exp()))
+
+
+      withProgress(message = "Generating output files...", {
+          w$show()
+
+          downloadZip(
+              project = project(),
+              exp = exp(),
+              fullExp = experiment,
+              summaryReport = as.logical(input$summary_report),
+              compoundReport = as.logical(input$compound_report),
+              summaryPlots = input$downloadPlotPicker,
+              copyDataLake = input$copyDataLake,
+              assays = input$downloadAssayPicker
+          )
+
+          w$hide()
+          shinyjs::enable("download_zip")
+          shinyjs::disable("createZip")
+      })
+  })
+
 
   # Event triggered when the download button is clicked
   output$download_zip <- downloadHandler(
       contentType = "application/zip",
       filename = "mzQuality.zip",
       content = function(file) {
-          req(!is.null(exp))
+          w$show()
+          shinyjs::disable("download_zip")
+          zipFolder(file, file.path(getwd(), project()))
+          shinyjs::enable("download_zip")
+          shinyjs::disable("createZip")
+          w$hide()
 
-
-          withProgress(message = "Generating output files...", {
-              w$show()
-              project <- ifelse(input$project == "", "mzQuality", input$project)
-              zip <- downloadZip(
-                  project = project,
-                  exp = exp(),
-                  fileOut = file,
-                  #fullExp = experiment,
-                  summaryReport = as.logical(input$summary_report),
-                  compoundReport = as.logical(input$compound_report),
-                  summaryPlots = input$downloadPlotPicker,
-                  assays = input$downloadAssayPicker
-              )
-              w$hide()
-              return(zip)
-          })
       }
   )
+
+  session$onSessionEnded(function() {
+      shiny::stopApp()
+  })
 }
 
 #' @title Run mzQuality in the browser
@@ -383,10 +472,14 @@ server <- function(input, output, session) {
 #'     openDashboard()
 #' }
 openDashboard <- function(browser = TRUE, host = "0.0.0.0", port = 3838,
-                          mount = NA, useLogin = FALSE) {
+                          mount = NA, useLogin = FALSE, useDataLake = FALSE) {
 
+  if (!is.na(mount)) {
     Sys.setenv("DashboardMount" = mount)
-    Sys.setenv("useLogin" = useLogin)
+  }
+
+  Sys.setenv("useDataLake" = useDataLake)
+  Sys.setenv("useLogin" = useLogin)
 
   library(mzQuality2)
   shinyApp(ui, server, options = list(

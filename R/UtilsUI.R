@@ -245,8 +245,8 @@ loadingScreen <- function(){
         color = transparent(0),
         hide_on_error = TRUE,
         fadeout = TRUE,
-        html = div(
-            waiter::spin_loaders(8, color = "black")
+        html = div(style = "display: flex; align-items: center; justify-content: center;",
+            waiter::spin_loaders(8, color = "black", style = "display: flex; align-items: center; justify-content: center;")
         )
     )
 }

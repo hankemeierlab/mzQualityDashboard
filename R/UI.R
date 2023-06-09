@@ -52,7 +52,7 @@ shiny.box_plot <- function(title, type, height) {
 #' @noRd
 shiny.box_controls <- function(inputs, title = "Controls", width = NULL,
                                height = NULL, footer = NULL,
-                               helperMd = NULL) {
+                               helperMd = NULL, collapsible = FALSE) {
 
     if (!is.null(height)) {
       inputs <- div(
@@ -66,6 +66,9 @@ shiny.box_controls <- function(inputs, title = "Controls", width = NULL,
       solidHeader = TRUE,
       width = NULL,
       footer = footer,
+      collapsible = collapsible,
+      collapsed = collapsible,
+
 
 
         # Box items
@@ -101,8 +104,8 @@ sidebar <- function() {
             menuSubItem("Aliquot Data", "ColData", icon = icon),
             menuSubItem("Compound Data", "RowData", icon = icon),
             menuSubItem("Assay Data", "Assays", icon = icon),
-            menuSubItem("Model Info", "model_tab", icon = icon),
-            menuSubItem("Carry-Over effect", "carryover_tab", icon = icon)
+            menuSubItem("Model Info (Concentrations)", "model_tab", icon = icon),
+            menuSubItem("Carry-Over (Concentrations)", "carryover_tab", icon = icon)
         ),
         menuItem("Plots", tabName = "plots", id = "plot_id", icon = icon("image"),
             menuSubItem("Heatmap", tabName = "Heatmap_tab", icon = icon),
@@ -141,7 +144,6 @@ ui <- function() {
     sidebar = sidebar(),
     body = dashboardBody(
 
-      #theme = bslib::bs_theme(version = 5, bootswatch = "slate"),
       includeCSS(system.file("markup.css", package = "mzQualityDashboard")),
 
       tags$script(HTML("$('body').addClass('fixed');")),

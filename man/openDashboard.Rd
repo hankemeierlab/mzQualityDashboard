@@ -10,7 +10,8 @@ openDashboard(
   host = "0.0.0.0",
   port = 3838,
   mount = NA,
-  useLogin = FALSE
+  useLogin = FALSE,
+  useDataLake = FALSE
 )
 
 shiny(
@@ -18,7 +19,8 @@ shiny(
   host = "0.0.0.0",
   port = 3838,
   mount = NA,
-  useLogin = FALSE
+  useLogin = FALSE,
+  useDataLake = FALSE
 )
 }
 \arguments{
