@@ -3,28 +3,8 @@
 #' @details
 #' @returns
 #' @param input
-#' @param exp
-#' @importFrom shiny req
-compoundTableClick <- function(input, exp){
-    req(!is.null(exp))
-
-    comp_df <- hot_to_r(input$compounds)
-    comps <- comp_df$compound[comp_df$use == 1]
-    if (length(comps) == 0) {
-        comps <- comp_df$compound
-    }
-
-    return(doAnalysis(exp, compounds = comps))
-}
-
-#' @title
-#' @description
-#' @details
-#' @returns
-#' @param input
 #' @importFrom shiny req updateSelectInput
-submitDataEvent <- function(session, input){
-
+submitDataEvent <- function(session, input) {
     if (length(input$files$datapath) == 0) {
         shinyalert::shinyalert("Please select your files")
     }
@@ -38,12 +18,10 @@ submitDataEvent <- function(session, input){
     # Build a combined file using the file(s) given
     # Should convert to arrow reader for combined files
 
-    combined <- buildCombined(files)
-    return(combined)
+    return(buildCombined(files))
 }
 
-buildExperimentEvent <- function(session, input, combined){
-
+buildExperimentEvent <- function(session, input, combined) {
     qcCandidates <- grep("QC", combined$type, value = TRUE, ignore.case = TRUE)
     qcValue <- "SQC"
     if (!"SQC" %in% combined$type) {
@@ -52,8 +30,8 @@ buildExperimentEvent <- function(session, input, combined){
 
 
     updateSelectInput(session, "qc_change",
-                      choices = unique(qcCandidates),
-                      selected = qcValue
+        choices = unique(qcCandidates),
+        selected = qcValue
     )
 
     exp <- buildExperiment(
@@ -63,13 +41,21 @@ buildExperimentEvent <- function(session, input, combined){
 
 
     if (input$filterISTD) {
-        exp <- filterISTD(exp, "ISTD")
+        exp <- filterISTD(exp, "STD")
     }
     if (input$filterSST) {
         exp <- filterSST(exp, "SST")
     }
 
-    exp <- doAnalysis(exp = exp, doAll = TRUE)
+    exp <- doAnalysis(
+        exp = exp,
+        doAll = TRUE, removeOutliers = TRUE,
+        useWithinBatch = as.logical(input$useWithinBatch),
+        backgroundPercentage = input$backgroundSignal,
+        qcPercentage = input$qcPercentage,
+        nonReportableRSD = input$nonReportableRSD,
+        effectNaAsZero = input$effectNaAsZero
+    )
 
     addedConcentrations <- length(input$calFile) > 0
     if (addedConcentrations) {
@@ -89,7 +75,7 @@ buildExperimentEvent <- function(session, input, combined){
 #' @param input
 #' @param experiment
 #' @importFrom shiny req updateSelectInput
-qcChangeEvent <- function(input, experiment){
+qcChangeEvent <- function(input, experiment) {
     req(!is.null(experiment))
 
     metadata(experiment)$QC <- input$qc_change
@@ -100,4 +86,3 @@ qcChangeEvent <- function(input, experiment){
 
     return(experiment)
 }
-

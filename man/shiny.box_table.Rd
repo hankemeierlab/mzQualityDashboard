@@ -4,7 +4,7 @@
 \alias{shiny.box_table}
 \title{Template box for displaying tables}
 \usage{
-shiny.box_table(title, type, height = "80vh")
+shiny.box_table(title, type, height = "80vh", helperMd = NULL)
 }
 \description{
 Template box for displaying tables

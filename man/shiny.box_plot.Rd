@@ -4,7 +4,7 @@
 \alias{shiny.box_plot}
 \title{Template box for displaying Plotly plots}
 \usage{
-shiny.box_plot(title, type, height)
+shiny.box_plot(title, type, height, helperMd = NULL)
 }
 \description{
 Template box for displaying Plotly plots

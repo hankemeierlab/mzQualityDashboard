@@ -1,0 +1,4 @@
+## Selecting Aliquots
+This field shows all non-SST (System Sustainability Test) aliquots provided in the data file. It shows some basic information about each aliquot, including the injection datetime, its type, batch and their outlier status. The latter is determined for *QC* samples according to a Rosner Test, which calcutes if the median area is an outlier. For study samples, which are of type *SAMPLE*, they are flagged if their Internal Standard (IS) area is considered an outlier using the same test. A study sample outlier can be an indicator for sample preparation inconsistensies. 
+
+Whenever a sample is deemed an outlier, its row will be colored red and the sample will not be used in further analysis. To enable an outlier in the analysis, simply click on the row. This will remove the red color and treat the sample as a normal sample.

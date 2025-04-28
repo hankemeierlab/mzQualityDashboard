@@ -7,7 +7,6 @@
 renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
                         preSelect = c(), scrollY = 500, selectable = FALSE,
                         editable = c()) {
-
     df <- as.data.frame(df)
 
     if (!is.null(rowHeaders)) {
@@ -16,7 +15,7 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
         rows <- FALSE
     }
 
-    selection = "none"
+    selection <- "none"
     if (selectable) {
         selection <- list(
             mode = "multiple",
@@ -24,7 +23,7 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
         )
     }
 
-    if (length(editable) > 0){
+    if (length(editable) > 0) {
         editable <- list(
             target = "column",
             disable = list(
@@ -36,7 +35,8 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
     }
 
 
-    table <- DT::datatable(style = "bootstrap4",
+    table <- DT::datatable(
+        style = "bootstrap4",
         data = df,
         escape = FALSE,
         selection = selection,
@@ -49,7 +49,7 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
             scroller = TRUE,
             scrollX = TRUE,
             fixedColumns = list(leftColumns = 1),
-            columnDefs = list(list(className = 'dt-left', targets = "_all"))
+            columnDefs = list(list(className = "dt-left", targets = "_all"))
         )
     )
 
@@ -64,10 +64,11 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
 #' more complex plots, where panning and zooming may be needed.
 #' @param plot ggplot2 object
 #' @returns Plotly object of the given ggplot
+#' @importFrom plotly ggplotly layout
 #' @export
 #' @examples
 #' # Read example dataset
-#' data <- read.delim(system.file(package = "mzQuality2", "dataset.txt"))
+#' data <- read.delim(system.file(package = "mzQuality", "dataset.txt"))
 #'
 #' # Construct experiment
 #' exp <- buildExperiment(
@@ -87,14 +88,19 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
 #' # Make the PCA interactive
 #' toPlotly(p)
 toPlotly <- function(plot, dynamicTicks = TRUE) {
-
-    p <- suppressWarnings(plotly::ggplotly(
+    p <- ggplotly(
         p = plot,
         dynamicTicks = dynamicTicks,
-        tooltip = c("text"))
+        tooltip = c("text")
     )
+
     if (dynamicTicks) {
-        p <- plotly::layout(p, yaxis = list(exponentformat = "E"))
+        p <- plotly::layout(p,
+            yaxis = list(
+                exponentformat = "E",
+                margin = list(l = 0, r = 0, t = 0, b = 0)
+            )
+        )
     }
     # Return Plotly
     return(p)
@@ -114,4 +120,3 @@ createAssayTable <- function(exp, assayName) {
         round(assay(exp, assayName), 5)
     ))
 }
-

@@ -1,16 +1,16 @@
-"assay<-" <- function(exp, name, value){
+"assay<-" <- function(exp, name, value) {
     SummarizedExperiment::`assay<-`(exp, name, value = value)
 }
 
-"assayNames<-" <- function(exp, value){
+"assayNames<-" <- function(exp, value) {
     SummarizedExperiment::`assayNames<-`(exp, value = value)
 }
 
-"assays<-" <- function(exp, name, value){
+"assays<-" <- function(exp, name, value) {
     SummarizedExperiment::`assays<-`(exp, name, value = value)
 }
 
-"rowData<-" <- function(exp, name, value){
+"rowData<-" <- function(exp, name, value) {
     SummarizedExperiment::`rowData<-`(exp, name, value = value)
 }
 
@@ -22,31 +22,31 @@ SummarizedExperiment <- function(assays = list(), rowData = data.frame(),
     )
 }
 
-assay <- function(x, i){
+assay <- function(x, i) {
     SummarizedExperiment::assay(x = x, i = i)
 }
 
-assayNames <- function(x){
+assayNames <- function(x) {
     SummarizedExperiment::assayNames(x)
 }
 
-assays <- function(x){
+assays <- function(x) {
     SummarizedExperiment::assays(x)
 }
 
-colData <- function(x){
+colData <- function(x) {
     SummarizedExperiment::colData(x)
 }
 
-rowData <- function(x){
+rowData <- function(x) {
     SummarizedExperiment::rowData(x)
 }
 
 
-"metadata<-" <- function(x, value){
+"metadata<-" <- function(x, value) {
     S4Vectors::`metadata<-`(x = x, value = value)
 }
 
-metadata <- function(x){
+metadata <- function(x) {
     S4Vectors::metadata(x)
 }

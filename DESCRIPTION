@@ -1,6 +1,6 @@
 Package: mzQualityDashboard
 Title: A tool for quality monitoring and reporting of mass spectrometry measurements
-Version: 2.0
+Version: 2.4.0
 URL: https://github.com/leidenuniv-lacdr-abs/mzQuality, https://mzquality.nl, http://mzquality.bmfl.nl
 Authors@R: c(
     person("Pascal", "Maas", email = "p.maas@lacdr.leidenuniv.nl", role = c("aut", "cre"), 
@@ -22,6 +22,10 @@ Authors@R: c(
 Description: This is an R package for monitoring technical variation in mass spectrometry measurements. It provides various metrics by utilizing pooled quality control samples, blank samples and calibration lines. mzQuality uses Bioconductors' SummarizedExperiment to facilitate implementation with existing workflows. It is fledged with an Rshiny application to support interactive assessment of measurements.
 License: GPL-3
 biocViews: Software, MassSpectrometry, BatchEffect, QualityControl, Metabolomics 
+Depends:
+    mzQuality,
+    ggplot2,
+    shinyjs
 Imports:
     dplyr,
     DT,
@@ -32,16 +36,20 @@ Imports:
     shinydashboard,
     shinyhelper,
     S4Vectors,
+    shinyWidgets,
     shiny,
+    sodium,
     stats,
+    stringr,
     SummarizedExperiment,
+    utils,
     waiter
 Suggests: 
+    knitr,
+    rmarkdown,
     testthat
 Config/testthat/edition: 3
 Encoding: UTF-8
-VignetteBuilder:
-  knitr
-RoxygenNote: 7.2.3
-LazyData: true
-Remotes: git::https://gitlab+deploy-token-7:y6e7Mtrs7jo-NRrGbDve@gitlab.services.universiteitleiden.nl/lacdr-abs/mzquality@development
+RoxygenNote: 7.3.2
+BugReports: https://github.com/hankemeierlab/mzqualitydashboard/issues
+VignetteBuilder: knitr

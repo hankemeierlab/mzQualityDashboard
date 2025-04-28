@@ -5,45 +5,30 @@
 #' @param input
 #' @param exp
 #' @importFrom shiny req
-renderAliquotPlot <- function(input, exp){
+renderAliquotPlot <- function(input, exp) {
     req(!is.null(exp))
+
+    batches <- debounce(reactive({
+        input$sample_batch
+    }), 1000)()
+
+    types <- debounce(reactive({
+        input$sample_filtered
+    }), 1000)()
+
+
+    if ("All" %in% batches) {
+        batches <- unique(exp$batch)
+    }
 
     p <- aliquotPlotNew(
         exp = exp,
-        batch = input$sample_batch,
+        batch = batches,
         assay = input$sample_assay,
-        types = input$sample_filtered
+        types = types
     )
 
-    N <- length(input$sample_batch)
-    if (N > 1) {
-        p <- facetPlot(p, ncol = round(N / 2))
-    }
-
-    suppressWarnings(plotly::ggplotly(p = p))
-}
-
-#' @title
-#' @description
-#' @details
-#' @returns
-#' @param input
-#' @param exp
-#' @importFrom shiny req
-renderCompoundPlot <- function(input, exp){
-    req(!is.null(exp))
-
-    library(ggplot2)
-    p <- compoundPlotNew(
-        exp = exp,
-        assay = input$compound_assay,
-        compound = input$compound_metabolite,
-        batches = input$compound_batch,
-        types = input$compound_filtered,
-        withinTrend = TRUE,
-        trendTypes = input$compound_trends,
-    )
-    N <- length(input$compound_batch)
+    N <- length(batches)
     if (N > 1) {
         p <- facetPlot(p, ncol = round(N / 2))
     }
@@ -58,10 +43,62 @@ renderCompoundPlot <- function(input, exp){
 #' @param input
 #' @param exp
 #' @importFrom shiny req
-renderViolinPlot <- function(input, exp){
+renderCompoundPlot <- function(input, exp) {
     req(!is.null(exp))
 
-    batches <- input$qc_batch
+    batches <- debounce(reactive({
+        input$compound_batch
+    }), 1000)()
+
+    types <- debounce(reactive({
+        input$compound_filtered
+    }), 1000)()
+
+    if ("All" %in% batches) {
+        batches <- unique(exp$batch)
+    }
+    N <- length(batches)
+
+    p <- compoundPlotNew(
+        exp = exp,
+        assay = input$compound_assay,
+        compound = input$compound_metabolite,
+        batches = as.character(batches),
+        types = types,
+        withinTrend = TRUE,
+        trendTypes = input$compound_trends,
+        doLog = input$compound_logscale,
+        smooth = TRUE
+    )
+
+
+    if (N > 1) {
+        p <- facetPlot(p, ncol = 1) # round(N / 2))
+    }
+
+
+    toPlotly(p, dynamicTicks = N == 1)
+}
+
+#' @title
+#' @description
+#' @details
+#' @returns
+#' @param input
+#' @param exp
+#' @importFrom shiny req
+renderViolinPlot <- function(input, exp) {
+    req(!is.null(exp))
+
+    batches <- debounce(reactive({
+        input$qc_batch
+    }), 1000)()
+
+    types <- debounce(reactive({
+        input$qc_type
+    }), 1000)()
+
+
     if ("All" %in% batches) {
         batches <- unique(exp$batch)
     }
@@ -70,7 +107,7 @@ renderViolinPlot <- function(input, exp){
         exp = exp,
         assay = input$qc_assay,
         batches = batches,
-        types = input$qc_type,
+        types = types,
         addMedian = TRUE,
         addConfidenceInterval = TRUE,
         withinTrend = FALSE
@@ -87,18 +124,31 @@ renderViolinPlot <- function(input, exp){
 #' @param exp
 #' @param confidence
 #' @importFrom shiny req
-renderPcaPlot <- function(input, exp, confidence = 0.95){
+renderPcaPlot <- function(input, exp, confidence = 0.95) {
     req(!is.null(exp))
+
+    batches <- debounce(reactive({
+        input$pca_batch
+    }), 1000)()
+
+    types <- debounce(reactive({
+        input$pca_filtered
+    }), 1000)()
+
+
+    if ("All" %in% batches) {
+        batches <- unique(exp$batch)
+    }
 
     p <- pcaPlotNew(
         exp = exp,
         assay = input$pca_assay,
         pc1 = 1,
         pc2 = 2,
-        batches = input$pca_batch,
+        batches = batches,
         sampleAsBatch = TRUE,
         addConfidenceInterval = input$pca_confidence,
-        types = input$pca_filtered,
+        types = types,
         doLog = TRUE
     )
     # Convert to Plotly
@@ -112,7 +162,7 @@ renderPcaPlot <- function(input, exp, confidence = 0.95){
 #' @param input
 #' @param exp
 #' @importFrom shiny req
-renderBatchBoxPlot <- function(input, exp){
+renderBatchBoxPlot <- function(input, exp) {
     req(!is.null(exp))
     exp <- exp[, exp$type == input$batch_filtered]
 
@@ -128,36 +178,45 @@ renderBatchBoxPlot <- function(input, exp){
 #' @param input
 #' @param exp
 #' @importFrom shiny req
-renderHeatMapPlot <- function(input, exp){
+#' @importFrom mzQuality heatmapPlot
+renderHeatMapPlot <- function(input, exp) {
     req(!is.null(exp))
-    exp <- exp[, exp$batch %in% input$heatmap_batch &
-                 exp$type %in% input$heatmap_type]
 
-    p <- mzQuality2:::heatmapPlot(
+    batches <- input$heatmap_batch
+    if ("All" %in% batches) {
+        batches <- unique(exp$batch)
+    }
+
+    exp <- exp[, exp$batch %in% batches &
+        exp$type %in% input$heatmap_type]
+
+    p <- heatmapPlot(
         exp = exp,
-        assay = input$heatmap_assay,
-        method = "interactive"
+        assay = input$heatmap_assay
     )
 
     return(toPlotly(p))
 }
 
-renderConcentrationPlot <- function(input, exp){
+renderConcentrationPlot <- function(input, exp) {
     req(!is.null(exp) & "concentration" %in% assayNames(exp))
 
+    batches <- input$concentrationBatch
+    if ("All" %in% batches) {
+        batches <- unique(exp$batch)
+    }
 
     p <- concentrationPlotNew(
         exp = exp,
         assay = input$concentrationAssay,
         compound = input$concentrationCompound,
         calType = "ACAL",
-        batch = input$concentrationBatch,
+        batch = batches,
         plotOnCalibrationLine = input$concentrationPlotOnLine,
         types = input$concentrationType
     )
 
-    library(ggplot2)
-    N <- length(input$concentrationBatch)
+    N <- length(batches)
     if (N > 1) {
         p <- p %>%
             facetPlot(by = "batch", shareY = TRUE, shareX = TRUE, ncol = round(N / 2))
@@ -173,7 +232,7 @@ renderConcentrationPlot <- function(input, exp){
 #' @param input
 #' @param exp
 #' @importFrom shiny req
-renderBatchAssayPlot <- function(input, exp){
+renderBatchAssayPlot <- function(input, exp) {
     req(!is.null(exp))
     exp <- exp[, exp$type == input$batchAssayType]
 
@@ -193,9 +252,10 @@ renderBatchAssayPlot <- function(input, exp){
 #' @param input
 #' @param exp
 #' @importFrom shiny req
-renderRsdqcPlot <- function(input, exp){
+#' @importFrom mzQuality rsdqcPlot
+renderRsdqcPlot <- function(input, exp) {
     req(metadata(exp)$hasIS & !is.null(exp))
-    p <- mzQuality2:::rsdqcPlot(exp, method = "interactive")
+    p <- rsdqcPlot(exp)
     return(toPlotly(p))
 }
 
@@ -206,13 +266,18 @@ renderRsdqcPlot <- function(input, exp){
 #' @param input
 #' @param exp
 #' @importFrom shiny req
-renderCalibrationPlot <- function(input, exp){
+renderCalibrationPlot <- function(input, exp) {
     req(!is.null(exp) & any(c("CAL", "ACAL") %in% exp$type))
+
+    batches <- input$calibration_batch
+    if ("All" %in% batches) {
+        batches <- unique(exp$batch)
+    }
 
     p <- calibrationPlot(
         exp = exp,
         compound = input$calibration_compound,
-        batch = input$calibration_batch,
+        batch = batches,
         assay = input$calibration_assay,
         guides = input$calibration_guides
     )
@@ -227,7 +292,7 @@ renderCalibrationPlot <- function(input, exp){
 #' @param input
 #' @param exp
 #' @importFrom shiny req
-renderRsdPlot <- function(input, exp){
+renderRsdPlot <- function(input, exp) {
     req(!is.null(exp))
 
     p <- rsdPlot(
@@ -253,28 +318,10 @@ renderRsdPlot <- function(input, exp){
 #' @param input
 #' @param exp
 #' @importFrom shiny req
-renderModelPlot <- function(df, model, compound){
-
-
-
-    #df <- df[complete.cases(df), ]
-    # df$Outlier <- "normal"
-    #
-    # idx <- df$Type == calType
-    # df$Outlier[idx] <- model$outliers[1:length(idx)]
-
-    #ranges <- rowData(exp[compound, ])$LinearRangePerType
-
-    #vals <- as.numeric(ranges[sprintf("Batch_%s_Type_%s", batch, types)])
-
-    #subtitle <- sprintf("Batch: %s,  R2: %.3f", batch, r2[compound, batch])
-    #ranges <- sprintf("Linear-Range: %s, Value: %.3f", types, vals)
-
-    #ranges <- paste(ranges, collapse = "\n")
-
-    #subtitle <- sprintf("%s\n%s", subtitle, ranges)
-
-    df$concentration[df$type %in% 'SAMPLE'] <- 0
+#' @importFrom ggplot2 ggplot geom_point scale_fill_manual scale_shape_manual
+#' geom_hline ggtitle geom_line theme_minimal
+renderModelPlot <- function(df, model, compound) {
+    df$concentration[df$type %in% "SAMPLE"] <- 0
 
 
     lowerIntercept <- df$ratio[which(df$calno == 2)][1]
@@ -284,21 +331,12 @@ renderModelPlot <- function(df, model, compound){
         geom_point(aes(fill = .data$type), size = 2) + # shape = Outlier
         scale_fill_manual(values = c("red", "blue", "gray")) +
         scale_shape_manual(values = c(21, 24)) +
-        ggplot2::geom_hline(yintercept = lowerIntercept, linetype = "dashed") +
-        ggplot2::geom_hline(yintercept = upperIntercept, linetype = "dashed") +
-        ggtitle(compound) + #, subtitle) +
+        geom_hline(yintercept = lowerIntercept, linetype = "dashed") +
+        geom_hline(yintercept = upperIntercept, linetype = "dashed") +
+        ggtitle(compound) + # , subtitle) +
         geom_line(data = fortify(model), aes(x = .fitted, y = Assay)) +
         theme_minimal()
 
 
     toPlotly(p)
-
-    # exp <- exp[, exp$Batch == input$linearCalibration_batch]
-    #
-    # plotLinearCalibration(
-    #     exp = exp,
-    #     compound = input$linearCalibration_compound,
-    #     types = input$linearCalibration_type,
-    #     calType = metadata(exp)$concentration
-    # )
 }

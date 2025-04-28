@@ -1,67 +1,69 @@
-combinedTablePage <- function(){
+combinedTablePage <- function() {
     fluidPage(
-        shiny.box_table("Data", "combined")
+        shiny.box_table("Data", "combined", helperMd = "combinedTable")
     )
 }
 
-sampleTablePage <- function(){
+sampleTablePage <- function() {
     fluidPage(
-        shiny.box_table("Data", "colData")
+        shiny.box_table("Data", "colData", helperMd = "colDataTable")
     )
 }
 
-compoundTablePage <- function(){
+compoundTablePage <- function() {
     fluidPage(
-        shiny.box_table("Data", "rowData")
+        shiny.box_table("Data", "rowData", helperMd = "rowDataTable")
     )
 }
 
-assayTablePage <- function(){
+assayTablePage <- function() {
     fluidPage(
         shiny.box_controls(list(
             fluidRow(
                 column(4, selectizeInput("assay_name",
-                                         label = "Assay",
-                                         choices = c()
+                    label = "Assay",
+                    choices = c()
                 )),
                 column(4, selectizeInput("assay_type",
-                                         label = "Aliquot type",
-                                         choices = c()
+                    label = "Aliquot type",
+                    choices = c()
                 )),
-                column(4, selectizeInput("assay_batch", label = "Batch",
-                                         choices = c()
+                column(4, selectizeInput("assay_batch",
+                    label = "Batch",
+                    choices = c()
                 ))
             )
         )),
-        shiny.box_table("Assay", "assayData", height = "65vh")
+        shiny.box_table("Assay", "assayData", height = "65vh", helperMd = "assayTable")
     )
 }
 
 
-qcTablePlot <- function(){
+qcTablePlot <- function() {
     fluidPage(
         shiny.box_controls(list(
             selectizeInput("qc_table_type",
-                           label = "QC type",
-                           choices = c()
+                label = "QC type",
+                choices = c()
             ),
             selectizeInput("qc_corrected",
-                           label = "Corrected",
-                           choices = c("Raw", "Corrected")
+                label = "Corrected",
+                choices = c("Raw", "Corrected")
             )
         )),
         shiny.box_table("QC Metrics", "qc_table", height = "65vh")
     )
 }
 
-modelTablePage <- function(){
+modelTablePage <- function() {
     fluidPage(
         shiny.box_controls(list(
             fluidRow(
                 column(6, selectizeInput(
                     inputId = "model_function",
                     label = "Function",
-                    choices = c("studentizedResiduals", "concentrationR2", "Outliers", "linearRanges", "calRatios"))),
+                    choices = c("studentizedResiduals", "concentrationR2", "Outliers", "linearRanges", "calRatios")
+                )),
                 column(6, selectInput("modelBatch", label = "Batch", choices = c(), multiple = TRUE))
             )
         )),

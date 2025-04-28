@@ -1,52 +1,70 @@
-compoundPlotPage <- function(){
+compoundPlotPage <- function() {
     fluidPage(
         shiny.box_controls(list(
             fluidRow(
-                column(6, selectizeInput("compound_metabolite",
-                                         label = "Compound",
-                                         choices = c()
+                column(4, selectizeInput("compound_metabolite",
+                    label = "Compound",
+                    choices = c()
                 )),
-                column(6, selectizeInput("compound_assay",
-                                         label = "Assay",
-                                         choices = c()
+                column(4, selectizeInput("compound_assay",
+                    label = "Assay",
+                    choices = c()
+                )),
+                column(4, selectInput("compound_filtered",
+                    label = "Type",
+                    choices = c(), multiple = TRUE
                 ))
             ),
             fluidRow(
-                column(4, selectInput("compound_filtered",
-                                      label = "Type",
-                                      choices = c(), multiple = TRUE
+                column(3, selectInput("compound_logscale",
+                    label = "Log-Scale Y-Axis",
+                    choices = c(TRUE, FALSE)
                 )),
-                column(4, selectInput("compound_batch",
-                                      label = "Batch",
-                                      choices = c(), multiple = TRUE
+                column(3, selectInput("compound_batch",
+                    label = "Batch",
+                    choices = c(), multiple = TRUE
                 )),
-                column(4, selectInput("compound_trends",
-                                      label = "Trendlines",
-                                      choices = c(), multiple = TRUE
-                ))
+                column(3, selectInput("compound_trends",
+                    label = "Trendlines",
+                    choices = c(), multiple = TRUE
+                )),
+                column(3, selectInput("compound_columns", label = "Columns", choices = c(1, 2), multiple = FALSE))
             )
         )),
-        shiny.box_plot("Compound Plot", "compound_plot", "65vh")
+        box(
+            title = "Compound Plot",
+            solidHeader = TRUE,
+            width = NULL,
+            collapsible = TRUE,
+
+            # Box items
+            # Helper icon for help pages
+            div(style = "height: 3vh;") %>%
+                helper(content = "Compound Plot", fade = TRUE, icon = "circle-question"),
+            uiOutput("compound_plot_ui")
+        )
     )
 }
 
-pcaPlotPage <- function(){
+pcaPlotPage <- function() {
     fluidPage(
         shiny.box_controls(list(
             fluidRow(
-                column(3, selectizeInput("pca_assay", label = "Assay",
-                                         choices = c()
+                column(3, selectizeInput("pca_assay",
+                    label = "Assay",
+                    choices = c()
                 )),
                 column(3, selectInput("pca_filtered",
-                                      label = "Type", choices = c(),
-                                      multiple = TRUE
+                    label = "Type", choices = c(),
+                    multiple = TRUE
                 )),
-                column(3, selectInput("pca_batch", label = "Batch",
-                                         choices = c(), multiple = TRUE)
-                ),
+                column(3, selectInput("pca_batch",
+                    label = "Batch",
+                    choices = c(), multiple = TRUE
+                )),
                 column(3, selectizeInput("pca_confidence",
-                                         label = "95% CI",
-                                         choices = c(TRUE, FALSE)
+                    label = "95% CI",
+                    choices = c(TRUE, FALSE)
                 ))
             )
             # fluidRow(
@@ -62,9 +80,8 @@ pcaPlotPage <- function(){
     )
 }
 
-rsdqcPlotPage <- function(){
+rsdqcPlotPage <- function() {
     fluidPage(
-
         shiny.box_plot(
             "Internal Standard - Compound Corrected RSDQCs",
             "correlation_heatmap", "80vh"
@@ -72,20 +89,21 @@ rsdqcPlotPage <- function(){
     )
 }
 
-qcPlotPage <- function(){
+qcPlotPage <- function() {
     fluidPage(
         shiny.box_controls(list(
             fluidRow(
                 column(4, selectizeInput("qc_assay",
-                                         label = "Area / Ratio",
-                                         choices = c()
+                    label = "Area / Ratio",
+                    choices = c()
                 )),
                 column(4, selectizeInput("qc_type",
-                                         label = "Type",
-                                         choices = c()
+                    label = "Type",
+                    choices = c()
                 )),
-                column(4, selectInput("qc_batch", label = "Batch", multiple = TRUE,
-                                         choices = c()
+                column(4, selectInput("qc_batch",
+                    label = "Batch", multiple = TRUE,
+                    choices = c()
                 ))
             )
         )),
@@ -93,25 +111,25 @@ qcPlotPage <- function(){
     )
 }
 
-calibrationPlotPage <- function(){
+calibrationPlotPage <- function() {
     fluidPage(
         shiny.box_controls(list(
             fluidRow(
                 column(3, selectizeInput("calibration_assay",
-                                         label = "Assay",
-                                         choices = c()
+                    label = "Assay",
+                    choices = c()
                 )),
                 column(3, selectizeInput("calibration_compound",
-                                         label = "Compound",
-                                         choices = c()
+                    label = "Compound",
+                    choices = c()
                 )),
                 column(3, selectizeInput("calibration_batch",
-                                         label = "Batch",
-                                         choices = c()
+                    label = "Batch",
+                    choices = c()
                 )),
                 column(3, selectInput("calibration_guides",
-                                      label = "Guides",
-                                      choices = c(), multiple = TRUE
+                    label = "Guides",
+                    choices = c(), multiple = TRUE
                 ))
             )
         )),
@@ -119,7 +137,7 @@ calibrationPlotPage <- function(){
     )
 }
 
-concentrationPlotPage <- function(){
+concentrationPlotPage <- function() {
     fluidPage(
         shiny.box_controls(list(
             fluidRow(
@@ -146,7 +164,6 @@ concentrationPlotPage <- function(){
                     multiple = TRUE
                 )),
                 column(2, checkboxInput("concentrationPlotOnLine", "Plot concentrations on Calibration Line"))
-
             )
         )),
         fluidRow(
@@ -158,28 +175,27 @@ concentrationPlotPage <- function(){
             column(12, shiny.box_plot(
                 "Calibration Model Plot",
                 "concentrationPlot",
-                "65vh")
-            )
+                "65vh"
+            ))
         )
-
     )
 }
 
-compoundPerBatchPage <- function(){
+compoundPerBatchPage <- function() {
     fluidPage(
         shiny.box_controls(list(
             fluidRow(
                 column(4, selectizeInput("batchAssayCompound",
-                                         label = "Compound",
-                                         choices = c()
+                    label = "Compound",
+                    choices = c()
                 )),
                 column(4, selectizeInput("batchAssay",
-                                         label = "Assay",
-                                         choices = c()
+                    label = "Assay",
+                    choices = c()
                 )),
                 column(4, selectizeInput("batchAssayType",
-                                         label = "Type",
-                                         choices = c()
+                    label = "Type",
+                    choices = c()
                 ))
             )
         )),
@@ -187,19 +203,21 @@ compoundPerBatchPage <- function(){
     )
 }
 
-aliquotPlotPage <- function(){
+aliquotPlotPage <- function() {
     fluidPage(
         shiny.box_controls(list(
             fluidRow(
-                column(4, selectizeInput("sample_assay", label = "Assay",
-                                         choices = c()
+                column(4, selectizeInput("sample_assay",
+                    label = "Assay",
+                    choices = c()
                 )),
                 column(4, selectInput("sample_filtered",
-                                      label = "Type", choices = c(),
-                                      multiple = TRUE
+                    label = "Type", choices = c(),
+                    multiple = TRUE
                 )),
-                column(4, selectInput("sample_batch", label = "Batch",
-                                         choices = c(), multiple = TRUE
+                column(4, selectInput("sample_batch",
+                    label = "Batch",
+                    choices = c(), multiple = TRUE
                 ))
             )
         )),
@@ -207,19 +225,21 @@ aliquotPlotPage <- function(){
     )
 }
 
-heatmapPlotPage <- function(){
+heatmapPlotPage <- function() {
     fluidPage(
         shiny.box_controls(list(
             fluidRow(
-                column(4, selectizeInput("heatmap_assay", label = "Assay",
-                                         choices = c()
+                column(4, selectizeInput("heatmap_assay",
+                    label = "Assay",
+                    choices = c()
                 )),
                 column(4, selectInput("heatmap_type",
-                                      label = "Type", choices = c(),
-                                      multiple = TRUE
+                    label = "Type", choices = c(),
+                    multiple = TRUE
                 )),
-                column(4, selectizeInput("heatmap_batch", label = "Batch",
-                                         choices = c()
+                column(4, selectizeInput("heatmap_batch",
+                    label = "Batch",
+                    choices = c()
                 ))
             )
         )),

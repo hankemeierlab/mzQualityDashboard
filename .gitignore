@@ -3,3 +3,6 @@
 .RData
 .Ruserdata
 mzQuality*
+shiny_bookmarks*
+*.rds
+inst/doc
