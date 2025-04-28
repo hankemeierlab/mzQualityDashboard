@@ -15,17 +15,22 @@ To install mzQualityDashboard and its dependencies, install the development vers
 
 ```r
 if (!"remotes" %in% installed.packages()) {
-    install.packages("remotes", dependencies = TRUE)
+    install.packages("remotes", type = "binary")
 }
 
+if (!"BiocManager" %in% installed.packages()) {
+    install.packages("BiocManager", type = "binary")
+}
+
+BiocManager::install("GenomeInfoDbData")
+
 if (!"mzQuality" %in% installed.packages()) {
-    remotes::install_github("hankemeierlab/mzQuality", upgrade = "always")
+    remotes::install_github("hankemeierlab/mzQuality",type = "binary")
 }
 
 if (!"mzQualityDashboard" %in% installed.packages()) {
-    remotes::install_github("hankemeierlab/mzQualityDashboard", upgrade = "always")
+    remotes::install_github("hankemeierlab/mzQualityDashboard", type = "binary")
 }
-
 ```
 
 Once installed, run the following lines of code to start the dashboard:
