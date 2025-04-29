@@ -14,21 +14,29 @@ This is the repository for the complementary dashboard for mzQuality, a tool for
 To install mzQualityDashboard and its dependencies, install the development version using the following code: 
 
 ```r
-if (!"remotes" %in% installed.packages()) {
+pkgs <- installed.packages()
+if (!"remotes" %in% pkgs) {
+    # Needed to retrieve development packages from github
     install.packages("remotes", type = "binary")
 }
 
-if (!"BiocManager" %in% installed.packages()) {
+if (!"BiocManager" %in% pkgs) {
+    # Needed for some mzQuality dependencies
     install.packages("BiocManager", type = "binary")
 }
 
-BiocManager::install("GenomeInfoDbData")
+if (!"GenomeInfoDbData" %in% pkgs) {
+    # Required by some dependencies, but not automatically installed 
+    BiocManager::install("GenomeInfoDbData")
+}
 
-if (!"mzQuality" %in% installed.packages()) {
+if (!"mzQuality" %in% pkgs) {
+    # Install mzQuality
     remotes::install_github("hankemeierlab/mzQuality",type = "binary")
 }
 
-if (!"mzQualityDashboard" %in% installed.packages()) {
+if (!"mzQualityDashboard" %in% pkgs) {
+    # Install the dashboard for mzQuality 
     remotes::install_github("hankemeierlab/mzQualityDashboard", type = "binary")
 }
 ```

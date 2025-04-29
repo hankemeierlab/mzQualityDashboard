@@ -11,17 +11,18 @@ homepageServer <- function(session, input, output, aliquotDf, internalStandards,
         experiment <- isolate(exp())
 
         req(!is.null(experiment))
+        print(experiment)
 
 
         columns <- c(
             "compound", "rsdqc", "rsdqcCorrected",
             "backgroundSignal", sprintf("%sPresence", metadata(experiment)$QC), "use"
         )
+
         df <- rowData(experiment)
 
-        print(df)
-
         df$compound <- rownames(df)
+        req(all(columns %in% colnames(df)))
         df <- as.data.frame(df[, columns])
         rownames(df) <- seq_len(nrow(df))
 
@@ -162,7 +163,7 @@ homepageServer <- function(session, input, output, aliquotDf, internalStandards,
     # })
 
     observeEvent(input$compounds_rows_selected, ignoreInit = TRUE, {
-        x <- exp()
+        x <- isolate(exp())
         req(!is.null(x))
 
 
@@ -184,7 +185,7 @@ homepageServer <- function(session, input, output, aliquotDf, internalStandards,
     #
     #         choices <- rownames(knowns)[rowSums(knowns == 0) != ncol(knowns)]
     #         choices <- choices[choices %in% compounds]
-    #         updateSelectizeInput(inputId = "concentrationCompound", choices = choices, selected = choices[1])
+            # updateSelectizeInput(inputId = "concentrationCompound", choices = choices, selected = choices[1])
     #     }
     # })
 }

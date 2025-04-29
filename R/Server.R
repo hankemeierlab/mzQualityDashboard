@@ -429,21 +429,51 @@ server <- function(input, output, session, useLogin = FALSE) {
         project(sprintf("%s_%s", proj, timeFormat))
 
         if (!filledExp) {
-            combined <- shinyWidgets::execute_safely(
+
+            newExp(shinyWidgets::execute_safely(
                 {
                     if (exampleTest) {
-                        combined <- buildCombined(system.file("example.tsv", package = "mzQuality"))
+                        exp <- readRDS(system.file(package = "mzQuality", "data.RDS"))
+                    #    print(exp)
+                       # conc <- read.delim(system.file(package = "mzQuality", "concentrations.txt"), check.names = FALSE)
+                       # print(conc)
+                       # exp <- addConcentrations(exp, conc, filterComps = FALSE)
                     } else if (length(input$files$datapath) > 0) {
                         combined <- submitDataEvent(session, input)
+                        exp <- buildExperimentEvent(session, input, combined)
+
                     }
-                    combined
+
+                    if (input$filterISTD) {
+                        exp <- filterISTD(exp, "STD")
+                    }
+                    if (input$filterSST) {
+                        exp <- filterSST(exp, "SST")
+                    }
+
+                    exp <- doAnalysis(
+                        exp = exp,
+                        doAll = TRUE, removeOutliers = TRUE,
+                        useWithinBatch = as.logical(input$useWithinBatch),
+                        backgroundPercentage = input$backgroundSignal,
+                        qcPercentage = input$qcPercentage,
+                        nonReportableRSD = input$nonReportableRSD,
+                        effectNaAsZero = input$effectNaAsZero
+                    )
+
+                    addedConcentrations <- length(input$calFile) > 0
+                    if (addedConcentrations) {
+                        conc <- utils::read.delim(input$calFile$datapath, check.names = FALSE)
+                        exp <- addConcentrations(exp, conc, filterComps = FALSE)
+                    }
+
+
+                    exp
                 },
                 message = "
         A problem occured with your data. Ensure that your aliquots are named correctly.
         If this problem still occurs, contact the developer"
-            )
-
-            newExp(buildExperimentEvent(session, input, combined))
+            ))
         }
 
 
@@ -455,17 +485,7 @@ server <- function(input, output, session, useLogin = FALSE) {
         rownames(df) <- seq_len(nrow(df))
         aliquotDf(df)
 
-
         updateTabsetPanel(session, inputId = "sidebar", "selectedData")
-
-        # if (all(newExp()$use)) {
-        #     output$compounds <- DT::renderDataTable({
-        #         shinyWidgets::execute_safely({
-        #             compoundTable(newExp(), select = which(!rowData(newExp())$use))
-        #         })
-        #     })
-        # }
-
         w$hide()
     })
 

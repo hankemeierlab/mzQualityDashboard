@@ -21,7 +21,7 @@ renderAliquotPlot <- function(input, exp) {
         batches <- unique(exp$batch)
     }
 
-    p <- aliquotPlotNew(
+    p <- aliquotPlot(
         exp = exp,
         batch = batches,
         assay = input$sample_assay,
@@ -59,7 +59,7 @@ renderCompoundPlot <- function(input, exp) {
     }
     N <- length(batches)
 
-    p <- compoundPlotNew(
+    p <- compoundPlot(
         exp = exp,
         assay = input$compound_assay,
         compound = input$compound_metabolite,
@@ -103,7 +103,7 @@ renderViolinPlot <- function(input, exp) {
         batches <- unique(exp$batch)
     }
 
-    p <- violinPlotNew(
+    p <- violinPlot(
         exp = exp,
         assay = input$qc_assay,
         batches = batches,
@@ -140,7 +140,7 @@ renderPcaPlot <- function(input, exp, confidence = 0.95) {
         batches <- unique(exp$batch)
     }
 
-    p <- pcaPlotNew(
+    p <- pcaPlot(
         exp = exp,
         assay = input$pca_assay,
         pc1 = 1,
@@ -206,7 +206,7 @@ renderConcentrationPlot <- function(input, exp) {
         batches <- unique(exp$batch)
     }
 
-    p <- concentrationPlotNew(
+    p <- concentrationPlot(
         exp = exp,
         assay = input$concentrationAssay,
         compound = input$concentrationCompound,

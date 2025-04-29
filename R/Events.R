@@ -18,7 +18,7 @@ submitDataEvent <- function(session, input) {
     # Build a combined file using the file(s) given
     # Should convert to arrow reader for combined files
 
-    return(buildCombined(files))
+    return(readData(files))
 }
 
 buildExperimentEvent <- function(session, input, combined) {
@@ -38,30 +38,6 @@ buildExperimentEvent <- function(session, input, combined) {
         df = combined,
         qc = qcValue,
     )
-
-
-    if (input$filterISTD) {
-        exp <- filterISTD(exp, "STD")
-    }
-    if (input$filterSST) {
-        exp <- filterSST(exp, "SST")
-    }
-
-    exp <- doAnalysis(
-        exp = exp,
-        doAll = TRUE, removeOutliers = TRUE,
-        useWithinBatch = as.logical(input$useWithinBatch),
-        backgroundPercentage = input$backgroundSignal,
-        qcPercentage = input$qcPercentage,
-        nonReportableRSD = input$nonReportableRSD,
-        effectNaAsZero = input$effectNaAsZero
-    )
-
-    addedConcentrations <- length(input$calFile) > 0
-    if (addedConcentrations) {
-        conc <- utils::read.delim(input$calFile$datapath, check.names = FALSE)
-        exp <- addConcentrations(exp, conc, filterComps = FALSE)
-    }
 
     return(exp)
 }

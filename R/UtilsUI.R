@@ -53,9 +53,15 @@ updateInputs <- function(session, input, exp) {
 
 
     comps <- rownames(exp)[rowData(exp)$use]
+
     updateSelectizeInput(session, "compound_metabolite", choices = comps, server = TRUE)
     updateSelectizeInput(session, "batchAssayCompound", choices = comps, server = TRUE)
     updateSelectizeInput(session, "calibration_compound", choices = comps, server = TRUE)
+
+    print(rowData(exp))
+    conc_comps <- rownames(exp)[rowData(exp)$use & rowData(exp)$hasCalculatedConcentrations]
+    updateSelectizeInput(inputId = "concentrationCompound", choices = conc_comps, selected = conc_comps[1])
+
 
 
     batch_inputs <- c(
