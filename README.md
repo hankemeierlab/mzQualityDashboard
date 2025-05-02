@@ -29,8 +29,9 @@ file. In the top left corner, click on **File** > **New File** > **R Script**.
 
 In the new file, copy and paste the code below. This code will check if the
 necessary packages are installed, and if not, it will install them. To run
-the script in Rstudio, click on the **Run** button in the top right corner of the
-script editor, or press **Ctrl + Enter** (Windows) or **Cmd + Enter** (Mac).
+the script in Rstudio, select all lines and click on the **Run** button in the 
+top right corner of the script editor, or press **Ctrl + A** followed by 
+**Ctrl + Enter** (Windows/Linux) or **Cmd + A** & **Cmd + Enter** (Mac).
 
 ```r
 pkgs <- installed.packages()
