@@ -81,7 +81,7 @@ compoundPlotEvent <- function(input, output, newExp) {
                         trendTypes = input$compound_trends,
                         types = types(),
                         addInternalStandards = "ISTD" %in% types(),
-                        logTransform = input$compound_logscale,
+                        logTransform = input$compound_logscale
                     )
                 })
 

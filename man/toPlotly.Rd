@@ -22,7 +22,7 @@ more complex plots, where panning and zooming may be needed.
 exp <- readRDS(system.file(package = "mzQuality", "data.RDS"))
 
 # Perform analysis
-exp <- doAnalysis(exp)
+exp <- doAnalysis(exp, doAll = TRUE)
 
 # Create PCA plot
 p <- pcaPlot(exp)
