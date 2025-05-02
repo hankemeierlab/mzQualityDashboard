@@ -43,7 +43,8 @@ Imports:
     stringr,
     SummarizedExperiment,
     utils,
-    waiter
+    waiter,
+    zip
 Suggests: 
     knitr,
     rmarkdown,

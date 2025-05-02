@@ -19,16 +19,7 @@ more complex plots, where panning and zooming may be needed.
 }
 \examples{
 # Read example dataset
-data <- read.delim(system.file(package = "mzQuality", "dataset.txt"))
-
-# Construct experiment
-exp <- buildExperiment(
-    data,
-    rowIndex = "Compound",
-    colIndex = "Aliquot",
-    primaryAssay = "Area",
-    secondaryAssay = "Area_is"
-)
+exp <- readRDS(system.file(package = "mzQuality", "data.RDS"))
 
 # Perform analysis
 exp <- doAnalysis(exp)

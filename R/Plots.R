@@ -51,7 +51,7 @@ renderCompoundPlot <- function(input, exp) {
     }), 1000)()
 
     types <- debounce(reactive({
-        input$compound_filtered
+        input$compound_types
     }), 1000)()
 
     if ("All" %in% batches) {
@@ -67,13 +67,12 @@ renderCompoundPlot <- function(input, exp) {
         types = types,
         withinTrend = TRUE,
         trendTypes = input$compound_trends,
-        doLog = input$compound_logscale,
-        smooth = TRUE
+        logTransform = input$compound_logscale
     )
 
 
     if (N > 1) {
-        p <- facetPlot(p, ncol = 1) # round(N / 2))
+        p <- facetPlot(p, ncol = 1)
     }
 
 
@@ -149,7 +148,7 @@ renderPcaPlot <- function(input, exp, confidence = 0.95) {
         sampleAsBatch = TRUE,
         addConfidenceInterval = input$pca_confidence,
         types = types,
-        doLog = TRUE
+        logTransform = TRUE
     )
     # Convert to Plotly
     toPlotly(p)
@@ -208,7 +207,7 @@ renderConcentrationPlot <- function(input, exp) {
 
     p <- concentrationPlot(
         exp = exp,
-        assay = input$concentrationAssay,
+        assay = "ratio_corrected",
         compound = input$concentrationCompound,
         calType = "ACAL",
         batch = batches,
@@ -219,7 +218,8 @@ renderConcentrationPlot <- function(input, exp) {
     N <- length(batches)
     if (N > 1) {
         p <- p %>%
-            facetPlot(by = "batch", shareY = TRUE, shareX = TRUE, ncol = round(N / 2))
+            facetPlot(by = "batch", shareY = TRUE,
+                      shareX = TRUE, ncol = round(N / 2))
     }
 
     return(toPlotly(p, dynamicTicks = N == 1))
@@ -256,32 +256,6 @@ renderBatchAssayPlot <- function(input, exp) {
 renderRsdqcPlot <- function(input, exp) {
     req(metadata(exp)$hasIS & !is.null(exp))
     p <- rsdqcPlot(exp)
-    return(toPlotly(p))
-}
-
-#' @title
-#' @description
-#' @details
-#' @returns
-#' @param input
-#' @param exp
-#' @importFrom shiny req
-renderCalibrationPlot <- function(input, exp) {
-    req(!is.null(exp) & any(c("CAL", "ACAL") %in% exp$type))
-
-    batches <- input$calibration_batch
-    if ("All" %in% batches) {
-        batches <- unique(exp$batch)
-    }
-
-    p <- calibrationPlot(
-        exp = exp,
-        compound = input$calibration_compound,
-        batch = batches,
-        assay = input$calibration_assay,
-        guides = input$calibration_guides
-    )
-
     return(toPlotly(p))
 }
 

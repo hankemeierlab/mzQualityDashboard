@@ -71,7 +71,7 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
 #' exp <- readRDS(system.file(package = "mzQuality", "data.RDS"))
 #'
 #' # Perform analysis
-#' exp <- doAnalysis(exp)
+#' exp <- doAnalysis(exp, doall = TRUE)
 #'
 #' # Create PCA plot
 #' p <- pcaPlot(exp)

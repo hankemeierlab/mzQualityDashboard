@@ -3,7 +3,7 @@
 #' @importFrom shiny req
 #' @importFrom shinyWidgets execute_safely
 #' @importFrom plotly plotlyOutput
-#' @importFrom mzQuality scatterPlot addTextBubble setSampleColors
+#' @importFrom mzQuality compoundPlot
 #' @importFrom dplyr filter mutate arrange
 #' @importFrom stats reorder
 compoundPlotEvent <- function(input, output, newExp) {
@@ -17,7 +17,7 @@ compoundPlotEvent <- function(input, output, newExp) {
     }), 1000)
 
     types <- debounce(reactive({
-        input$compound_filtered
+        input$compound_types
     }), 1000)
 
 
@@ -54,31 +54,17 @@ compoundPlotEvent <- function(input, output, newExp) {
             arrange(.data$datetime) %>%
             mutate(aliquot = reorder(.data$aliquot, .data$injection_time))
 
-        df <- addTextBubble(isolate(newExp()), df, type = "aliquot")
+        #df <- addTextBubble(isolate(newExp()), df, type = "aliquot")
         df
-    })
-
-    colors <- reactive({
-        types <- unique(plotData()$type)
-
-
-        cols <- lapply(seq_along(types), function(i) {
-            input[[paste0("colorpicker_", i)]]
-        })
-
-        names(cols) <- types
-        setSampleColors(types, unlist(cols))
     })
 
     output$compound_plot <- plotly::renderPlotly(
         shinyWidgets::execute_safely(
             {
                 exp <- isolate(newExp())
-                exp <- exp[rowData(exp)$use, exp$use]
-
-                data <- adjustedVisualData()
 
                 req(!is.null(exp))
+                exp <- exp[input$compound_metabolite, exp$use]
 
                 b <- batches()
                 N <- length(b)
@@ -87,18 +73,16 @@ compoundPlotEvent <- function(input, output, newExp) {
 
 
                 plotList <- lapply(b, function(batchLabel) {
-                    data <- data %>%
-                        filter(.data$batch == batchLabel)
 
-                    if (input$compound_assay == "area" & metadata(isolate(newExp()))$hasIS) {
-                        data_is <- data
-                        data_is$area <- data_is$area_is
-                        data_is$type <- "ISTD"
-                        data <- rbind(data, data_is)
-                    }
-
-                    p <- scatterPlot(data, input$compound_assay, input$compound_trends, colors())
-                    p
+                    compoundPlot(
+                        exp, compound = 1,
+                        batches = batchLabel,
+                        assay = input$compound_assay,
+                        trendTypes = input$compound_trends,
+                        types = types(),
+                        addInternalStandards = "ISTD" %in% types(),
+                        logTransform = input$compound_logscale,
+                    )
                 })
 
                 cols <- as.integer(input$compound_columns)

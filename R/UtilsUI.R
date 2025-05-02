@@ -59,7 +59,7 @@ updateInputs <- function(session, input, exp) {
     updateSelectizeInput(session, "calibration_compound", choices = comps, server = TRUE)
 
     print(rowData(exp))
-    conc_comps <- rownames(exp)[rowData(exp)$use & rowData(exp)$hasCalculatedConcentrations]
+    conc_comps <- rownames(exp)[rowData(exp)$use & rowData(exp)$hasKnownConcentrations]
     updateSelectizeInput(inputId = "concentrationCompound", choices = conc_comps, selected = conc_comps[1])
 
 
@@ -102,7 +102,7 @@ updateInputs <- function(session, input, exp) {
 
 
 
-    updateSelectInput(session, "compound_filtered",
+    updateSelectInput(session, "compound_types",
         choices = c(types, "ISTD"),
         selected = types
     )

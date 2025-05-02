@@ -1,17 +1,36 @@
 # README
 
 ## Introduction
-This is the repository for the complementary dashboard for mzQuality, a tool for assessing metabolomics datasets using Quality Control samples.  
+This is the repository for mzQualityDashboard, a shiny application that runs 
+in R. It is built on top of the [mzQuality package](https://github.com/hankemeierlab/mzQuality), which is a tool for assessing
+metabolomics datasets using Quality Control samples. The dashboard
+provides a user-friendly interface for visualizing and interpreting the
+results of the mzQuality analysis. See our 
+[preprint](https://www.biorxiv.org/content/10.1101/2025.01.22.633547v1)
+for more information.
 
 ## Getting started
 
-### Install R
+### Install R & Rstudio
+If you have never used R before, you will need to install R and RStudio.
+You can [install R from CRAN](https://cran.r-project.org/). Select your 
+operating system and follow the installation instructions for the **base**
+version.
 
-- Install R (> 4.0) from [CRAN](https://cran.r-project.org/)
-- Install RStudio from [RStudio](https://posit.co/download/rstudio-desktop/)
+Next is Rstudio, which is the recommended editor for writing and executing 
+R code. You can find Rstudio at the [RStudio website](https://posit.co/download/rstudio-desktop/).
+Select and download the desktop version for your operating system. Follow
+the installation instructions before proceeding to the next step.
 
-### Install mzQuality and necessary R packages
-To install mzQualityDashboard and its dependencies, install the development version using the following code: 
+### Install mzQualityDashboard and necessary R packages
+After installing R and RStudio, you will need to install the mzQualityDashboard 
+package and its dependencies. We start by opening Rstudio and creating a new
+file. In the top left corner, click on **File** > **New File** > **R Script**.
+
+In the new file, copy and paste the code below. This code will check if the
+necessary packages are installed, and if not, it will install them. To run
+the script in Rstudio, click on the **Run** button in the top right corner of the
+script editor, or press **Ctrl + Enter** (Windows) or **Cmd + Enter** (Mac).
 
 ```r
 pkgs <- installed.packages()
@@ -41,9 +60,15 @@ if (!"mzQualityDashboard" %in% pkgs) {
 }
 ```
 
-Once installed, run the following lines of code to start the dashboard:
+### Starting mzQualityDashboard
+Once the installation of mzQuality has finished, the following lines of code
+can be used to start the dashboard. It will open a new window in your web browser
+with the dashboard interface. Each time you close the dashboard, you will need to
+run the following code in Rstudio to open it again. 
 
 ```r
 library(mzQualityDashboard)
 openDashboard()
 ```
+
+### Using mzQualityDashboard

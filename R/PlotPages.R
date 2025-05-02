@@ -10,7 +10,7 @@ compoundPlotPage <- function() {
                     label = "Assay",
                     choices = c()
                 )),
-                column(4, selectInput("compound_filtered",
+                column(4, selectInput("compound_types",
                     label = "Type",
                     choices = c(), multiple = TRUE
                 ))
@@ -108,32 +108,6 @@ qcPlotPage <- function() {
             )
         )),
         shiny.box_plot("QC Distribution(s)", "badqc_plot", "65vh")
-    )
-}
-
-calibrationPlotPage <- function() {
-    fluidPage(
-        shiny.box_controls(list(
-            fluidRow(
-                column(3, selectizeInput("calibration_assay",
-                    label = "Assay",
-                    choices = c()
-                )),
-                column(3, selectizeInput("calibration_compound",
-                    label = "Compound",
-                    choices = c()
-                )),
-                column(3, selectizeInput("calibration_batch",
-                    label = "Batch",
-                    choices = c()
-                )),
-                column(3, selectInput("calibration_guides",
-                    label = "Guides",
-                    choices = c(), multiple = TRUE
-                ))
-            )
-        )),
-        shiny.box_plot("Calibration Plot", "calibration_plot", "65vh")
     )
 }
 

@@ -14,6 +14,7 @@
 #' @importFrom plotly renderPlotly
 #' @importFrom DT renderDataTable
 #' @importFrom mzQuality identifyMisInjections doAnalysis expToCombined
+#' @importFrom zip zip
 #' @noRd
 server <- function(input, output, session, useLogin = FALSE) {
 
@@ -357,19 +358,6 @@ server <- function(input, output, session, useLogin = FALSE) {
         )
     )
 
-    # (Academic) Calibration Plot
-    output$calibration_plot <- plotly::renderPlotly(
-        shinyWidgets::execute_safely(
-            {
-                exp <- newExp()
-
-                renderCalibrationPlot(input, exp[rowData(exp)$use, exp$use])
-            },
-            title = "Plot Failed",
-            message = "Could not create the plot"
-        )
-    )
-
     # Relative Standard Deviation Plot
     output$rsd_plot <- plotly::renderPlotly(
         shinyWidgets::execute_safely(
@@ -464,7 +452,7 @@ server <- function(input, output, session, useLogin = FALSE) {
                     addedConcentrations <- length(input$calFile) > 0
                     if (addedConcentrations) {
                         conc <- utils::read.delim(input$calFile$datapath, check.names = FALSE)
-                        exp <- addConcentrations(exp, conc, filterComps = FALSE)
+                        exp <- addConcentrations(exp, conc)
                     }
 
 
@@ -521,13 +509,13 @@ server <- function(input, output, session, useLogin = FALSE) {
         withProgress(message = "Generating output files...", {
             w$show()
 
-            downloadZip(
+            createReports(
+                folder = tempdir(),
                 project = project(),
                 exp = exp,
-                summaryReport = as.logical(input$summary_report),
-                compoundReport = as.logical(input$compound_report),
+                makeSummaryReport = as.logical(input$summary_report),
+                makeCompoundReport = as.logical(input$compound_report),
                 summaryPlots = input$downloadPlotPicker,
-                copyDataLake = input$copyDataLake,
                 assays = input$downloadAssayPicker,
                 backgroundPercent = input$backgroundSignal,
                 cautionRSD = input$cautionRSD,
@@ -550,7 +538,9 @@ server <- function(input, output, session, useLogin = FALSE) {
         content = function(file) {
             w$show()
             shinyjs::disable("download_zip")
-            zipFolder(file, file.path(getwd(), project()))
+
+            output <- file.path(getwd(), project())
+            zip(zipfile = file, files = list.files(output), root = output)
             shinyjs::enable("createZip")
             w$hide()
         }
