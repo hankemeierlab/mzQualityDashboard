@@ -47,7 +47,7 @@ if (!"BiocManager" %in% pkgs) {
 
 if (!"GenomeInfoDbData" %in% pkgs) {
     # Required by some dependencies, but not automatically installed 
-    BiocManager::install("GenomeInfoDbData")
+    BiocManager::install("GenomeInfoDbData", ask = FALSE)
 }
 
 if (!"mzQuality" %in% pkgs) {
