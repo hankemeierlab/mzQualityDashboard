@@ -52,12 +52,12 @@ if (!"GenomeInfoDbData" %in% pkgs) {
 
 if (!"mzQuality" %in% pkgs) {
     # Install mzQuality
-    remotes::install_github("hankemeierlab/mzQuality",type = "binary")
+    remotes::install_github("hankemeierlab/mzQuality",type = "binary", upgrade = "always")
 }
 
 if (!"mzQualityDashboard" %in% pkgs) {
     # Install the dashboard for mzQuality 
-    remotes::install_github("hankemeierlab/mzQualityDashboard", type = "binary")
+    remotes::install_github("hankemeierlab/mzQualityDashboard", type = "binary", upgrade = "always")
 }
 ```
 
