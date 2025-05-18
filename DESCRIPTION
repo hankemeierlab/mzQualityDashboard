@@ -15,7 +15,7 @@ Authors@R: c(
         person("NGID", role = "fnd"),
         person("EXPOSOME-NL", role = "fnd"))
 Description: This is an R package for monitoring technical variation in mass spectrometry measurements. It provides various metrics by utilizing pooled quality control samples, blank samples and calibration lines. mzQuality uses Bioconductors' SummarizedExperiment to facilitate implementation with existing workflows. It is fledged with an Rshiny application to support interactive assessment of measurements.
-License: GPL-3
+License: GPL (>= 3)
 biocViews: Software, MassSpectrometry, BatchEffect, QualityControl, Metabolomics 
 Depends:
     mzQuality,
