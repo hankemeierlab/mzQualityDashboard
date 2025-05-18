@@ -1,10 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@300;500&display=swap");
 
 .waiter-overlay-content{
-position: absolute;
-top: 20vh; /*30 pixels from the top*/
-left: 35vw; /*48% from the left*/
-right: 35vw;
+  position: absolute;
+  top: 20vh; /*30 pixels from the top*/
+  left: 35vw; /*48% from the left*/
+  right: 35vw;
 }
 
 p, div, h3 {
@@ -40,4 +40,13 @@ p, div, h3 {
 /* color selected rows red */
 .table.dataTable tbody td.active, .table.dataTable tbody tr.active td {
               background-color: rgba(200, 0, 0, 0.6) !important;
+}
+
+#submit {
+  margin-left: 20%;
+  margin-right: 20%;
+  margin-top: 1%;
+  margin-bottom: 1%;
+  width: 60%;
+  height: 10%;
 }

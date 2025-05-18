@@ -1,4 +1,9 @@
-# README
+# mzQualityDashboard
+
+[![R-CMD-check](https://github.com/hankemeierlab/mzQualityDashboard/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/hankemeierlab/mzQualityDashboard/actions/workflows/R-CMD-check.yaml)
+[![BiocCheck](https://github.com/hankemeierlab/mzQualityDashboard/workflows/R-CMD-check-bioc/badge.svg)](https://github.com/hankemeierlab/mzQualityDashboard/actions/workflows/bioc-check.yml)
+[![Codecov test coverage](https://codecov.io/gh/hankemeierlab/mzQualityDashboard/graph/badge.svg)](https://app.codecov.io/gh/hankemeierlab/mzQualityDashboard)
+
 
 ## Introduction
 This is the repository for mzQualityDashboard, a shiny application that runs 
@@ -47,17 +52,17 @@ if (!"BiocManager" %in% pkgs) {
 
 if (!"GenomeInfoDbData" %in% pkgs) {
     # Required by some dependencies, but not automatically installed 
-    BiocManager::install("GenomeInfoDbData", ask = FALSE)
+    BiocManager::install("GenomeInfoDbData")
 }
 
 if (!"mzQuality" %in% pkgs) {
     # Install mzQuality
-    remotes::install_github("hankemeierlab/mzQuality",type = "binary", upgrade = "always")
+    remotes::install_github("hankemeierlab/mzQuality",type = "binary")
 }
 
 if (!"mzQualityDashboard" %in% pkgs) {
     # Install the dashboard for mzQuality 
-    remotes::install_github("hankemeierlab/mzQualityDashboard", type = "binary", upgrade = "always")
+    remotes::install_github("hankemeierlab/mzQualityDashboard", type = "binary")
 }
 ```
 
