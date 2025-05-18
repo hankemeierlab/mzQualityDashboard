@@ -65,6 +65,7 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
 #' @param exp
 #' @param assayName
 #' @importFrom shiny req
+#' @importFrom SummarizedExperiment assay
 createAssayTable <- function(exp, assayName) {
     req(!is.null(exp))
     as.data.frame(cbind(

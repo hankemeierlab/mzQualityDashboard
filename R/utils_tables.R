@@ -233,6 +233,7 @@ colDataTable <- function(exp) {
 #' @param input
 #' @param exp
 #' @importFrom shiny req
+#' @importFrom SummarizedExperiment assay
 assayTable <- function(input, exp) {
     req(!is.null(exp))
     assayTable <- exp[, exp$batch == input$assay_batch &

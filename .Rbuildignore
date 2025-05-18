@@ -1,2 +1,4 @@
 ^mzqualitydashboard\.Rproj$
 ^\.Rproj\.user$
+^.git$
+^.github$

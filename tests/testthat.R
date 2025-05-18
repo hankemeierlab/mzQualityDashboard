@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-suppressPackageStartupMessages(library(mzQualityDashboard))
+library(mzQualityDashboard)
 
 test_check("mzQualityDashboard")
