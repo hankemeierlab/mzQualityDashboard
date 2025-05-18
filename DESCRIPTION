@@ -38,6 +38,8 @@ Suggests:
     knitr,
     rmarkdown,
     testthat
+Remotes:
+    hankemeierlab/mzQuality
 Config/testthat/edition: 3
 Encoding: UTF-8
 RoxygenNote: 7.3.2
