@@ -25,9 +25,9 @@ ui <- function() {
                 )
             ),
             tabItems(
-                tabItem(tabName = "home", .homePage()),
+                tabItem(tabName = "homePage", .homePage()),
                 tabItem(tabName = "selectedData", .selectDataPage()),
-                tabItem(tabName = "IS", .internalStandardPage()),
+                tabItem(tabName = "internalStandards", .internalStandardPage()),
                 tabItem(tabName = "Combined", .combinedTablePage()),
                 tabItem(tabName = "ColData", .sampleTablePage()),
                 tabItem(tabName = "RowData", .compoundTablePage()),
@@ -35,7 +35,7 @@ ui <- function() {
                 tabItem(tabName = "Aliquots_tab", .aliquotPlotPage()),
                 tabItem(tabName = "Compounds", .compoundPlotPage()),
                 tabItem(tabName = "PCA", .pcaPlotPage()),
-                tabItem(tabName = "ISheatmap", .rsdqcPlotPage()),
+                tabItem(tabName = "rsdqcPage", .rsdqcPlotPage()),
                 tabItem(tabName = "QCViolins", .qcPlotPage()),
                 tabItem(
                     tabName = "concentrationPlot",

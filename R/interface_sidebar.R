@@ -12,7 +12,9 @@
         sidebarMenu(
             id = "sidebar",
             menuItem(
-                "Create project", tabName = "home", icon = icon("file-arrow-up")
+                "Create project",
+                tabName = "homePage",
+                icon = icon("file-arrow-up")
             ),
             menuItem(
                 "Select Data",
@@ -21,7 +23,7 @@
             ),
             menuItem(
                 "Internal Standards",
-                tabName = "IS",
+                tabName = "internalStandards",
                 icon = icon("shuffle")
             ),
             menuItem(
@@ -38,7 +40,7 @@
                 menuSubItem("Aliquot", tabName = "Aliquots_tab", icon = icon),
                 menuSubItem("Compound", tabName = "Compounds", icon = icon),
                 menuSubItem("PCA Plot", tabName = "PCA", icon = icon),
-                menuSubItem("RSDQCs", tabName = "ISheatmap", icon = icon),
+                menuSubItem("RSDQCs", tabName = "rsdqcPage", icon = icon),
                 menuSubItem("QC Plot", tabName = "QCViolins", icon = icon),
                 menuSubItem(
                     "Concentrations",
