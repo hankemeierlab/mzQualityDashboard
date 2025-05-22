@@ -1,4 +1,11 @@
-observeAliquotTableSelection <- function(input, exp, compoundDf) {
+#' @title Observers for Selection
+#' @description
+#' @param input Shiny input object
+#' @param exp Reactive expression for the experiment
+#' @param compoundDf Reactive expression for the compound data frame
+#' @importFrom shiny debounce observeEvent reactive req
+#' @noRd
+.observeAliquotTableSelection <- function(input, exp, compoundDf) {
 
     aliquotSelection <- debounce(
         reactive(input$aliquots_rows_selected),
@@ -7,7 +14,7 @@ observeAliquotTableSelection <- function(input, exp, compoundDf) {
 
     observeEvent(aliquotSelection(), ignoreInit = TRUE, {
         experiment <- isolate(exp())
-        req(is(experiment, "SummarizedExperiment"))
+        req(isValidExperiment(experiment))
 
         ## check if the selected rows are different from what is
         ## present in the use column of the experiment.
@@ -16,8 +23,8 @@ observeAliquotTableSelection <- function(input, exp, compoundDf) {
         req(any(experiment$use != useVector))
 
         experiment$use <- useVector
-        experiment <- experiment %>%
-            doAnalysis(
+        experiment <- doAnalysis(
+                exp = experiment,
                 doAll = TRUE,
                 removeOutliers = TRUE,
                 useWithinBatch = as.logical(input$useWithinBatch),
@@ -28,33 +35,41 @@ observeAliquotTableSelection <- function(input, exp, compoundDf) {
             )
 
         exp(experiment)
-        compoundDf(createCompoundSelectionTable(experiment))
+        compoundDf(.createCompoundSelectionTable(experiment))
     })
 }
 
-observeAliquotTableUpdate <- function(exp, aliquotDf, compoundDf){
+.observeAliquotTableUpdate <- function(exp, aliquotDf, compoundDf){
 
     observeEvent(aliquotDf(), {
         # Require that the experiment is available
         experiment <- isolate(exp())
-        req(!is.null(experiment))
-        df <- createCompoundSelectionTable(experiment)
+        req(isValidExperiment(experiment))
+        df <- .createCompoundSelectionTable(experiment)
         compoundDf(df)
     })
 }
 
-oberserveInternalStandardUpdate <- function(
+.oberserveInternalStandardUpdate <- function(
         input, exp, internalStandards, compoundDf
 ) {
     observeEvent(internalStandards(), ignoreInit = TRUE, {
         x <- exp()
         req(isValidExperiment(x))
-        df <- createCompoundSelectionTable(x)
+        df <- .createCompoundSelectionTable(x)
         compoundDf(df)
     })
 }
 
-observeCompoundTableSelection <- function(input, exp) {
+#' @title Observe the selection of the internal standards
+#' @description
+#' @param input Shiny input object
+#' @param exp Reactive expression for the experiment
+#' @importFrom shiny observeEvent req
+#' @importFrom mzQuality isValidExperiment
+#' @importFrom SummarizedExperiment rowData<-
+#' @noRd
+.observeCompoundTableSelection <- function(input, exp) {
     observeEvent(input$compounds_rows_selected, ignoreInit = TRUE, {
         x <- isolate(exp())
         req(isValidExperiment(x))
@@ -67,15 +82,16 @@ observeCompoundTableSelection <- function(input, exp) {
 }
 
 #' @importFrom mzQuality isValidExperiment
-observeQcSelection <- function(input, exp, aliquotDf){
+#' @noRd
+.observeQcSelection <- function(input, exp, aliquotDf){
     observeEvent(input$qc_change, ignoreInit = TRUE, {
         req(isValidExperiment(exp()))
 
         x <- exp()
         qcType <- input$qc_change
         if (qcType != metadata(x)$QC) {
-            x <- updateExperiment(input, x, qcType)
-            aliquotDf(createAliquotSelectionTable(x))
+            x <- .updateExperiment(input, x, qcType)
+            aliquotDf(.createAliquotSelectionTable(x))
             exp(x)
         }
     })

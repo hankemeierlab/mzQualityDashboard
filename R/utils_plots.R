@@ -17,7 +17,8 @@
 #'     the calibration line
 #' @importFrom mzQuality concentrationPlot facetPlot
 #' @importFrom S4Vectors metadata
-getConcentrationPlot <- function(exp, batches, types, plotOnCalibrationLine) {
+#' @noRd
+.getConcentrationPlot <- function(exp, batches, types, plotOnCalibrationLine) {
 
     if ("All" %in% batches) {
         batches <- unique(exp$batch)
@@ -32,11 +33,12 @@ getConcentrationPlot <- function(exp, batches, types, plotOnCalibrationLine) {
         plotOnCalibrationLine = plotOnCalibrationLine,
         types = types,
         removeOutliers = TRUE
-    ) %>%
-        facetPlot(
-            by = "batch", shareY = TRUE,
-            shareX = TRUE, ncol = ceiling(N / 2)
-        )
+    )
+     
+    p <- facetPlot(
+        p, by = "batch", shareY = TRUE,
+        shareX = TRUE, ncol = ceiling(N / 2)
+    )
 
     return(.toPlotly(p, dynamicTicks = TRUE))
 }
@@ -81,7 +83,8 @@ getConcentrationPlot <- function(exp, batches, types, plotOnCalibrationLine) {
 #' @param columns
 #' @param logTransform
 #' @importFrom mzQuality compoundPlot isValidExperiment
-getCompoundPlot <- function(
+#' @noRd
+.getCompoundPlot <- function(
         exp, assay, batches, types, trendsTypes,
         columns = 2, logTransform = TRUE
 ) {
@@ -151,7 +154,6 @@ getCompoundPlot <- function(
 #' @importFrom plotly ggplotly layout
 #' @noRd
 .toPlotly <- function(plot, dynamicTicks = TRUE) {
-    if (!is(plot, "ggplot")) return(p)
     p <- ggplotly(
         p = plot,
         dynamicTicks = dynamicTicks,

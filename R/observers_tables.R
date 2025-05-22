@@ -1,4 +1,4 @@
-observeAssayTableInputs <- function(input, exp){
+.observeAssayTableInputs <- function(input, exp){
     observe({
         x <- exp()
         req(isValidExperiment(x))
@@ -6,7 +6,6 @@ observeAssayTableInputs <- function(input, exp){
         types <- sort(unique(x$type))
 
         assays <- assayNames(x)
-        assays <- assays[!assays %in% "ACALRange"]
 
         updateSelectizeInput(
             inputId = "assay_batch",

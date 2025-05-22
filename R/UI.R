@@ -1,12 +1,9 @@
 #' @title UI for shiny app
-#' @importFrom shiny h2 tags textInput selectizeInput actionButton includeCSS
-#' fluidPage tabsetPanel tabPanel column selectInput p downloadButton icon
-#' fileInput fluidRow h4 sliderInput tagList uiOutput checkboxInput
-#' radioButtons
+#' @importFrom shiny includeCSS includeScript div
 #' @importFrom shinydashboard dashboardHeader dashboardBody tabItems tabItem
 #' dashboardPage
 #' @importFrom waiter autoWaiter transparent spin_loaders
-#' @importFrom shinyhelper helper
+#' @importFrom shinyjs useShinyjs
 #' @noRd
 ui <- function() {
 
@@ -15,7 +12,7 @@ ui <- function() {
     dashboardPage(
         title = "mzQuality",
         header = dashboardHeader(title = "mzQuality"),
-        sidebar = sidebar(),
+        sidebar = .sidebar(),
         body = dashboardBody(
             includeCSS(cssFile),
             includeScript(jsFile),
@@ -28,20 +25,20 @@ ui <- function() {
                 )
             ),
             tabItems(
-                tabItem(tabName = "home", homePage()),
-                tabItem(tabName = "selectedData", selectDataPage()),
-                tabItem(tabName = "IS", internalStandardPage()),
-                tabItem(tabName = "Combined", combinedTablePage()),
-                tabItem(tabName = "ColData", sampleTablePage()),
-                tabItem(tabName = "RowData", compoundTablePage()),
-                tabItem(tabName = "Assays", assayTablePage()),
-                tabItem(tabName = "Aliquots_tab", aliquotPlotPage()),
-                tabItem(tabName = "Compounds", compoundPlotPage()),
-                tabItem(tabName = "PCA", pcaPlotPage()),
-                tabItem(tabName = "ISheatmap", rsdqcPlotPage()),
-                tabItem(tabName = "QCViolins", qcPlotPage()),
-                tabItem(tabName = "concentrationPlot", concentrationPlotPage()),
-                tabItem(tabName = "download", downloadPage())
+                tabItem(tabName = "home", .homePage()),
+                tabItem(tabName = "selectedData", .selectDataPage()),
+                tabItem(tabName = "IS", .internalStandardPage()),
+                tabItem(tabName = "Combined", .combinedTablePage()),
+                tabItem(tabName = "ColData", .sampleTablePage()),
+                tabItem(tabName = "RowData", .compoundTablePage()),
+                tabItem(tabName = "Assays", .assayTablePage()),
+                tabItem(tabName = "Aliquots_tab", .aliquotPlotPage()),
+                tabItem(tabName = "Compounds", .compoundPlotPage()),
+                tabItem(tabName = "PCA", .pcaPlotPage()),
+                tabItem(tabName = "ISheatmap", .rsdqcPlotPage()),
+                tabItem(tabName = "QCViolins", .qcPlotPage()),
+                tabItem(tabName = "concentrationPlot", .concentrationPlotPage()),
+                tabItem(tabName = "download", .downloadPage())
             )
         )
     )

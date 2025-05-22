@@ -5,7 +5,7 @@
 #' @param exp
 #' @importFrom waiter Waiter transparent spin_loaders
 #' @importFrom shiny div h4
-loadingScreen <- function() {
+.loadingScreen <- function() {
     style <- "display: flex; align-items: center; justify-content: center;"
     Waiter$new(
         color = transparent(0),

@@ -2,9 +2,9 @@
 #' @description
 #' @importFrom shiny fluidPage
 #' @noRd
-combinedTablePage <- function() {
+.combinedTablePage <- function() {
     fluidPage(
-        tableBox("Data", "combined", helperMd = "combinedTable")
+        .tableBox("Data", "combined", helperMd = "combinedTable")
     )
 }
 
@@ -12,9 +12,9 @@ combinedTablePage <- function() {
 #' @description
 #' @importFrom shiny fluidPage
 #' @noRd
-sampleTablePage <- function() {
+.sampleTablePage <- function() {
     fluidPage(
-        tableBox("Data", "colData", helperMd = "colDataTable")
+        .tableBox("Data", "colData", helperMd = "colDataTable")
     )
 }
 
@@ -22,9 +22,9 @@ sampleTablePage <- function() {
 #' @description
 #' @importFrom shiny fluidPage
 #' @noRd
-compoundTablePage <- function() {
+.compoundTablePage <- function() {
     fluidPage(
-        tableBox("Data", "rowData", helperMd = "rowDataTable")
+        .tableBox("Data", "rowData", helperMd = "rowDataTable")
     )
 }
 
@@ -32,9 +32,9 @@ compoundTablePage <- function() {
 #' @description
 #' @importFrom shiny fluidPage fluidRow column selectizeInput
 #' @noRd
-assayTablePage <- function() {
+.assayTablePage <- function() {
     fluidPage(
-        controlsBox(list(
+        .controlsBox(list(
             fluidRow(
                 column(4, selectizeInput("assay_name",
                     label = "Assay",
@@ -50,6 +50,6 @@ assayTablePage <- function() {
                 ))
             )
         )),
-        tableBox("Assay", "assayData", height = "65vh", helperMd = "assayTable")
+        .tableBox("Assay", "assayData", height = "65vh", helperMd = "assayTable")
     )
 }

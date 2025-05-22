@@ -4,11 +4,12 @@
 #' @param exp
 #' @importFrom DT renderDataTable
 #' @importFrom mzQuality isValidExperiment
-outputCurrentStandardsTable <- function(output, exp) {
+#' @noRd
+.outputCurrentStandardsTable <- function(output, exp) {
     # Current Internal Standard table
     output$IsCurrentTable <- renderDataTable({
         req(isValidExperiment(exp()))
-        currentInternalStandardTable(exp())
+        .currentInternalStandardTable(exp())
     })
 }
 
@@ -21,7 +22,8 @@ outputCurrentStandardsTable <- function(output, exp) {
 #' @importFrom DT renderDataTable formatRound
 #' @importFrom mzQuality isValidExperiment
 #' @importFrom SummarizedExperiment rowData
-outputModifiedStandardsTable <- function(input, output, exp){
+#' @noRd
+.outputModifiedStandardsTable <- function(input, output, exp){
 
     # # Modify Internal Standard table
     output$IsModifyTable <- renderDataTable(server = FALSE, {
@@ -31,15 +33,15 @@ outputModifiedStandardsTable <- function(input, output, exp){
 
         req(isValidExperiment(x))
 
-        df <- internalStandardTable(
+        df <- .internalStandardTable(
             input = input,
             exp = x,
             selected = rowData(x)$compound_is
         )
 
-        render <- renderISTable(df, c(1, 2, 4))
+        render <- .renderISTable(df, c(1, 2, 4))
         render <- formatRound(
-            render,
+            table = render,
             columns = c("Original RSDQC Corrected", "Suggested RSDQC Corrected"),
             dec.mark = ".",
             digits = 3

@@ -5,7 +5,7 @@
 #' doAnalysis
 #' @importFrom SummarizedExperiment rowData
 #' @noRd
-observeStandardSelection <- function(input, internalStandards, exp) {
+.observeStandardSelection <- function(input, internalStandards, exp) {
 
     observe({
         x <- exp()

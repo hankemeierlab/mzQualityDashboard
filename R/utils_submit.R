@@ -4,7 +4,9 @@
 #' @returns
 #' @param input
 #' @importFrom shiny req updateSelectInput
-submitDataEvent <- function(input) {
+#' @importFrom mzQuality isValidExperiment readData
+#' @noRd
+.submitDataEvent <- function(input) {
 
     dirn <- dirname(input$files$datapath)
     files <- file.path(dirn, input$files$name)
@@ -17,7 +19,8 @@ submitDataEvent <- function(input) {
 #' @description
 #' @param combined
 #' @importFrom mzQuality buildExperiment
-buildExperimentEvent <- function(combined) {
+#' @noRd
+.buildExperimentEvent <- function(combined) {
     qcValue <- "SAMPLE"
 
     qcCandidates <- grep("QC", combined$type, value = TRUE, ignore.case = TRUE)

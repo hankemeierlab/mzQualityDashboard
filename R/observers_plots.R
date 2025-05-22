@@ -4,7 +4,7 @@
 #' @importFrom mzQuality isValidExperiment
 #' @importFrom SummarizedExperiment assayNames
 #' @noRd
-observeAliquotPlotInputs <- function(input, exp) {
+.observeAliquotPlotInputs <- function(input, exp) {
 
     observe({
         x <- exp()
@@ -12,6 +12,7 @@ observeAliquotPlotInputs <- function(input, exp) {
 
         assays <- assayNames(x)
         assays <- assays[!assays %in% "ACALRange"]
+        types = sort(unique(x$type))
 
         updateSelectizeInput(
             inputId = "sample_assay",
@@ -27,8 +28,8 @@ observeAliquotPlotInputs <- function(input, exp) {
 
         updateSelectizeInput(
             inputId = "sample_filtered",
-            choices = unique(x$type),
-            selected = unique(x$type)
+            choices = types,
+            selected = types
         )
     })
 }
@@ -39,7 +40,7 @@ observeAliquotPlotInputs <- function(input, exp) {
 #' @importFrom mzQuality isValidExperiment
 #' @importFrom SummarizedExperiment rowData
 #' @noRd
-observeCompoundPlotKeyInputs <- function(input, exp) {
+.observeCompoundPlotKeyInputs <- function(input, exp) {
     observeEvent(input$key_pressed, {
         if (input$sidebar == "Compounds") {
             x <- exp()
@@ -72,14 +73,14 @@ observeCompoundPlotKeyInputs <- function(input, exp) {
 #' @importFrom mzQuality isValidExperiment
 #' @importFrom SummarizedExperiment assayNames
 #' @importFrom S4Vectors metadata
-observeViolinPlotInputs <- function(input, exp) {
+#' @noRd
+.observeViolinPlotInputs <- function(input, exp) {
     observe({
         x <- exp()
         req(isValidExperiment(x))
 
         types <- sort(unique(x$type))
         assays <- assayNames(x)
-        assays <- assays[!assays %in% "ACALRange"]
 
         updateSelectizeInput(
             inputId = "qc_type",
@@ -108,11 +109,10 @@ observeViolinPlotInputs <- function(input, exp) {
 #' @importFrom S4Vectors metadata
 #' @importFrom SummarizedExperiment assayNames rowData
 #' @noRd
-observeConcentrationPlotInputs <- function(input, exp) {
+.observeConcentrationPlotInputs <- function(input, exp) {
     observe({
         x <- exp()
-        req(isValidExperiment(x))
-        req("concentration" %in% assayNames(x))
+        req(isValidExperiment(x) && "concentration" %in% assayNames(x))
 
         compIdx <- rowData(x)$use & rowData(x)$hasKnownConcentrations
         conc_comps <- rownames(x)[compIdx]
@@ -150,7 +150,7 @@ observeConcentrationPlotInputs <- function(input, exp) {
 #' @importFrom S4Vectors metadata
 #' @importFrom SummarizedExperiment assayNames
 #' @noRd
-observeCompoundPlotInputs <- function(input, exp) {
+.observeCompoundPlotInputs <- function(input, exp) {
     observe({
         x <- exp()
         req(isValidExperiment(x))
@@ -160,7 +160,6 @@ observeCompoundPlotInputs <- function(input, exp) {
         types <- sort(unique(x$type))
         qcType <- metadata(x)$QC
         assays <- assayNames(x)
-        assays <- assays[!assays %in% "ACALRange"]
 
         updateSelectizeInput(
             inputId = "compound_picked",
@@ -201,7 +200,7 @@ observeCompoundPlotInputs <- function(input, exp) {
 #' @importFrom S4Vectors metadata
 #' @importFrom SummarizedExperiment assayNames
 #' @noRd
-observePcaPlotInputs <- function(input, exp) {
+.observePcaPlotInputs <- function(input, exp) {
     observe({
         x <- exp()
         req(isValidExperiment(x))
@@ -212,7 +211,6 @@ observePcaPlotInputs <- function(input, exp) {
         qcTypes <- unique(c(qcType, grep("QC", x$type, value = TRUE)))
 
         assays <- assayNames(x)
-        assays <- assays[!assays %in% "ACALRange"]
 
         updateSelectizeInput(
             inputId = "pca_assay",

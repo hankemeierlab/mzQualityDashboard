@@ -6,11 +6,11 @@
 #' actionButton downloadButton
 #' @importFrom shinyjs disabled
 #' @noRd
-downloadPage <- function() {
+.downloadPage <- function() {
     plots <- c("Aliquot", "Compound", "PCA", "RSDQC", "QC", "Concentrations")
 
     fluidPage(
-        controlsBox(
+        .controlsBox(
             title = "Download Options",
             inputs = list(
                 fluidRow(

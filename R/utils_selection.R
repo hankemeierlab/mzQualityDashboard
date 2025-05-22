@@ -3,7 +3,8 @@
 #' @param exp
 #' @importFrom mzQuality isValidExperiment
 #' @importFrom SummarizedExperiment colData
-createAliquotSelectionTable <- function(exp) {
+#' @noRd
+.createAliquotSelectionTable <- function(exp) {
     stopifnot(isValidExperiment(exp))
 
     df <- colData(exp)
@@ -20,7 +21,8 @@ createAliquotSelectionTable <- function(exp) {
 #' @param exp
 #' @importFrom mzQuality isValidExperiment
 #' @importFrom SummarizedExperiment rowData
-createCompoundSelectionTable <- function(exp) {
+#' @noRd
+.createCompoundSelectionTable <- function(exp) {
     stopifnot(isValidExperiment(exp))
 
     qcColumn <- sprintf("%sPresence", metadata(exp)$QC)
@@ -51,7 +53,8 @@ createCompoundSelectionTable <- function(exp) {
 #' identifyMisInjections doAnalysis
 #' @importFrom dplyr %>%
 #' @importFrom S4Vectors metadata<-
-updateExperiment <- function(input, exp, qcType){
+#' @noRd
+.updateExperiment <- function(input, exp, qcType){
     stopifnot(isValidExperiment(exp))
 
     metadata(exp)$QC <- qcType

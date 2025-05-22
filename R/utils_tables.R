@@ -6,7 +6,8 @@
 #' @param select
 #' @importFrom shiny req
 #' @importFrom mzQuality isValidExperiment
-aliquotTable <- function(exp, select = which(!exp$use)) {
+#' @noRd
+.aliquotTable <- function(exp, select = which(!exp$use)) {
     req(isValidExperiment(exp))
     df <- colData(exp)
     df$aliquot <- rownames(df)
@@ -33,7 +34,7 @@ aliquotTable <- function(exp, select = which(!exp$use)) {
 #' @param select
 #' @importFrom shiny req
 #' @importFrom mzQuality isValidExperiment
-compoundTable <- function(exp, select = which(!rowData(exp)$use)) {
+.compoundTable <- function(exp, select = which(!rowData(exp)$use)) {
     req(isValidExperiment(exp))
 
     columns <- c(
@@ -71,7 +72,7 @@ compoundTable <- function(exp, select = which(!rowData(exp)$use)) {
     return(render)
 }
 
-currentInternalStandardTable <- function(exp) {
+.currentInternalStandardTable <- function(exp) {
   req(isValidExperiment(exp))
 
     df <- rowData(exp)
@@ -83,7 +84,7 @@ currentInternalStandardTable <- function(exp) {
     rownames(df) <- seq_len(nrow(df))
     colnames(df) <- c("Compound", "RSDQC", "RSDQC Corrected")
 
-    renderISTable(df) %>%
+    .renderISTable(df) %>%
         DT::formatRound(columns = c("RSDQC", "RSDQC Corrected"), dec.mark = ".", digits = 3)
 }
 
@@ -95,10 +96,9 @@ currentInternalStandardTable <- function(exp) {
 #' @param exp
 #' @param selected
 #' @importFrom shiny req
-#' @importFrom methods is
 #' @importFrom SummarizedExperiment rowData
 #' @importFrom mzQuality isValidExperiment
-internalStandardTable <- function(input, exp, selected) {
+.internalStandardTable <- function(input, exp, selected) {
     req(isValidExperiment(exp))
     df <- rowData(exp)
     if (!"compound_is" %in% colnames(df)) {
@@ -132,13 +132,13 @@ internalStandardTable <- function(input, exp, selected) {
     }
 
     colnames(df) <- c(
-      "Compound", "Original IS", "Original RSDQC Corrected", "Suggested IS",
-      "Suggested RSDQC Corrected", "Selected IS"
+        "Compound", "Original IS", "Original RSDQC Corrected", "Suggested IS",
+        "Suggested RSDQC Corrected", "Selected IS"
     )
     return(df)
 }
 
-renderISTable <- function(df, charLimits = "_all") {
+.renderISTable <- function(df, charLimits = "_all") {
     render <- DT::datatable(
         data = df,
         style = "bootstrap4",
@@ -166,7 +166,7 @@ renderISTable <- function(df, charLimits = "_all") {
 #' @returns
 #' @param experiment
 #' @importFrom shiny req
-combinedTable <- function(combined) {
+.combinedTable <- function(combined) {
     req(nrow(combined) > 0)
 
     render <- renderTable(
@@ -183,22 +183,17 @@ combinedTable <- function(combined) {
 #' @returns
 #' @param exp
 #' @importFrom shiny req
-#' @importFrom methods is
 #' @importFrom SummarizedExperiment rowData
 #' @importFrom mzQuality cleanDataframe
-rowDataTable <- function(exp) {
+.rowDataTable <- function(exp) {
     req(isValidExperiment(exp))
 
     # Check if the rowData is a matrix
     data <- cleanDataframe(rowData(exp), onlyNumeric = FALSE)
 
-    columns <- vapply(data, function(x) ("numeric" %in% is(x)), logical(1))
-    columns <- which(columns)
-    data[, columns] <- round(data[, columns], 5)
-
     data <- cbind(
-      Compound = rownames(exp),
-      data
+        Compound = rownames(exp),
+        data
     )
 
     return(renderTable(
@@ -213,7 +208,7 @@ rowDataTable <- function(exp) {
 #' @returns
 #' @param exp
 #' @importFrom shiny req
-colDataTable <- function(exp) {
+.colDataTable <- function(exp) {
   req(isValidExperiment(exp))
 
     data <- cbind(
@@ -236,7 +231,7 @@ colDataTable <- function(exp) {
 #' @importFrom shiny req
 #' @importFrom mzQuality isValidExperiment
 #' @importFrom SummarizedExperiment assay
-assayTable <- function(input, exp) {
+.assayTable <- function(input, exp) {
     req(isValidExperiment(exp))
     assayTable <- exp[, exp$batch == input$assay_batch &
         exp$type == input$assay_type]

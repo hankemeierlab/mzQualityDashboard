@@ -1,13 +1,9 @@
 #' @title Shiny server function
 #' @param input Input variable for incoming UI requests
 #' @param output Output variable for updating the UI
-#' @importFrom waiter Waiter spin_flower transparent
-#' @importFrom shinydashboard updateTabItems
+#' @param session Session variable for managing the Shiny app
 #' @importFrom shinyhelper observe_helpers
-#' @importFrom shiny div h3 observeEvent updateSelectInput updateSelectizeInput
-#' req updateTabsetPanel downloadHandler bindCache incProgress reactive
-#' reactiveVal renderUI updateSliderInput withProgress showModal modalDialog
-#' updateCheckboxInput
+#' @importFrom shiny reactiveVal
 #' @importFrom shinyjs hide show runjs removeClass addClass enable disable
 #' @importFrom shinyWidgets execute_safely
 #' @importFrom plotly renderPlotly

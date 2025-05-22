@@ -2,7 +2,7 @@
 #' @importFrom shiny fluidPage fluidRow column textInput h2 h4 fileInput
 #' checkboxInput numericInput actionButton
 #' @importFrom shinyjs disabled
-homePage <- function() {
+.homePage <- function() {
     fluidPage(
         fluidRow(
             column(3),
@@ -14,8 +14,8 @@ homePage <- function() {
         ),
         fluidRow(
             column(3),
-            column(6, controlsBox(
-                inputs = homepageInputs(),
+            column(6, .controlsBox(
+                inputs = .homepageInputs(),
                 helperMd = "input",
                 title = NULL,
                 footer = fluidRow(
@@ -31,7 +31,7 @@ homePage <- function() {
 #' @title Inputs for the homepage
 #' @importFrom shiny textInput h3 hr div fileInput checkboxInput
 #' @noRd
-homepageInputs <- function(){
+.homepageInputs <- function(){
     boxInputs <- list(
         textInput(
             inputId = "project", placeholder = "mzQuality",
@@ -52,10 +52,10 @@ homepageInputs <- function(){
             inputId = "calFile", multiple = FALSE, accept = c(".txt", ".tsv"),
             label = "(Optional) Select your file with known concentrations"
         ),
-        controlsBox(
+        .controlsBox(
             title = "Advanced Options",
             collapsible = TRUE,
-            inputs = homepageAdvancedInputs()
+            inputs = .homepageAdvancedInputs()
         )
     )
 }
@@ -63,7 +63,7 @@ homepageInputs <- function(){
 #' @title Advanced inputs for the homepage
 #' @importFrom shiny numericInput checkboxInput
 #' @noRd
-homepageAdvancedInputs <- function(){
+.homepageAdvancedInputs <- function(){
     advancedInputs <- list(
         numericInput(
             inputId = "backgroundSignal",

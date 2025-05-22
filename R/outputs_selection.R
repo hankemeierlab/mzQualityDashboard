@@ -3,7 +3,7 @@
 #' @importFrom shiny req
 #' @importFrom DT renderDataTable
 #' @noRd
-outputAliquotSelectionTable <- function(output, aliquotDf) {
+.outputAliquotSelectionTable <- function(output, aliquotDf) {
     output$aliquots <- renderDataTable({
 
         req(is.data.frame(aliquotDf()))
@@ -25,8 +25,8 @@ outputAliquotSelectionTable <- function(output, aliquotDf) {
 #' @importFrom shiny req
 #' @importFrom DT renderDataTable formatPercentage formatRound
 #' @noRd
-outputCompoundSelectionTable <- function(output, compoundDf) {
-    output$compounds <- DT::renderDataTable({
+.outputCompoundSelectionTable <- function(output, compoundDf) {
+    output$compounds <- renderDataTable({
 
         df <- compoundDf()
         req(is.data.frame(df))
@@ -40,7 +40,7 @@ outputCompoundSelectionTable <- function(output, compoundDf) {
         )
 
         render <- formatPercentage(
-            render,
+            table = render,
             columns = c(
                 "Background Signal", "Found in Selected QC"
             ),
@@ -48,11 +48,11 @@ outputCompoundSelectionTable <- function(output, compoundDf) {
         )
 
         render <- formatRound(
-            render,
-                columns = c("RSDQC", "RSDQC Corrected"),
-                dec.mark = ".",
-                digits = 5
-            )
+            table = render,
+            columns = c("RSDQC", "RSDQC Corrected"),
+            dec.mark = ".",
+            digits = 5
+        )
 
         return(render)
     })

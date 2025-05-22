@@ -4,7 +4,10 @@
 #' @returns
 #' @importFrom shinydashboard box
 #' @importFrom shinyhelper helper
-tableBox <- function(title, type, height = "80vh", helperMd = NULL) {
+#' @importFrom DT dataTableOutput
+#' @importFrom shiny div
+#' @noRd
+.tableBox <- function(title, type, height = "80vh", helperMd = NULL) {
     return(box(
         title = title,
         width = NULL,
@@ -13,11 +16,16 @@ tableBox <- function(title, type, height = "80vh", helperMd = NULL) {
 
         # Box items
         # Helper icon for help pages
-        div(style = "height: 3vh;") %>%
-            helper(content = helperMd, fade = TRUE, icon = "circle-question"),
+        
+        helper(
+            div(style = "height: 3vh;"),
+            content = helperMd, 
+            fade = TRUE, 
+            icon = "circle-question"
+        ),
 
         # Actual Table
-        DT::dataTableOutput(type, height = height)
+        dataTableOutput(type, height = height)
     ))
 }
 
@@ -29,18 +37,23 @@ tableBox <- function(title, type, height = "80vh", helperMd = NULL) {
 #' @importFrom shinyhelper helper
 #' @importFrom plotly plotlyOutput
 #' @importFrom shiny div
-plotBox <- function(title, type, height, helperMd = NULL) {
+#' @noRd
+.plotBox <- function(title, type, height, helperMd = NULL) {
     return(box(
         title = title,
         solidHeader = TRUE,
         width = NULL,
         collapsible = TRUE,
 
-        helper(div(style = "height: 3vh;"),
-               content = helperMd, fade = TRUE, icon = "circle-question"),
+        helper(
+            div(style = "height: 3vh;"),
+            content = helperMd, 
+            fade = TRUE, 
+            icon = "circle-question"
+        ),
 
         # Actual Plot
-        plotly::plotlyOutput(type, height = height)
+        plotlyOutput(type, height = height)
     ))
 }
 
@@ -49,9 +62,10 @@ plotBox <- function(title, type, height, helperMd = NULL) {
 #' @importFrom shinyhelper helper
 #' @importFrom shiny div
 #' @noRd
-controlsBox <- function(inputs, title = "Controls", width = NULL,
+.controlsBox <- function(inputs, title = "Controls", width = NULL,
                         height = NULL, footer = NULL,
                         helperMd = NULL, collapsible = FALSE) {
+                            
     if (!is.null(height)) {
         inputs <- div(
             style = sprintf("min-height: %s;", height),

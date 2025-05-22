@@ -13,15 +13,12 @@
 #'     containing concentration data
 #' @importFrom plotly renderPlotly
 #' @importFrom shinyWidgets execute_safely
-outputConcentrationPlot <- function(input, output, exp){
+.outputConcentrationPlot <- function(input, output, exp){
     output$concentrationPlot <- renderPlotly({
         x <- exp()
-        req(
-            is(x, "SummarizedExperiment") &&
-            "concentration" %in% assayNames(x)
-        )
+        req(isValidExperiment(x) && "concentration" %in% assayNames(x))
         execute_safely(
-            expr = getConcentrationPlot(
+            expr = .getConcentrationPlot(
                 exp = x[input$concentrationCompound, x$use],
                 batches = input$concentrationBatch,
                 plotOnCalibrationLine = input$concentrationPlotOnLine,
@@ -34,7 +31,7 @@ outputConcentrationPlot <- function(input, output, exp){
     })
 }
 
-outputCompoundPlot <- function(input, output, exp) {
+.outputCompoundPlot <- function(input, output, exp) {
     batches <- debounce(reactive(input$compound_batch), 500)
     types <- debounce(reactive(input$compound_types), 500)
 
@@ -51,7 +48,7 @@ outputCompoundPlot <- function(input, output, exp) {
                     batches <- unique(x$batch)
                 }
 
-                getCompoundPlot(
+                .getCompoundPlot(
                     exp = x[input$compound_picked, x$use],
                     assay = input$compound_assay,
                     batches = batches,
@@ -91,7 +88,10 @@ outputCompoundPlot <- function(input, output, exp) {
 #' @param exp A reactive function that returns a SummarizedExperiment object
 #' @importFrom plotly renderPlotly
 #' @importFrom shinyWidgets execute_safely
-outputSamplePlot <- function(session, input, output, exp) {
+#' @importFrom shiny debounce reactive req renderUI
+#' @importFrom mzQuality aliquotPlot isValidExperiment
+#' @noRd
+.outputSamplePlot <- function(session, input, output, exp) {
     batches <- debounce(reactive(input$sample_batch), 500)
     types <- debounce(reactive(input$sample_filtered), 500)
 
@@ -110,7 +110,7 @@ outputSamplePlot <- function(session, input, output, exp) {
                 plotList <- lapply(batches, function(batchLabel) {
                     aliquotPlot(
                         exp = x,
-                        batch = batchLabel,
+                        batches = batchLabel,
                         assay = input$sample_assay,
                         types = types
                     )
@@ -147,7 +147,9 @@ outputSamplePlot <- function(session, input, output, exp) {
 #' @param exp A reactive function that returns a SummarizedExperiment object
 #' @importFrom plotly renderPlotly
 #' @importFrom shinyWidgets execute_safely
-outputBadQcPlot <- function(input, output, exp) {
+#' @importFrom mzQuality violinPlot isValidExperiment
+#' @noRd
+.outputBadQcPlot <- function(input, output, exp) {
     output$badqc_plot <- plotly::renderPlotly({
         x <- exp()
         req(isValidExperiment(x))
@@ -192,7 +194,10 @@ outputBadQcPlot <- function(input, output, exp) {
 #' @param exp A reactive function that returns a SummarizedExperiment object
 #' @importFrom plotly renderPlotly
 #' @importFrom shinyWidgets execute_safely
-outputPcaPlot <- function(input, output, exp) {
+#' @importFrom mzQuality pcaPlot isValidExperiment
+#' @importFrom shiny debounce reactive req
+#' @noRd
+.outputPcaPlot <- function(input, output, exp) {
     output$pca_plot <- plotly::renderPlotly({
         x <- exp()
         req(isValidExperiment(x))
@@ -229,12 +234,13 @@ outputPcaPlot <- function(input, output, exp) {
 #' @param exp A reactive function that returns a SummarizedExperiment object
 #' @importFrom plotly renderPlotly
 #' @importFrom shinyWidgets execute_safely
-outputRsdqcHeatmap <- function(input, output, exp) {
+#' @importFrom mzQuality rsdqcPlot isValidExperiment
+#' @noRd
+.outputRsdqcHeatmap <- function(input, output, exp) {
     output$ISheatmap <- plotly::renderPlotly({
         x <- exp()
-        req(isValidExperiment(x))
-        req(metadata(x)$hasIS)
-        shinyWidgets::execute_safely(
+        req(isValidExperiment(x) && metadata(x)$hasIS)
+        execute_safely(
             expr = .toPlotly(rsdqcPlot(x)),
             title = "Plot Failed",
             message = "Could not create the plot"

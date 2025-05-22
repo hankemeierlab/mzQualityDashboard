@@ -24,14 +24,12 @@ Depends:
 Imports:
     dplyr,
     DT,
-    methods,
     plotly,
     shinydashboard,
     shinyhelper,
     shinyWidgets,
     S4Vectors,
     SummarizedExperiment,
-    utils,
     waiter,
     zip
 Suggests: 

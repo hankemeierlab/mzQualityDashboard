@@ -3,9 +3,9 @@
 #' @details
 #' @importFrom shiny fluidPage selectizeInput
 #' @noRd
-selectDataPage <- function() {
+.selectDataPage <- function() {
     fluidPage(
-        controlsBox(
+        .controlsBox(
             title = "QC Correction",
             helperMd = "qcCorrection",
             inputs = list(
@@ -16,13 +16,13 @@ selectDataPage <- function() {
                 )
             )
         ),
-        tableBox(
+        .tableBox(
             title = "Aliquots",
             type = "aliquots",
             helperMd = "selectAliquots",
             height = "50vh"
         ),
-        tableBox(
+        .tableBox(
             title = "Metabolites",
             type = "compounds",
             helperMd = "selectCompounds",
@@ -35,16 +35,17 @@ selectDataPage <- function() {
 #' @description
 #' @details
 #' @importFrom shiny fluidPage fluidRow column
-internalStandardPage <- function() {
+#' @noRd
+.internalStandardPage <- function() {
     fluidPage(
         fluidRow(
-            column(4, tableBox(
+            column(4, .tableBox(
                 title = "Current Internal Standards",
                 type = "IsCurrentTable",
                 height = "80vh",
                 helperMd = "IsCurrentTable"
             )),
-            column(8, tableBox(
+            column(8, .tableBox(
                 title = "Modify Internal Standards",
                 type = "IsModifyTable",
                 height = "80vh",

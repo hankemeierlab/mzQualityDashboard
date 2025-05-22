@@ -1,4 +1,4 @@
-outputLongTable <- function(input, output, exp) {
+.outputLongTable <- function(input, output, exp) {
     # Combined Overall Table
     output$combined <- DT::renderDataTable({
         req(isValidExperiment(exp()))
@@ -13,7 +13,7 @@ outputLongTable <- function(input, output, exp) {
                     colIndex = "aliquot"
                 )
 
-                df <- combinedTable(df)
+                df <- .combinedTable(df)
                 return(df)
             },
             title = "Table Viewer Failed",
@@ -24,12 +24,13 @@ outputLongTable <- function(input, output, exp) {
 
 #' @title Compound Details Table
 #' @importFrom mzQuality isValidExperiment
-outputRowData <- function(input, output, exp) {
+#' @noRd
+.outputRowData <- function(input, output, exp) {
     output$rowData <- DT::renderDataTable({
         req(isValidExperiment(exp()))
 
         shinyWidgets::execute_safely(
-            expr = rowDataTable(exp()[rowData(exp())$use, exp()$use]),
+            expr = .rowDataTable(exp()[rowData(exp())$use, exp()$use]),
             title = "Table Viewer Failed",
             message = "Could not create the table"
         )
@@ -38,12 +39,12 @@ outputRowData <- function(input, output, exp) {
 
 # Aliquot Details Table
 #' @importFrom mzQuality isValidExperiment
-outputColData <- function(input, output, exp) {
+.outputColData <- function(input, output, exp) {
     output$colData <- DT::renderDataTable({
         req(isValidExperiment(exp()))
 
         shinyWidgets::execute_safely(
-            expr = colDataTable(exp()[rowData(exp())$use, exp()$use]),
+            expr = .colDataTable(exp()[rowData(exp())$use, exp()$use]),
             title = "Table Viewer Failed",
             message = "Could not create the table"
         )
@@ -52,12 +53,12 @@ outputColData <- function(input, output, exp) {
 
 # Assay / Values Table
 #' @importFrom mzQuality isValidExperiment
-outputAssayData <- function(input, output, exp) {
+.outputAssayData <- function(input, output, exp) {
     output$assayData <- DT::renderDataTable({
         req(isValidExperiment(exp()))
 
         shinyWidgets::execute_safely(
-            expr = assayTable(input, exp()[rowData(exp())$use, exp()$use]),
+            expr = .assayTable(input, exp()[rowData(exp())$use, exp()$use]),
             title = "Table Viewer Failed",
             message = "Could not create the table"
         )

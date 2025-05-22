@@ -5,7 +5,8 @@
 #' @importFrom shinyjs enable disable
 #' @importFrom zip zip
 #' @importFrom mzQuality isValidExperiment createReports
-observeReportCreation <- function(input, exp){
+#' @noRd
+.observeReportCreation <- function(input, exp){
 
     observeEvent(input$createZip, {
         req(isValidExperiment(exp()))
@@ -43,7 +44,7 @@ observeReportCreation <- function(input, exp){
 #' @importFrom shinyjs toggleState
 #' @importFrom SummarizedExperiment assayNames
 #' @noRd
-observeExportAssays <- function(input, exp) {
+.observeExportAssays <- function(input, exp) {
 
     observe({
         req(isValidExperiment(exp()))
@@ -67,7 +68,7 @@ observeExportAssays <- function(input, exp) {
 #' @importFrom shiny downloadHandler
 #' @importFrom shinyjs enable disable
 #' @noRd
-observeDownloadZip <- function(input, output, exp) {
+.observeDownloadZip <- function(input, output, exp) {
 
     output$download_zip <- downloadHandler(
         contentType = "application/zip",

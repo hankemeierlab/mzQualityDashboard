@@ -5,9 +5,9 @@
 #' @importFrom shinyhelper helper
 #' @importFrom shinydashboard box
 #' @noRd
-compoundPlotPage <- function() {
+.compoundPlotPage <- function() {
     fluidPage(
-        controlsBox(list(
+        .controlsBox(list(
             fluidRow(
                 column(4, selectizeInput("compound_picked",
                     label = "Compound",
@@ -51,12 +51,12 @@ compoundPlotPage <- function() {
 
             # Box items
             # Helper icon for help pages
-            div(style = "height: 3vh;") %>%
-                helper(
-                    content = "Compound Plot",
-                    fade = TRUE,
-                    icon = "circle-question"
-                ),
+            helper(
+                div(style = "height: 3vh;"),
+                content = "Compound Plot",
+                fade = TRUE,
+                icon = "circle-question"
+            ),
             uiOutput("compound_plot_ui")
         )
     )
@@ -67,9 +67,9 @@ compoundPlotPage <- function() {
 #' @details
 #' @importFrom shiny fluidPage fluidRow column selectizeInput selectInput
 #' @noRd
-pcaPlotPage <- function() {
+.pcaPlotPage <- function() {
     fluidPage(
-        controlsBox(list(
+        .controlsBox(list(
             fluidRow(
                 column(3, selectizeInput("pca_assay",
                     label = "Assay",
@@ -89,7 +89,7 @@ pcaPlotPage <- function() {
                 ))
             )
         )),
-        plotBox("PCA Plot", "pca_plot", "65vh")
+        .plotBox("PCA Plot", "pca_plot", "65vh")
     )
 }
 
@@ -98,9 +98,9 @@ pcaPlotPage <- function() {
 #' @details
 #' @importFrom shiny fluidPage
 #' @noRd
-rsdqcPlotPage <- function() {
+.rsdqcPlotPage <- function() {
     fluidPage(
-        plotBox(
+        .plotBox(
             "Internal Standard - Compound Corrected RSDQCs",
             "ISheatmap",
             "80vh"
@@ -108,9 +108,9 @@ rsdqcPlotPage <- function() {
     )
 }
 
-qcPlotPage <- function() {
+.qcPlotPage <- function() {
     fluidPage(
-        controlsBox(list(
+        .controlsBox(list(
             fluidRow(
                 column(4, selectizeInput("qc_assay",
                     label = "Area / Ratio",
@@ -126,7 +126,7 @@ qcPlotPage <- function() {
                 ))
             )
         )),
-        plotBox("QC Distribution(s)", "badqc_plot", "65vh")
+        .plotBox("QC Distribution(s)", "badqc_plot", "65vh")
     )
 }
 
@@ -134,9 +134,11 @@ qcPlotPage <- function() {
 #' @description
 #' @details
 #' @importFrom shiny fluidPage fluidRow column selectizeInput selectInput
-concentrationPlotPage <- function() {
+#' checkboxInput
+#' @noRd
+.concentrationPlotPage <- function() {
     fluidPage(
-        controlsBox(list(
+        .controlsBox(list(
             fluidRow(
                 column(3, selectizeInput(
                     inputId = "concentrationCompound",
@@ -167,7 +169,7 @@ concentrationPlotPage <- function() {
             )
         )),
         fluidRow(
-            column(12, plotBox(
+            column(12, .plotBox(
                 "Calibration Model Plot",
                 "concentrationPlot",
                 "65vh"
@@ -184,9 +186,9 @@ concentrationPlotPage <- function() {
 #' @importFrom shinyhelper helper
 #' @importFrom shinydashboard box
 #' @noRd
-aliquotPlotPage <- function() {
+.aliquotPlotPage <- function() {
     fluidPage(
-        controlsBox(list(
+        .controlsBox(list(
             fluidRow(
                 column(4, selectizeInput("sample_assay",
                     label = "Assay",
@@ -208,9 +210,12 @@ aliquotPlotPage <- function() {
             width = NULL,
             collapsible = TRUE,
 
-            helper(div(style = "height: 3vh;"),
-                   content = "Aliquot Plot",
-                   fade = TRUE, icon = "circle-question"),
+            helper(
+                div(style = "height: 3vh;"),
+                content = "Aliquot Plot",
+                fade = TRUE,
+                icon = "circle-question"
+            ),
             uiOutput("sample_plot_ui")
         )
     )
