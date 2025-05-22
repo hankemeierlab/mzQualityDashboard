@@ -14,43 +14,32 @@
                     choices = c()
                 )),
                 column(4, selectizeInput("compound_assay",
-                    label = "Assay",
-                    choices = c()
+                    label = "Assay", choices = c()
                 )),
                 column(4, selectInput("compound_types",
-                    label = "Type",
-                    choices = c(), multiple = TRUE
+                    label = "Type", choices = c(), multiple = TRUE
                 ))
             ),
             fluidRow(
                 column(3, selectInput("compound_logscale",
-                    label = "Log-Scale Y-Axis",
-                    choices = c(TRUE, FALSE)
+                    label = "Log-Scale Y-Axis", choices = c(TRUE, FALSE)
                 )),
                 column(3, selectInput("compound_batch",
-                    label = "Batch",
-                    choices = c(), multiple = TRUE
+                    label = "Batch", choices = c(), multiple = TRUE
                 )),
                 column(3, selectInput("compound_trends",
                     label = "Trendlines",
                     choices = c(), multiple = TRUE
                 )),
                 column(3, selectInput(
-                    "compound_columns",
-                    label = "Columns",
-                    choices = c(1, 2),
-                    multiple = FALSE)
+                    "compound_columns", label = "Columns",
+                    choices = c(1, 2), multiple = FALSE)
                 )
             )
         )),
         box(
-            title = "Compound Plot",
-            solidHeader = TRUE,
-            width = NULL,
-            collapsible = TRUE,
-
-            # Box items
-            # Helper icon for help pages
+            title = "Compound Plot", solidHeader = TRUE,
+            width = NULL, collapsible = TRUE,
             helper(
                 div(style = "height: 3vh;"),
                 content = "Compound Plot",

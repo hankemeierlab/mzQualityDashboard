@@ -50,6 +50,11 @@
                 ))
             )
         )),
-        .tableBox("Assay", "assayData", height = "65vh", helperMd = "assayTable")
+        .tableBox(
+            "Assay",
+            "assayData",
+            height = "65vh",
+            helperMd = "assayTable"
+        )
     )
 }

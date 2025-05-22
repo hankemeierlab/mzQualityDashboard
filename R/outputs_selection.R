@@ -11,7 +11,7 @@
 
         df <- aliquotDf()
 
-        renderTable(
+        .renderTable(
             df = df,
             preSelect = which(!df$use),
             scrollY = 600,
@@ -32,7 +32,7 @@
         req(is.data.frame(df))
         req(nrow(df) > 0)
 
-        render <- renderTable(
+        render <- .renderTable(
             df = df,
             preSelect = which(!df$Use),
             scrollY = 600,

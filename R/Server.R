@@ -18,7 +18,7 @@ server <- function(input, output, session) {
 
     # Load the help pages
     observe_helpers(
-      help_dir = system.file("helppages", package = "mzQualityDashboard")
+        help_dir = system.file("helppages", package = "mzQualityDashboard")
     )
 
     # Set the reactive values that are needed between the pages
@@ -31,7 +31,7 @@ server <- function(input, output, session) {
     .homepageController(session, input, output, aliquotDf, experiment)
 
     .selectionController(
-      input, output, aliquotDf, compoundDf, internalStandards, experiment
+        input, output, aliquotDf, compoundDf, internalStandards, experiment
     )
 
     .tablePagesController(input, output, experiment)

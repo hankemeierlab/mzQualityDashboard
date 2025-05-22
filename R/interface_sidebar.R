@@ -12,9 +12,7 @@
         sidebarMenu(
             id = "sidebar",
             menuItem(
-                "Create project",
-                tabName = "home",
-                icon = icon("file-arrow-up")
+                "Create project", tabName = "home", icon = icon("file-arrow-up")
             ),
             menuItem(
                 "Select Data",
@@ -42,9 +40,17 @@
                 menuSubItem("PCA Plot", tabName = "PCA", icon = icon),
                 menuSubItem("RSDQCs", tabName = "ISheatmap", icon = icon),
                 menuSubItem("QC Plot", tabName = "QCViolins", icon = icon),
-                menuSubItem("Concentrations", tabName = "concentrationPlot", icon = icon)
+                menuSubItem(
+                    "Concentrations",
+                    tabName = "concentrationPlot",
+                    icon = icon
+                )
             ),
-            menuItem("Download", tabName = "download", icon = icon("file-arrow-down"))
+            menuItem(
+                "Download",
+                tabName = "download",
+                icon = icon("file-arrow-down")
+            )
         )
     )
 }

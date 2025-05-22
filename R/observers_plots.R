@@ -12,7 +12,7 @@
 
         assays <- assayNames(x)
         assays <- assays[!assays %in% "ACALRange"]
-        types = sort(unique(x$type))
+        types <- sort(unique(x$type))
 
         updateSelectizeInput(
             inputId = "sample_assay",

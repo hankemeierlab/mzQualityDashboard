@@ -2,7 +2,7 @@
 #' @description
 #' @importFrom DT datatable
 #' @noRd
-renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
+.renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
                         preSelect = c(), scrollY = 500, selectable = FALSE,
                         editable = c()) {
     df <- as.data.frame(df)
@@ -32,8 +32,7 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
         editable <- FALSE
     }
 
-
-    table <- datatable(
+    datatable(
         style = "bootstrap4",
         data = df,
         escape = FALSE,
@@ -50,6 +49,4 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
             columnDefs = list(list(className = "dt-left", targets = "_all"))
         )
     )
-
-    return(table)
 }

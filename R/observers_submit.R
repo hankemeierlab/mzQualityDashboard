@@ -31,9 +31,10 @@
         }
         exp <- .updateExperiment(input, exp, metadata(exp)$QC)
 
-        updateSelectInput(session, "qc_change",
-                          choices = unique(exp$type),
-                          selected = metadata(exp)$QC
+        updateSelectInput(
+            session, "qc_change",
+            choices = unique(exp$type),
+            selected = metadata(exp)$QC
         )
 
         aliquotDf(.createAliquotSelectionTable(exp))

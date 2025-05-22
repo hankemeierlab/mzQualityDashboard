@@ -2,6 +2,7 @@
 #' @importFrom shiny fluidPage fluidRow column textInput h2 h4 fileInput
 #' checkboxInput numericInput actionButton
 #' @importFrom shinyjs disabled
+#' @noRd
 .homePage <- function() {
     fluidPage(
         fluidRow(
@@ -19,8 +20,9 @@
                 helperMd = "input",
                 title = NULL,
                 footer = fluidRow(
-                    column(12,
-                           actionButton(inputId = "submit", label = "Submit")
+                    column(
+                        12,
+                        actionButton(inputId = "submit", label = "Submit")
                     )
                 )
             ))

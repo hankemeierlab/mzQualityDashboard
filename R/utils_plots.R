@@ -34,7 +34,7 @@
         types = types,
         removeOutliers = TRUE
     )
-     
+
     p <- facetPlot(
         p, by = "batch", shareY = TRUE,
         shareX = TRUE, ncol = ceiling(N / 2)

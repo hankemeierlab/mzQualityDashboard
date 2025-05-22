@@ -13,6 +13,7 @@
 #'     containing concentration data
 #' @importFrom plotly renderPlotly
 #' @importFrom shinyWidgets execute_safely
+#' @noRd
 .outputConcentrationPlot <- function(input, output, exp){
     output$concentrationPlot <- renderPlotly({
         x <- exp()

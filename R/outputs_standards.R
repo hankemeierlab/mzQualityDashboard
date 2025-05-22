@@ -39,10 +39,11 @@
             selected = rowData(x)$compound_is
         )
 
+        colNames <- c("Original RSDQC Corrected", "Suggested RSDQC Corrected")
         render <- .renderISTable(df, c(1, 2, 4))
         render <- formatRound(
             table = render,
-            columns = c("Original RSDQC Corrected", "Suggested RSDQC Corrected"),
+            columns = colNames,
             dec.mark = ".",
             digits = 3
         )

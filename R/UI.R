@@ -7,8 +7,8 @@
 #' @noRd
 ui <- function() {
 
-  cssFile <- system.file("markup.css", package = "mzQualityDashboard")
-  jsFile <- system.file("helpers.js", package = "mzQualityDashboard")
+    cssFile <- system.file("markup.css", package = "mzQualityDashboard")
+    jsFile <- system.file("helpers.js", package = "mzQualityDashboard")
     dashboardPage(
         title = "mzQuality",
         header = dashboardHeader(title = "mzQuality"),
@@ -37,7 +37,10 @@ ui <- function() {
                 tabItem(tabName = "PCA", .pcaPlotPage()),
                 tabItem(tabName = "ISheatmap", .rsdqcPlotPage()),
                 tabItem(tabName = "QCViolins", .qcPlotPage()),
-                tabItem(tabName = "concentrationPlot", .concentrationPlotPage()),
+                tabItem(
+                    tabName = "concentrationPlot",
+                    .concentrationPlotPage()
+                ),
                 tabItem(tabName = "download", .downloadPage())
             )
         )

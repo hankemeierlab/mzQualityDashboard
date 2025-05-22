@@ -16,7 +16,7 @@
     df$datetime <- as.character(df$datetime)
     rownames(df) <- seq_len(nrow(df))
 
-    render <- renderTable(
+    render <- .renderTable(
         df = df,
         preSelect = select,
         scrollY = 600,
@@ -39,7 +39,8 @@
 
     columns <- c(
         "compound", "rsdqc", "rsdqcCorrected",
-        "backgroundSignal", sprintf("%sPresence", metadata(exp)$QC), "matrixEffectFactor", "use"
+        "backgroundSignal", sprintf("%sPresence", metadata(exp)$QC),
+        "matrixEffectFactor", "use"
     )
     df <- rowData(exp)
 
@@ -53,27 +54,37 @@
     )
 
 
-    render <- renderTable(
+    render <- .renderTable(
         df = df,
         preSelect = select,
         scrollY = 600,
         selectable = TRUE
-    ) %>%
-        DT::formatPercentage(
-            columns = c(
-                "Background Signal", "Found in SQC",
-                "Matrix Effect Factor"
-            ),
-            digits = 2, dec.mark = "."
-        ) %>%
-        DT::formatRound(columns = c("RSDQC", "RSDQC Corrected"), dec.mark = ".", digits = 3)
+    )
+
+    render <- formatPercentage(
+        table = render,
+        columns = c(
+            "Background Signal", "Found in SQC",
+            "Matrix Effect Factor"
+        ),
+        digits = 2,
+        dec.mark = "."
+    )
+
+
+    render <- formatRound(
+        table = render,
+        columns = c("RSDQC", "RSDQC Corrected"),
+        dec.mark = ".",
+        digits = 3
+    )
 
 
     return(render)
 }
 
 .currentInternalStandardTable <- function(exp) {
-  req(isValidExperiment(exp))
+    req(isValidExperiment(exp))
 
     df <- rowData(exp)
     df$compound <- rownames(df)
@@ -84,8 +95,13 @@
     rownames(df) <- seq_len(nrow(df))
     colnames(df) <- c("Compound", "RSDQC", "RSDQC Corrected")
 
-    .renderISTable(df) %>%
-        DT::formatRound(columns = c("RSDQC", "RSDQC Corrected"), dec.mark = ".", digits = 3)
+    table <- .renderISTable(df) %>%
+    DT::formatRound(
+        table = table,
+        columns = c("RSDQC", "RSDQC Corrected"),
+        dec.mark = ".",
+        digits = 3
+    )
 }
 
 #' @title
@@ -105,8 +121,10 @@
         return(NULL)
     }
 
-    columns <- c("compound", "compound_is", "rsdqcCorrected",
-                 "suggestedIS", "suggestedRSDQC")
+    columns <- c(
+        "compound", "compound_is", "rsdqcCorrected",
+        "suggestedIS", "suggestedRSDQC"
+    )
 
     df$compound <- rownames(df)
 
@@ -169,7 +187,7 @@
 .combinedTable <- function(combined) {
     req(nrow(combined) > 0)
 
-    render <- renderTable(
+    render <- .renderTable(
         df = combined,
         scrollY = 1000
     )
@@ -196,7 +214,7 @@
         data
     )
 
-    return(renderTable(
+    return(.renderTable(
         df = data,
         scrollY = 1000
     ))
@@ -209,14 +227,14 @@
 #' @param exp
 #' @importFrom shiny req
 .colDataTable <- function(exp) {
-  req(isValidExperiment(exp))
+    req(isValidExperiment(exp))
 
     data <- cbind(
         Aliquot = colnames(exp),
         as.data.frame(colData(exp), )
     )
 
-    return(renderTable(
+    return(.renderTable(
         df = data,
         scrollY = 1000
     ))
@@ -241,7 +259,7 @@
         round(assay(assayTable, input$assay_name), 5)
     ))
 
-    return(renderTable(
+    return(.renderTable(
         df = table,
         scrollY = 800
     ))
