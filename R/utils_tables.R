@@ -3,10 +3,12 @@
 #' @details
 #' @returns
 #' @param experiment
+#' @param select
 #' @importFrom shiny req
-aliquotTable <- function(experiment, select = which(!experiment$use)) {
-    req(!is.null(experiment))
-    df <- colData(experiment)
+#' @importFrom mzQuality isValidExperiment
+aliquotTable <- function(exp, select = which(!exp$use)) {
+    req(isValidExperiment(exp))
+    df <- colData(exp)
     df$aliquot <- rownames(df)
     columns <- c("aliquot", "type", "datetime", "batch", "use")
     df <- as.data.frame(df[, columns])
@@ -28,10 +30,11 @@ aliquotTable <- function(experiment, select = which(!experiment$use)) {
 #' @details
 #' @returns
 #' @param exp
-compoundTable <- function(exp, select = which(!rowData(exp)$Use)) {
-    req(!is.null(exp))
-
-
+#' @param select
+#' @importFrom shiny req
+#' @importFrom mzQuality isValidExperiment
+compoundTable <- function(exp, select = which(!rowData(exp)$use)) {
+    req(isValidExperiment(exp))
 
     columns <- c(
         "compound", "rsdqc", "rsdqcCorrected",
@@ -40,14 +43,9 @@ compoundTable <- function(exp, select = which(!rowData(exp)$Use)) {
     df <- rowData(exp)
 
     df$compound <- rownames(df)
-
-
-
     df <- as.data.frame(df[, columns])
 
-
     rownames(df) <- seq_len(nrow(df))
-
     colnames(df) <- c(
         "Compound", "RSDQC", "RSDQC Corrected",
         "Background Signal", "Found in SQC", "Matrix Effect Factor", "Use"
@@ -74,6 +72,8 @@ compoundTable <- function(exp, select = which(!rowData(exp)$Use)) {
 }
 
 currentInternalStandardTable <- function(exp) {
+  req(isValidExperiment(exp))
+
     df <- rowData(exp)
     df$compound <- rownames(df)
 
@@ -97,8 +97,9 @@ currentInternalStandardTable <- function(exp) {
 #' @importFrom shiny req
 #' @importFrom methods is
 #' @importFrom SummarizedExperiment rowData
+#' @importFrom mzQuality isValidExperiment
 internalStandardTable <- function(input, exp, selected) {
-    req(is(exp, "SummarizedExperiment"))
+    req(isValidExperiment(exp))
     df <- rowData(exp)
     if (!"compound_is" %in% colnames(df)) {
         return(NULL)
@@ -186,7 +187,7 @@ combinedTable <- function(combined) {
 #' @importFrom SummarizedExperiment rowData
 #' @importFrom mzQuality cleanDataframe
 rowDataTable <- function(exp) {
-    req(is(exp, "SummarizedExperiment"))
+    req(isValidExperiment(exp))
 
     # Check if the rowData is a matrix
     data <- cleanDataframe(rowData(exp), onlyNumeric = FALSE)
@@ -213,7 +214,7 @@ rowDataTable <- function(exp) {
 #' @param exp
 #' @importFrom shiny req
 colDataTable <- function(exp) {
-    req(!is.null(exp))
+  req(isValidExperiment(exp))
 
     data <- cbind(
         Aliquot = colnames(exp),
@@ -233,9 +234,10 @@ colDataTable <- function(exp) {
 #' @param input
 #' @param exp
 #' @importFrom shiny req
+#' @importFrom mzQuality isValidExperiment
 #' @importFrom SummarizedExperiment assay
 assayTable <- function(input, exp) {
-    req(!is.null(exp))
+    req(isValidExperiment(exp))
     assayTable <- exp[, exp$batch == input$assay_batch &
         exp$type == input$assay_type]
 

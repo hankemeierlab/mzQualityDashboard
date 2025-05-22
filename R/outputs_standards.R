@@ -1,18 +1,36 @@
+#' @title Create the output for the currently picked Internal Standards
+#' @description
+#' @param output
+#' @param exp
+#' @importFrom DT renderDataTable
+#' @importFrom mzQuality isValidExperiment
 outputCurrentStandardsTable <- function(output, exp) {
     # Current Internal Standard table
-    output$IsCurrentTable <- DT::renderDataTable({
-        req(is(exp(), "SummarizedExperiment"))
+    output$IsCurrentTable <- renderDataTable({
+        req(isValidExperiment(exp()))
         currentInternalStandardTable(exp())
     })
 }
 
+#' @title Create the output for the optionally new Internal Standards
+#' @description
+#' @param input
+#' @param output
+#' @param exp
+#' @importFrom shiny req isolate
+#' @importFrom DT renderDataTable formatRound
+#' @importFrom mzQuality isValidExperiment
+#' @importFrom SummarizedExperiment rowData
 outputModifiedStandardsTable <- function(input, output, exp){
 
     # # Modify Internal Standard table
-    output$IsModifyTable <- DT::renderDataTable(server = FALSE, {
+    output$IsModifyTable <- renderDataTable(server = FALSE, {
 
         # Build the internal standard table
         x <- isolate(exp())
+
+        req(isValidExperiment(x))
+
         df <- internalStandardTable(
             input = input,
             exp = x,
@@ -20,11 +38,13 @@ outputModifiedStandardsTable <- function(input, output, exp){
         )
 
         render <- renderISTable(df, c(1, 2, 4))
-        DT::formatRound(
+        render <- formatRound(
             render,
             columns = c("Original RSDQC Corrected", "Suggested RSDQC Corrected"),
             dec.mark = ".",
             digits = 3
         )
+
+        return(render)
     })
 }

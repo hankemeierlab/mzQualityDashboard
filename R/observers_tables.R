@@ -1,7 +1,7 @@
 observeAssayTableInputs <- function(input, exp){
     observe({
         x <- exp()
-        req(is(x, "SummarizedExperiment"))
+        req(isValidExperiment(x))
         batches <- unique(x$batch)
         types <- sort(unique(x$type))
 

@@ -1,7 +1,8 @@
 #' @title Oberserver for submitting data
 #' @importFrom mzQuality addConcentrations filterISTD filterSST
 #' @importFrom shiny updateSelectInput observeEvent req
-#' @importFrom utils read.delim
+#' @importFrom S4Vectors metadata
+#' @noRd
 observeSubmitEvent <- function(session, input, aliquotDf, newExp){
 
     # Event when the submit button is clicked on the start screen
@@ -18,8 +19,8 @@ observeSubmitEvent <- function(session, input, aliquotDf, newExp){
         if (exampleTest) {
             exp <- readRDS(system.file(package = "mzQuality", "data.RDS"))
         } else {
-            combined <- submitDataEvent(session, input)
-            exp <- buildExperimentEvent(session, input, combined)
+            combined <- submitDataEvent(input)
+            exp <- buildExperimentEvent(combined)
 
             if (input$filterISTD) {
                 exp <- filterISTD(exp, "STD")
@@ -28,10 +29,10 @@ observeSubmitEvent <- function(session, input, aliquotDf, newExp){
                 exp <- filterSST(exp, "SST")
             }
 
-            if (addedConcentrations) {
-                conc <- read.delim(input$calFile$datapath, check.names = FALSE)
-                exp <- addConcentrations(exp, conc)
-            }
+            # if (addedConcentrations) {
+            #     conc <- read.delim(input$calFile$datapath, check.names = FALSE)
+            #     exp <- addConcentrations(exp, conc)
+            # }
         }
         exp <- updateExperiment(input, exp, metadata(exp)$QC)
 

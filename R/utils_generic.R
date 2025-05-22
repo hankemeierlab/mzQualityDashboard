@@ -1,9 +1,7 @@
-#' @title
+#' @title Render a dataframe using Datatables
 #' @description
-#' @details
-#' @returns
-#' @param exp
-#' @importFrom dplyr %>%
+#' @importFrom DT datatable
+#' @noRd
 renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
                         preSelect = c(), scrollY = 500, selectable = FALSE,
                         editable = c()) {
@@ -35,7 +33,7 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
     }
 
 
-    table <- DT::datatable(
+    table <- datatable(
         style = "bootstrap4",
         data = df,
         escape = FALSE,
@@ -53,23 +51,5 @@ renderTable <- function(df, readonly = TRUE, rowHeaders = NULL,
         )
     )
 
-
-
     return(table)
-}
-
-#' @title
-#' @description
-#' @details
-#' @returns
-#' @param exp
-#' @param assayName
-#' @importFrom shiny req
-#' @importFrom SummarizedExperiment assay
-createAssayTable <- function(exp, assayName) {
-    req(!is.null(exp))
-    as.data.frame(cbind(
-        Compound = rownames(exp),
-        round(assay(exp, assayName), 5)
-    ))
 }

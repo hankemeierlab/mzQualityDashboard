@@ -32,17 +32,17 @@ server <- function(input, output, session) {
     internalStandards <- reactiveVal()
 
     # Controllers for separating pages and their observers & outputs
-    homepageController(session, input, output, aliquotDf, experiment)
+    .homepageController(session, input, output, aliquotDf, experiment)
 
-    selectionController(
+    .selectionController(
       input, output, aliquotDf, compoundDf, internalStandards, experiment
     )
 
-    tablePagesController(input, output, experiment)
+    .tablePagesController(input, output, experiment)
 
-    plotPagesController(session, input, output, experiment)
+    .plotPagesController(session, input, output, experiment)
 
-    exportPageController(input, output, experiment)
+    .exportPageController(input, output, experiment)
 }
 
 #' @title Run mzQuality in the browser

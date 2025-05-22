@@ -21,20 +21,16 @@ homePage <- function() {
                 footer = fluidRow(
                     column(12,
                            actionButton(inputId = "submit", label = "Submit")
-                               # inputId = "submit", label = "Submit",
-                               # width = "60%", height = "10%",
-                               # style = "margin-left: 20%;
-                               #          margin-right: 20%;
-                               #          margin-top: 1%;
-                               #          margin-bottom: 1%;
-                               #          "
-                    )#)
+                    )
                 )
             ))
         )
     )
 }
 
+#' @title Inputs for the homepage
+#' @importFrom shiny textInput h3 hr div fileInput checkboxInput
+#' @noRd
 homepageInputs <- function(){
     boxInputs <- list(
         textInput(
@@ -64,6 +60,9 @@ homepageInputs <- function(){
     )
 }
 
+#' @title Advanced inputs for the homepage
+#' @importFrom shiny numericInput checkboxInput
+#' @noRd
 homepageAdvancedInputs <- function(){
     advancedInputs <- list(
         numericInput(

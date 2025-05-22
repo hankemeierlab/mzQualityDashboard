@@ -1,6 +1,6 @@
 Package: mzQualityDashboard
 Title: A tool for quality monitoring and reporting of mass spectrometry measurements
-Version: 2.4.0
+Version: 0.99.0
 URL: https://github.com/leidenuniv-lacdr-abs/mzQuality, https://mzquality.nl, http://mzquality.bmfl.nl
 Date: 2025-01-24
 Authors@R: c(

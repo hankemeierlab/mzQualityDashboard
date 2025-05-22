@@ -1,7 +1,7 @@
 outputLongTable <- function(input, output, exp) {
     # Combined Overall Table
     output$combined <- DT::renderDataTable({
-        req(is(exp, "SummarizedExperiment"))
+        req(isValidExperiment(exp()))
         shinyWidgets::execute_safely(
             {
                 input$compounds_rows_selected
@@ -22,10 +22,11 @@ outputLongTable <- function(input, output, exp) {
     })
 }
 
-# Compound Details Table
+#' @title Compound Details Table
+#' @importFrom mzQuality isValidExperiment
 outputRowData <- function(input, output, exp) {
     output$rowData <- DT::renderDataTable({
-        req(is(exp(), "SummarizedExperiment"))
+        req(isValidExperiment(exp()))
 
         shinyWidgets::execute_safely(
             expr = rowDataTable(exp()[rowData(exp())$use, exp()$use]),
@@ -36,9 +37,10 @@ outputRowData <- function(input, output, exp) {
 }
 
 # Aliquot Details Table
+#' @importFrom mzQuality isValidExperiment
 outputColData <- function(input, output, exp) {
     output$colData <- DT::renderDataTable({
-        req(is(exp(), "SummarizedExperiment"))
+        req(isValidExperiment(exp()))
 
         shinyWidgets::execute_safely(
             expr = colDataTable(exp()[rowData(exp())$use, exp()$use]),
@@ -49,23 +51,16 @@ outputColData <- function(input, output, exp) {
 }
 
 # Assay / Values Table
+#' @importFrom mzQuality isValidExperiment
 outputAssayData <- function(input, output, exp) {
     output$assayData <- DT::renderDataTable({
-        req(is(exp(), "SummarizedExperiment"))
+        req(isValidExperiment(exp()))
 
         shinyWidgets::execute_safely(
             expr = assayTable(input, exp()[rowData(exp())$use, exp()$use]),
             title = "Table Viewer Failed",
             message = "Could not create the table"
         )
-    })
-}
-
-# Table of Model Effects, R2, etc.
-outputModelTable <- function(input, output, exp) {
-    output$model_table <- DT::renderDataTable({
-        exp <- exp()
-        modelTable(input, exp[rowData(exp)$use, exp$use])
     })
 }
 

@@ -4,23 +4,20 @@
 #' @returns
 #' @param input
 #' @importFrom shiny req updateSelectInput
-submitDataEvent <- function(session, input) {
-    if (length(input$files$datapath) == 0) {
-        shinyalert::shinyalert("Please select your files")
-    }
-
+submitDataEvent <- function(input) {
 
     dirn <- dirname(input$files$datapath)
     files <- file.path(dirn, input$files$name)
     file.rename(input$files$datapath, files)
 
-    # Build a combined file using the file(s) given
-    # Should convert to arrow reader for combined files
-
     return(readData(files))
 }
 
-buildExperimentEvent <- function(session, input, combined) {
+#' @title Event for when the experiment needs to be constructed
+#' @description
+#' @param combined
+#' @importFrom mzQuality buildExperiment
+buildExperimentEvent <- function(combined) {
     qcValue <- "SAMPLE"
 
     qcCandidates <- grep("QC", combined$type, value = TRUE, ignore.case = TRUE)

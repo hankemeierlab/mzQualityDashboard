@@ -1,9 +1,19 @@
+#' @title Observe the inputs for selecting internal standards
+#' @description
+#' @importFrom shiny observe req
+#' @importFrom mzQuality isValidExperiment replaceInternalStandards
+#' doAnalysis
+#' @importFrom SummarizedExperiment rowData
+#' @noRd
 observeStandardSelection <- function(input, internalStandards, exp) {
 
     observe({
         x <- exp()
-        req(!is.null(x))
-        comp_is <- lapply(seq_len(nrow(x)), function(i) input[[paste0("sel", i)]])
+        req(isValidExperiment(x))
+
+        comp_is <- lapply(seq_len(nrow(x)), function(i) {
+            input[[paste0("sel", i)]]
+        })
         req(sum(lengths(comp_is)) > 0)
 
         check <- unlist(comp_is) != rowData(x)$compound_is

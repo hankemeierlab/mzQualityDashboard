@@ -1,3 +1,8 @@
+#' @title Page that makes the qc, aliquot, and compound selection
+#' @description
+#' @details
+#' @importFrom shiny fluidPage selectizeInput
+#' @noRd
 selectDataPage <- function() {
     fluidPage(
         controlsBox(
@@ -26,6 +31,10 @@ selectDataPage <- function() {
     )
 }
 
+#' @title Page the shows the internal standard selection tables
+#' @description
+#' @details
+#' @importFrom shiny fluidPage fluidRow column
 internalStandardPage <- function() {
     fluidPage(
         fluidRow(

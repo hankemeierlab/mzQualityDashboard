@@ -42,7 +42,7 @@ outputCompoundPlot <- function(input, output, exp) {
     output$compoundPlotPreRender <- plotly::renderPlotly({
 
         x <- exp()
-        req(is(x, "SummarizedExperiment"))
+        req(isValidExperiment(x))
         shinyWidgets::execute_safely(
             {
                 batches <- batches()
@@ -69,7 +69,7 @@ outputCompoundPlot <- function(input, output, exp) {
 
     output$compound_plot_ui <- renderUI({
         x <- exp()
-        req(is(x, "SummarizedExperiment"))
+        req(isValidExperiment(x))
         b <- batches()
 
         if ("All" %in% b) {
@@ -97,7 +97,7 @@ outputSamplePlot <- function(session, input, output, exp) {
 
     output$samplePlotPreRender <- plotly::renderPlotly({
         x <- exp()
-        req(is(x, "SummarizedExperiment"))
+        req(isValidExperiment(x))
         shinyWidgets::execute_safely({
                 x <- x[rowData(x)$use, x$use]
                 batches <- batches()
@@ -150,7 +150,7 @@ outputSamplePlot <- function(session, input, output, exp) {
 outputBadQcPlot <- function(input, output, exp) {
     output$badqc_plot <- plotly::renderPlotly({
         x <- exp()
-        req(is(x, "SummarizedExperiment"))
+        req(isValidExperiment(x))
         shinyWidgets::execute_safely({
                 x <- x[rowData(x)$use, x$use]
                 batches <- debounce(reactive({
@@ -195,7 +195,7 @@ outputBadQcPlot <- function(input, output, exp) {
 outputPcaPlot <- function(input, output, exp) {
     output$pca_plot <- plotly::renderPlotly({
         x <- exp()
-        req(is(x, "SummarizedExperiment"))
+        req(isValidExperiment(x))
         shinyWidgets::execute_safely(
             {
                 x <- x[rowData(x)$use, x$use]
@@ -232,7 +232,7 @@ outputPcaPlot <- function(input, output, exp) {
 outputRsdqcHeatmap <- function(input, output, exp) {
     output$ISheatmap <- plotly::renderPlotly({
         x <- exp()
-        req(is(x, "SummarizedExperiment"))
+        req(isValidExperiment(x))
         req(metadata(x)$hasIS)
         shinyWidgets::execute_safely(
             expr = .toPlotly(rsdqcPlot(x)),

@@ -70,11 +70,23 @@ getConcentrationPlot <- function(exp, batches, types, plotOnCalibrationLine) {
     annotations
 }
 
+#' @title Create a compound plot
+#' @description
+#' @details
+#' @param exp
+#' @param assay
+#' @param batches
+#' @param types
+#' @param trendsTypes
+#' @param columns
+#' @param logTransform
+#' @importFrom mzQuality compoundPlot isValidExperiment
 getCompoundPlot <- function(
         exp, assay, batches, types, trendsTypes,
         columns = 2, logTransform = TRUE
 ) {
 
+    if (!isValidExperiment(exp)) return(NULL)
 
     batches <- unique(batches)
 
@@ -98,19 +110,20 @@ getCompoundPlot <- function(
     .stackedPlotly(plotList, columns, annotations)
 }
 
-#' @title
+#' @title Retrieve the PCA plot
 #' @description
 #' @details
 #' @returns
-#' @param input
 #' @param exp
+#' @param assay
+#' @param batches
+#' @param types
 #' @param confidence
-#' @importFrom shiny req
+#' @importFrom mzQuality isValidExperiment pcaPlot
+#' @noRd
 .getPcaPlot <- function(exp, assay, batches, types, confidence = 0.95) {
 
-    if (!is(exp, "SummarizedExperiment")) {
-        return(NULL)
-    }
+    if (!isValidExperiment(exp)) return(NULL)
 
     p <- pcaPlot(
         exp = exp,
@@ -136,8 +149,9 @@ getCompoundPlot <- function(
 #' @param dynamicTicks Logical indicating whether to use dynamic ticks
 #' @returns Plotly object of the given ggplot
 #' @importFrom plotly ggplotly layout
-#' @keywords internal
+#' @noRd
 .toPlotly <- function(plot, dynamicTicks = TRUE) {
+    if (!is(plot, "ggplot")) return(p)
     p <- ggplotly(
         p = plot,
         dynamicTicks = dynamicTicks,
@@ -157,6 +171,13 @@ getCompoundPlot <- function(
     return(p)
 }
 
+#' @title Create stacked plotly subplots
+#' @description
+#' @param plotList
+#' @param columns
+#' @param annotations
+#' @importFrom plotly subplot layout
+#' @noRd
 .stackedPlotly <- function(plotList, columns, annotations) {
 
     N <- length(plotList)

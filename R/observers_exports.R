@@ -1,14 +1,14 @@
 #' @title Observers for creating reports and zip
 #' @description
 #' @details
-#' @importFrom shiny req
-#' @importFrom methods is
+#' @importFrom shiny observeEvent req
 #' @importFrom shinyjs enable disable
 #' @importFrom zip zip
+#' @importFrom mzQuality isValidExperiment createReports
 observeReportCreation <- function(input, exp){
 
     observeEvent(input$createZip, {
-        req(is(exp(), "SummarizedExperiment"))
+        req(isValidExperiment(exp()))
 
         createReports(
             folder = tempdir(),
@@ -38,15 +38,15 @@ observeReportCreation <- function(input, exp){
 #' @title observeExportAssays
 #' @description
 #' @details
-#' @importFrom shiny req updateSelectInput
-#' @importFrom methods is
+#' @importFrom shiny req observe updateSelectInput
+#' @importFrom mzQuality isValidExperiment
 #' @importFrom shinyjs toggleState
 #' @importFrom SummarizedExperiment assayNames
 #' @noRd
 observeExportAssays <- function(input, exp) {
 
     observe({
-        req(is(exp(), "SummarizedExperiment"))
+        req(isValidExperiment(exp()))
 
         updateSelectInput(
             inputId = "downloadAssayPicker",

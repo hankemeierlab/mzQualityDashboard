@@ -27,6 +27,8 @@ tableBox <- function(title, type, height = "80vh", helperMd = NULL) {
 #' @returns
 #' @importFrom shinydashboard box
 #' @importFrom shinyhelper helper
+#' @importFrom plotly plotlyOutput
+#' @importFrom shiny div
 plotBox <- function(title, type, height, helperMd = NULL) {
     return(box(
         title = title,
@@ -34,10 +36,8 @@ plotBox <- function(title, type, height, helperMd = NULL) {
         width = NULL,
         collapsible = TRUE,
 
-        # Box items
-        # Helper icon for help pages
-        div(style = "height: 3vh;") %>%
-            helper(content = helperMd, fade = TRUE, icon = "circle-question"),
+        helper(div(style = "height: 3vh;"),
+               content = helperMd, fade = TRUE, icon = "circle-question"),
 
         # Actual Plot
         plotly::plotlyOutput(type, height = height)
@@ -47,6 +47,7 @@ plotBox <- function(title, type, height, helperMd = NULL) {
 #' @title Box with controls for UI
 #' @importFrom shinydashboard box
 #' @importFrom shinyhelper helper
+#' @importFrom shiny div
 #' @noRd
 controlsBox <- function(inputs, title = "Controls", width = NULL,
                         height = NULL, footer = NULL,
@@ -66,14 +67,12 @@ controlsBox <- function(inputs, title = "Controls", width = NULL,
         collapsible = collapsible,
         collapsed = collapsible,
 
-        # Box items
-        # Helper icon for help pages
-        div(style = "height: 3vh;") %>%
-            helper(
-                content = helperMd,
-                fade = TRUE,
-                icon = "circle-question"
-            ),
+        helper(
+            div(style = "height: 3vh;"),
+            content = helperMd,
+            fade = TRUE,
+            icon = "circle-question"
+        ),
         inputs
     )
 }

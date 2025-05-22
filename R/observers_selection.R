@@ -48,7 +48,7 @@ oberserveInternalStandardUpdate <- function(
 ) {
     observeEvent(internalStandards(), ignoreInit = TRUE, {
         x <- exp()
-        req(is(x, "SummarizedExperiment"))
+        req(isValidExperiment(x))
         df <- createCompoundSelectionTable(x)
         compoundDf(df)
     })
@@ -57,7 +57,7 @@ oberserveInternalStandardUpdate <- function(
 observeCompoundTableSelection <- function(input, exp) {
     observeEvent(input$compounds_rows_selected, ignoreInit = TRUE, {
         x <- isolate(exp())
-        req(is(x, "SummarizedExperiment"))
+        req(isValidExperiment(x))
 
         useVector <- rep(TRUE, nrow(x))
         useVector[input$compounds_rows_selected] <- FALSE
@@ -66,9 +66,10 @@ observeCompoundTableSelection <- function(input, exp) {
     })
 }
 
+#' @importFrom mzQuality isValidExperiment
 observeQcSelection <- function(input, exp, aliquotDf){
     observeEvent(input$qc_change, ignoreInit = TRUE, {
-        req(is(exp(), "SummarizedExperiment"))
+        req(isValidExperiment(exp()))
 
         x <- exp()
         qcType <- input$qc_change

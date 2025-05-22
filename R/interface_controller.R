@@ -1,8 +1,14 @@
-homepageController <- function(session, input, output, aliquotDf, experiment) {
+#' @title Controller for the homepage
+#' @description
+#' @noRd
+.homepageController <- function(session, input, output, aliquotDf, experiment) {
     observeSubmitEvent(session, input, aliquotDf, experiment)
 }
 
-selectionController <- function(
+#' @title Controller for the selection screen page
+#' @description
+#' @noRd
+.selectionController <- function(
         input, output, aliquotDf, compoundDf, internalStandards, experiment
 ) {
 
@@ -24,7 +30,10 @@ selectionController <- function(
 
 }
 
-tablePagesController <- function(input, output, experiment) {
+#' @title Controller for the table pages
+#' @description
+#' @noRd
+.tablePagesController <- function(input, output, experiment) {
     outputLongTable(input, output, experiment)
     outputRowData(input, output, experiment)
     outputColData(input, output, experiment)
@@ -32,7 +41,10 @@ tablePagesController <- function(input, output, experiment) {
     observeAssayTableInputs(input, experiment)
 }
 
-plotPagesController <- function(session, input, output, experiment) {
+#' @title Controller for the plot pages
+#' @description
+#' @noRd
+.plotPagesController <- function(session, input, output, experiment) {
 
     observeConcentrationPlotInputs(input, experiment)
     outputConcentrationPlot(input, output, experiment)
@@ -53,8 +65,10 @@ plotPagesController <- function(session, input, output, experiment) {
     observeCompoundPlotInputs(input, experiment)
 }
 
-exportPageController <- function(input, output, experiment) {
-
+#' @title Controller for the Export page
+#' @description
+#' @noRd
+.exportPageController <- function(input, output, experiment) {
     observeExportAssays(input, experiment)
     observeReportCreation(input, experiment)
     observeDownloadZip(input, output, experiment)

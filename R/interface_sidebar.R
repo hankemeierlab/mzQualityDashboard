@@ -1,3 +1,10 @@
+#' @title Sidebar menu
+#' @description
+#' Creates the sidebar menu for the dashboard.
+#' @details
+#' @importFrom shinydashboard dashboardSidebar menuItem menuSubItem sidebarMenu
+#' @importFrom shiny icon
+#' @noRd
 sidebar <- function() {
     icon <- icon("angles-right", verifa_fa = FALSE)
     dashboardSidebar(

@@ -1,3 +1,10 @@
+#' @title UI for the page that creates compound plots
+#' @description
+#' @details
+#' @importFrom shiny fluidPage selectizeInput selectInput uiOutput div
+#' @importFrom shinyhelper helper
+#' @importFrom shinydashboard box
+#' @noRd
 compoundPlotPage <- function() {
     fluidPage(
         controlsBox(list(
@@ -28,7 +35,12 @@ compoundPlotPage <- function() {
                     label = "Trendlines",
                     choices = c(), multiple = TRUE
                 )),
-                column(3, selectInput("compound_columns", label = "Columns", choices = c(1, 2), multiple = FALSE))
+                column(3, selectInput(
+                    "compound_columns",
+                    label = "Columns",
+                    choices = c(1, 2),
+                    multiple = FALSE)
+                )
             )
         )),
         box(
@@ -40,12 +52,21 @@ compoundPlotPage <- function() {
             # Box items
             # Helper icon for help pages
             div(style = "height: 3vh;") %>%
-                helper(content = "Compound Plot", fade = TRUE, icon = "circle-question"),
+                helper(
+                    content = "Compound Plot",
+                    fade = TRUE,
+                    icon = "circle-question"
+                ),
             uiOutput("compound_plot_ui")
         )
     )
 }
 
+#' @title Page that creates the PCA view
+#' @description
+#' @details
+#' @importFrom shiny fluidPage fluidRow column selectizeInput selectInput
+#' @noRd
 pcaPlotPage <- function() {
     fluidPage(
         controlsBox(list(
@@ -67,24 +88,22 @@ pcaPlotPage <- function() {
                     choices = c(TRUE, FALSE)
                 ))
             )
-            # fluidRow(
-            #     # column(2, numericInput("PCA_X", "Component X-axis", value = 1, min = 1, step = 1)),
-            #     # column(2, numericInput("PCA_Y", "Component Y-axis", value = 2, min = 2, step = 1)),
-            #     column(2, selectizeInput("pca_confidence",
-            #                              label = "95% CI",
-            #                              choices = c(TRUE, FALSE)
-            #     ))
-            # )
         )),
         plotBox("PCA Plot", "pca_plot", "65vh")
     )
 }
 
+#' @title Page that shows the RSDQCs for internal standards
+#' @description
+#' @details
+#' @importFrom shiny fluidPage
+#' @noRd
 rsdqcPlotPage <- function() {
     fluidPage(
         plotBox(
             "Internal Standard - Compound Corrected RSDQCs",
-            "ISheatmap", "80vh"
+            "ISheatmap",
+            "80vh"
         )
     )
 }
@@ -111,6 +130,10 @@ qcPlotPage <- function() {
     )
 }
 
+#' @title Page that creates the concentration plot
+#' @description
+#' @details
+#' @importFrom shiny fluidPage fluidRow column selectizeInput selectInput
 concentrationPlotPage <- function() {
     fluidPage(
         controlsBox(list(
@@ -137,15 +160,13 @@ concentrationPlotPage <- function() {
                     choices = c(),
                     multiple = TRUE
                 )),
-                column(2, checkboxInput("concentrationPlotOnLine", "Plot concentrations on Calibration Line"))
+                column(2, checkboxInput(
+                    "concentrationPlotOnLine",
+                    "Plot concentrations on Calibration Line"
+                ))
             )
         )),
         fluidRow(
-            # column(4, tableBox(
-            #     "Data",
-            #     "concentrationTable",
-            #     height = "65vh"
-            # )),
             column(12, plotBox(
                 "Calibration Model Plot",
                 "concentrationPlot",
@@ -155,6 +176,14 @@ concentrationPlotPage <- function() {
     )
 }
 
+#' @title Page that creates the page for creating the aliquot plot
+#' @description
+#' @details
+#' @importFrom shiny fluidPage fluidRow column selectizeInput selectInput
+#' uiOutput div
+#' @importFrom shinyhelper helper
+#' @importFrom shinydashboard box
+#' @noRd
 aliquotPlotPage <- function() {
     fluidPage(
         controlsBox(list(
@@ -179,10 +208,9 @@ aliquotPlotPage <- function() {
             width = NULL,
             collapsible = TRUE,
 
-            # Box items
-            # Helper icon for help pages
-            div(style = "height: 3vh;") %>%
-                helper(content = "Aliquot Plot", fade = TRUE, icon = "circle-question"),
+            helper(div(style = "height: 3vh;"),
+                   content = "Aliquot Plot",
+                   fade = TRUE, icon = "circle-question"),
             uiOutput("sample_plot_ui")
         )
     )

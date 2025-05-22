@@ -3,9 +3,9 @@
 #' fluidPage tabsetPanel tabPanel column selectInput p downloadButton icon
 #' fileInput fluidRow h4 sliderInput tagList uiOutput checkboxInput
 #' radioButtons
-#' @importFrom shinydashboard dashboardHeader menuItem menuSubItem sidebarMenu
-#' dashboardBody tabItems tabItem dashboardPage dashboardSidebar box
-#' @importFrom waiter useWaiter autoWaiter spin_loaders
+#' @importFrom shinydashboard dashboardHeader dashboardBody tabItems tabItem
+#' dashboardPage
+#' @importFrom waiter autoWaiter transparent spin_loaders
 #' @importFrom shinyhelper helper
 #' @noRd
 ui <- function() {
