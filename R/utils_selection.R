@@ -62,7 +62,6 @@
     exp <- identifyOutliers(exp) %>%
         identifyMisInjections() %>%
         doAnalysis(
-            doAll = TRUE,
             removeOutliers = TRUE,
             useWithinBatch = as.logical(input$useWithinBatch),
             backgroundPercentage = input$backgroundSignal,

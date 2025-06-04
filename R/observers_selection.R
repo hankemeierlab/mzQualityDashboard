@@ -25,7 +25,6 @@
         experiment$use <- useVector
         experiment <- doAnalysis(
                 exp = experiment,
-                doAll = TRUE,
                 removeOutliers = TRUE,
                 useWithinBatch = as.logical(input$useWithinBatch),
                 backgroundPercentage = input$backgroundSignal,

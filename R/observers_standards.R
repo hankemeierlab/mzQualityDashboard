@@ -24,7 +24,6 @@
         x[which(check), ] <-  doAnalysis(
             exp = x[which(check), ],
             removeOutliers = TRUE,
-            doAll = TRUE,
             useWithinBatch = input$useWithinBatch,
             effectNaAsZero = input$effectNaAsZero
         )
