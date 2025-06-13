@@ -17,7 +17,8 @@
         waiter <- .loadingScreen()
         waiter$show()
         if (exampleTest) {
-            exp <- readRDS(system.file(package = "mzQuality", "data.RDS"))
+            path <- system.file("extdata", "example.tsv", package = "mzQuality")
+            exp <- buildExperiment(readData(path))
         } else {
             combined <- .submitDataEvent(input)
             exp <- .buildExperimentEvent(combined)

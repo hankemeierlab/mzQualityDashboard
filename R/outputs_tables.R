@@ -9,8 +9,8 @@
 
                 df <- expToCombined(
                     exp = exp(),
-                    rowIndex = "compound",
-                    colIndex = "aliquot"
+                    compoundColumn = "compound",
+                    aliquotColumn = "aliquot"
                 )
 
                 df <- .combinedTable(df)

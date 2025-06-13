@@ -29,7 +29,7 @@
         exp = exp,
         assay = "ratio_corrected",
         calType = metadata(exp)$concentration,
-        batch = batches,
+        batches = batches,
         plotOnCalibrationLine = plotOnCalibrationLine,
         types = types,
         removeOutliers = TRUE
