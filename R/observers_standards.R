@@ -10,6 +10,7 @@
     observe({
         x <- exp()
         req(isValidExperiment(x))
+        req("compound_is" %in% colnames(rowData(x)))
 
         comp_is <- lapply(seq_len(nrow(x)), function(i) {
             input[[paste0("sel", i)]]

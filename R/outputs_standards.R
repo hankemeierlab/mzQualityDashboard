@@ -9,6 +9,7 @@
     # Current Internal Standard table
     output$IsCurrentTable <- renderDataTable({
         req(isValidExperiment(exp()))
+        req("compound_is" %in% colnames(rowData(exp())))
         .currentInternalStandardTable(exp())
     })
 }
@@ -32,6 +33,7 @@
         x <- isolate(exp())
 
         req(isValidExperiment(x))
+        req("compound_is" %in% colnames(rowData(x)))
 
         df <- .internalStandardTable(
             input = input,
