@@ -12,7 +12,7 @@
         500
     )
 
-    observeEvent(aliquotSelection(), ignoreInit = TRUE, {
+    observeEvent(aliquotSelection(), ignoreInit = TRUE, ignoreNULL = FALSE, {
         experiment <- isolate(exp())
         req(isValidExperiment(experiment))
 
