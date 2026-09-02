@@ -1,8 +1,8 @@
 #' @title Observers for creating reports and zip
 #' @description
 #' @details
-#' @importFrom shiny observeEvent req
-#' @importFrom shinyjs enable disable
+#' @importFrom shiny observeEvent req showModal removeModal
+#' @importFrom shinyjs enable
 #' @importFrom zip zip
 #' @importFrom mzQuality isValidExperiment createReports
 #' @noRd
@@ -10,6 +10,9 @@
 
     observeEvent(input$createZip, {
         req(isValidExperiment(exp()))
+
+        showModal(.generatingModal())
+        on.exit(removeModal(), add = TRUE)
 
         createReports(
             folder = tempdir(),
@@ -32,7 +35,6 @@
         )
 
         enable("download_zip")
-        disable("createZip")
     })
 }
 
@@ -41,7 +43,6 @@
 #' @details
 #' @importFrom shiny req observe updateSelectInput
 #' @importFrom mzQuality isValidExperiment
-#' @importFrom shinyjs toggleState
 #' @importFrom SummarizedExperiment assayNames
 #' @noRd
 .observeExportAssays <- function(input, exp) {
@@ -55,10 +56,6 @@
             selected = c("ratio", "ratio_corrected")
         )
 
-        state <- input$summary_report || input$compound_report
-
-        toggleState("createZip", state)
-        toggleState("download_zip", state)
     })
 }
 
@@ -66,7 +63,6 @@
 #' @description
 #' @details
 #' @importFrom shiny downloadHandler
-#' @importFrom shinyjs enable disable
 #' @noRd
 .observeDownloadZip <- function(input, output, exp) {
 
@@ -76,8 +72,6 @@
             paste0("mzQuality_", Sys.Date(), ".zip")
         },
         content = function(file) {
-            disable("download_zip")
-            enable("createZip")
             file.copy(file.path(tempdir(), "mzQuality.zip"), file)
         }
     )
